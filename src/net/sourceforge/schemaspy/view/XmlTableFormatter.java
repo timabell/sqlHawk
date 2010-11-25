@@ -28,6 +28,7 @@ import net.sourceforge.schemaspy.model.ForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
 import net.sourceforge.schemaspy.model.TableIndex;
+import net.sourceforge.schemaspy.model.View;
 import net.sourceforge.schemaspy.util.DOMUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -105,7 +106,7 @@ public class XmlTableFormatter {
         appendPrimaryKeys(tableNode, table);
         appendIndexes(tableNode, table);
         appendCheckConstraints(tableNode, table);
-        appendView(tableNode, table);
+        appendView(tableNode, (View)table);
     }
 
     /**
@@ -254,7 +255,7 @@ public class XmlTableFormatter {
      * @param tableNode
      * @param table
      */
-    private void appendView(Element tableNode, Table table) {
+    private void appendView(Element tableNode, View table) {
         String sql;
         if (table.isView() && (sql = table.getViewSql()) != null) {
             DOMUtil.appendAttribute(tableNode, "viewSql", sql);

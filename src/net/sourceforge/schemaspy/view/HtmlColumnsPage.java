@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+
 import net.sourceforge.schemaspy.model.Database;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
@@ -139,7 +140,7 @@ public class HtmlColumnsPage extends HtmlFormatter {
 
         html.writeln("<table width='100%' border='0'>");
         html.writeln("<tr><td class='container'>");
-        writeGeneratedBy(db.getConnectTime(), html);
+        writeGeneratedBy(db.getGeneratedDate(), html);
         html.writeln("</td><td class='container' rowspan='2' align='right' valign='top'>");
         writeLegend(false, false, html);
         html.writeln("</td></tr>");

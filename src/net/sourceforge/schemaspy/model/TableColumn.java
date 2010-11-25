@@ -19,31 +19,26 @@
 package net.sourceforge.schemaspy.model;
 
 import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import net.sourceforge.schemaspy.model.xml.TableColumnMeta;
 
 public class TableColumn {
-    private final Table table;
-    private final String name;
-    private final Object id;
-    private final String type;
-    private final int length;
-    private final int decimalDigits;
-    private final String detailedSize;
-    private final boolean isNullable;
+    private Table table;
+    private String name;
+    private Object id;
+    private String type;
+    private int length;
+    private int decimalDigits;
+    private String detailedSize;
+    private boolean isNullable;
     private       boolean isAutoUpdated;
     private       Boolean isUnique;
-    private final Object defaultValue;
+    private Object defaultValue;
     private       String comments;
     private final Map<TableColumn, ForeignKeyConstraint> parents = new HashMap<TableColumn, ForeignKeyConstraint>();
     private final Map<TableColumn, ForeignKeyConstraint> children = new TreeMap<TableColumn, ForeignKeyConstraint>(new ColumnComparator());
@@ -51,66 +46,19 @@ public class TableColumn {
     private boolean allowImpliedChildren = true;
     private boolean isExcluded = false;
     private boolean isAllExcluded = false;
-    private static final Logger logger = Logger.getLogger(TableColumn.class.getName());
-    private static final boolean finerEnabled = logger.isLoggable(Level.FINER);
 
+    public TableColumn() {
+    }
+    
     /**
      * Create a column associated with a table.
-     *
-     * @param table Table the table that this column belongs to
-     * @param rs ResultSet returned from {@link DatabaseMetaData#getColumns(String, String, String, String)}
-     * @throws SQLException
-     */
-    TableColumn(Table table, ResultSet rs, Pattern excludeIndirectColumns, Pattern excludeColumns) throws SQLException {
-        this.table = table;
-
-        // names and types are typically reused *many* times in a database,
-        // so keep a single instance of each distinct one
-        // (thanks to Mike Barnes for the suggestion)
-        String tmp = rs.getString("COLUMN_NAME");
-        name = tmp == null ? null : tmp.intern();
-        tmp = rs.getString("TYPE_NAME");
-        type = tmp == null ? "unknown" : tmp.intern();
-
-        decimalDigits = rs.getInt("DECIMAL_DIGITS");
-        Number bufLength = (Number)rs.getObject("BUFFER_LENGTH");
-        if (bufLength != null && bufLength.shortValue() > 0)
-            length = bufLength.shortValue();
-        else
-            length = rs.getInt("COLUMN_SIZE");
-
-        StringBuilder buf = new StringBuilder();
-        buf.append(length);
-        if (decimalDigits > 0) {
-            buf.append(',');
-            buf.append(decimalDigits);
-        }
-        detailedSize = buf.toString();
-
-        isNullable = rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable;
-        defaultValue = rs.getString("COLUMN_DEF");
-        setComments(rs.getString("REMARKS"));
-        id = new Integer(rs.getInt("ORDINAL_POSITION") - 1);
-
-        isAllExcluded = matches(excludeColumns);
-        isExcluded = isAllExcluded || matches(excludeIndirectColumns);
-        if (isExcluded && finerEnabled) {
-            logger.finer("Excluding column " + getTable() + '.' + getName() +
-                        ": matches " + excludeColumns + ":" + isAllExcluded + " " +
-                        excludeIndirectColumns + ":" + matches(excludeIndirectColumns));
-        }
-    }
-
-    /**
-     * A TableColumn that's derived from something other than traditional database metadata
-     * (e.g. defined in XML).
      *
      * @param table
      * @param colMeta
      */
-    public TableColumn(Table table, TableColumnMeta colMeta) {
+    public TableColumn(Table table, String name, String comments) {
         this.table = table;
-        name = colMeta.getName();
+        this.name = name;
         id = null;
         type = "Unknown";
         length = 0;
@@ -119,7 +67,7 @@ public class TableColumn {
         isNullable = false;
         isAutoUpdated = false;
         defaultValue = null;
-        comments = colMeta.getComments();
+        this.comments = comments;
     }
 
     /**
@@ -444,27 +392,6 @@ public class TableColumn {
     }
 
     /**
-     * Update the state of this column with the supplied {@link TableColumnMeta}.
-     * Intended to be used with instances created by {@link #TableColumn(Table, TableColumnMeta)}.
-     *
-     * @param colMeta
-     */
-    public void update(TableColumnMeta colMeta) {
-        String newComments = colMeta.getComments();
-        if (newComments != null)
-            setComments(newComments);
-
-        if (!isPrimary() && colMeta.isPrimary()) {
-            table.setPrimaryColumn(this);
-        }
-
-        allowImpliedParents  = !colMeta.isImpliedParentsDisabled();
-        allowImpliedChildren = !colMeta.isImpliedChildrenDisabled();
-        isExcluded |= colMeta.isExcluded();
-        isAllExcluded |= colMeta.isAllExcluded();
-    }
-
-    /**
      * Returns the name of this column.
      */
     @Override
@@ -503,4 +430,44 @@ public class TableColumn {
     public boolean allowsImpliedChildren() {
         return allowImpliedChildren;
     }
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setDecimalDigits(int decimalDigits) {
+		this.decimalDigits = decimalDigits;
+	}
+
+	public void setDetailedSize(String detailedSize) {
+		this.detailedSize = detailedSize;
+	}
+
+	public void setNullable(boolean isNullable) {
+		this.isNullable = isNullable;
+	}
+
+	public void setDefaultValue(String defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public void setAllExcluded(boolean isAllExcluded) {
+		this.isAllExcluded = isAllExcluded;
+	}
+
+	public void setExcluded(boolean isExcluded) {
+		this.isExcluded = isExcluded; 
+	}
+
+	public void setAllowsImpliedParents(boolean allowImpliedParents) {
+		this.allowImpliedParents = allowImpliedParents;
+	}
+
+	public void setAllowsImpliedChildren(boolean allowImpliedChildren) {
+		this.allowImpliedChildren = allowImpliedChildren;
+	}
 }

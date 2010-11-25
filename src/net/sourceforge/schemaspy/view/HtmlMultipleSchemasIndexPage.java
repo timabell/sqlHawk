@@ -21,9 +21,9 @@ package net.sourceforge.schemaspy.view;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
 import net.sourceforge.schemaspy.Config;
 import net.sourceforge.schemaspy.util.LineWriter;
 
@@ -61,8 +61,6 @@ public class HtmlMultipleSchemasIndexPage extends HtmlFormatter {
     }
 
     private void writeHeader(String databaseName, DatabaseMetaData meta, int numberOfSchemas, boolean showIds, String aSchema, LineWriter html) throws IOException {
-        String connectTime = new SimpleDateFormat("EEE MMM dd HH:mm z yyyy").format(new Date());
-
         html.writeln("<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN' 'http://www.w3.org/TR/html4/loose.dtd'>");
         html.writeln("<html>");
         html.writeln("<head>");
@@ -94,7 +92,7 @@ public class HtmlMultipleSchemasIndexPage extends HtmlFormatter {
         html.writeln("</table>");
         html.writeln("<table width='100%'>");
         html.writeln(" <tr><td class='container'>");
-        writeGeneratedBy(connectTime, html);
+        writeGeneratedBy(new Date(), html);
         html.writeln(" </td></tr>");
         html.writeln(" <tr>");
         html.write("  <td class='container'>");

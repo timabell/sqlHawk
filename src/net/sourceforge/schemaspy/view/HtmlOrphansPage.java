@@ -106,7 +106,7 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
         writeHeader(db, null, title, true, html);
         html.writeln("<table class='container' width='100%'>");
         html.writeln("<tr><td class='container'>");
-        writeGeneratedBy(db.getConnectTime(), html);
+        writeGeneratedBy(db.getGeneratedDate(), html);
         html.writeln("</td>");
         html.writeln("<td class='container' align='right' valign='top' rowspan='2'>");
         writeLegend(false, html);

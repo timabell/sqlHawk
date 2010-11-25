@@ -121,11 +121,11 @@ public class HtmlMainIndexPage extends HtmlFormatter {
         writeHeader(db, null, null, hasOrphans, javascript, html);
         html.writeln("<table width='100%'>");
         html.writeln(" <tr><td class='container'>");
-        writeGeneratedBy(db.getConnectTime(), html);
+        writeGeneratedBy(db.getGeneratedDate(), html);
         html.writeln(" </td></tr>");
         html.writeln(" <tr>");
         html.write("  <td class='container'>Database Type: ");
-        html.write(db.getDatabaseProduct());
+        html.write(db.getDbms());
         html.writeln("  </td>");
         html.writeln("  <td class='container' align='right' valign='top' rowspan='3'>");
         if (sourceForgeLogoEnabled())

@@ -48,7 +48,6 @@ import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import net.sourceforge.schemaspy.model.InvalidConfigurationException;
 import net.sourceforge.schemaspy.util.DbSpecificConfig;
 import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.view.DefaultSqlFormatter;
@@ -102,6 +101,7 @@ public class Config
     private String sqlFormatterClass;
     private Boolean generateHtml;
     private Boolean sourceControlOutput;
+    private Boolean xmlOutputEnabled;
     private Boolean includeImpliedConstraints;
     private Boolean logoEnabled;
     private Boolean rankDirBugEnabled;
@@ -184,6 +184,12 @@ public class Config
 		return sourceControlOutput;
 	}
 
+	public boolean isXmlOutputEnabled() {
+		if (xmlOutputEnabled == null)
+			xmlOutputEnabled = options.remove("-noXml");
+		return xmlOutputEnabled;
+	}
+	
 	public void setImpliedConstraintsEnabled(boolean includeImpliedConstraints) {
         this.includeImpliedConstraints = includeImpliedConstraints;
     }

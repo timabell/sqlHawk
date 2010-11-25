@@ -18,10 +18,9 @@
  */
 package net.sourceforge.schemaspy;
 
-import net.sourceforge.schemaspy.model.ConnectionFailure;
-import net.sourceforge.schemaspy.model.EmptySchemaException;
-import net.sourceforge.schemaspy.model.InvalidConfigurationException;
-import net.sourceforge.schemaspy.model.ProcessExecutionException;
+import net.sourceforge.schemaspy.db.read.ConnectionFailure;
+import net.sourceforge.schemaspy.db.read.EmptySchemaException;
+import net.sourceforge.schemaspy.db.read.ProcessExecutionException;
 import net.sourceforge.schemaspy.ui.MainFrame;
 
 /**

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import net.sourceforge.schemaspy.Config;
-import net.sourceforge.schemaspy.model.InvalidConfigurationException;
+import net.sourceforge.schemaspy.InvalidConfigurationException;
 import net.sourceforge.schemaspy.util.LineWriter;
 
 /**

@@ -18,13 +18,12 @@
  */
 package net.sourceforge.schemaspy.view;
 
-import java.sql.DatabaseMetaData;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+
 import net.sourceforge.schemaspy.model.Database;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.util.CaseInsensitiveMap;
@@ -36,7 +35,6 @@ import net.sourceforge.schemaspy.util.HtmlEncoder;
  * @author John Currier
  */
 public class DefaultSqlFormatter implements SqlFormatter {
-    private Set<String> keywords;
     private Map<String, Table> tablesByPossibleNames;
     private static String TOKENS = " \t\n\r\f()<>|,";
 
@@ -72,7 +70,7 @@ public class DefaultSqlFormatter implements SqlFormatter {
         {
             formatted.append("  <div class='viewDefinition'>");
             @SuppressWarnings("hiding")
-            Set<String> keywords = getKeywords(db.getMetaData());
+            Set<String> keywords = db.getKeywords();
             StringTokenizer tokenizer = new StringTokenizer(sql, TOKENS, true);
             while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken();
@@ -106,7 +104,7 @@ public class DefaultSqlFormatter implements SqlFormatter {
 
         Map<String, Table> tables = getTableMap(db);
         @SuppressWarnings("hiding")
-        Set<String> keywords = getKeywords(db.getMetaData());
+        Set<String> keywords = db.getKeywords();
 
         StringTokenizer tokenizer = new StringTokenizer(sql, TOKENS, true);
         while (tokenizer.hasMoreTokens()) {
@@ -182,79 +180,4 @@ public class DefaultSqlFormatter implements SqlFormatter {
         return map;
     }
 
-    /**
-     * @param meta
-     * @return
-     */
-    public Set<String> getKeywords(DatabaseMetaData meta) {
-        if (keywords == null) {
-            keywords = new HashSet<String>(Arrays.asList(new String[] {
-                "ABSOLUTE", "ACTION", "ADD", "ALL", "ALLOCATE", "ALTER", "AND",
-                "ANY", "ARE", "AS", "ASC", "ASSERTION", "AT", "AUTHORIZATION", "AVG",
-                "BEGIN", "BETWEEN", "BIT", "BIT_LENGTH", "BOTH", "BY",
-                "CASCADE", "CASCADED", "CASE", "CAST", "CATALOG", "CHAR", "CHARACTER",
-                "CHAR_LENGTH", "CHARACTER_LENGTH", "CHECK", "CLOSE", "COALESCE",
-                "COLLATE", "COLLATION", "COLUMN", "COMMIT", "CONNECT", "CONNECTION",
-                "CONSTRAINT", "CONSTRAINTS", "CONTINUE", "CONVERT", "CORRESPONDING",
-                "COUNT", "CREATE", "CROSS", "CURRENT", "CURRENT_DATE", "CURRENT_TIME",
-                "CURRENT_TIMESTAMP", "CURRENT_USER", "CURSOR",
-                "DATE", "DAY", "DEALLOCATE", "DEC", "DECIMAL", "DECLARE", "DEFAULT",
-                "DEFERRABLE", "DEFERRED", "DELETE", "DESC", "DESCRIBE", "DESCRIPTOR",
-                "DIAGNOSTICS", "DISCONNECT", "DISTINCT", "DOMAIN", "DOUBLE", "DROP",
-                "ELSE", "END", "END - EXEC", "ESCAPE", "EXCEPT", "EXCEPTION", "EXEC",
-                "EXECUTE", "EXISTS", "EXTERNAL", "EXTRACT",
-                "FALSE", "FETCH", "FIRST", "FLOAT", "FOR", "FOREIGN", "FOUND", "FROM", "FULL",
-                "GET", "GLOBAL", "GO", "GOTO", "GRANT", "GROUP",
-                "HAVING", "HOUR",
-                "IDENTITY", "IMMEDIATE", "IN", "INDICATOR", "INITIALLY", "INNER", "INPUT",
-                "INSENSITIVE", "INSERT", "INT", "INTEGER", "INTERSECT", "INTERVAL", "INTO",
-                "IS", "ISOLATION",
-                "JOIN",
-                "KEY",
-                "LANGUAGE", "LAST", "LEADING", "LEFT", "LEVEL", "LIKE", "LOCAL", "LOWER",
-                "MATCH", "MAX", "MIN", "MINUTE", "MODULE", "MONTH",
-                "NAMES", "NATIONAL", "NATURAL", "NCHAR", "NEXT", "NO", "NOT", "NULL",
-                "NULLIF", "NUMERIC",
-                "OCTET_LENGTH", "OF", "ON", "ONLY", "OPEN", "OPTION", "OR", "ORDER",
-                "OUTER", "OUTPUT", "OVERLAPS",
-                "PAD", "PARTIAL", "POSITION", "PRECISION", "PREPARE", "PRESERVE", "PRIMARY",
-                "PRIOR", "PRIVILEGES", "PROCEDURE", "PUBLIC",
-                "READ", "REAL", "REFERENCES", "RELATIVE", "RESTRICT", "REVOKE", "RIGHT",
-                "ROLLBACK", "ROWS",
-                "SCHEMA", "SCROLL", "SECOND", "SECTION", "SELECT", "SESSION", "SESSION_USER",
-                "SET", "SIZE", "SMALLINT", "SOME", "SPACE", "SQL", "SQLCODE", "SQLERROR",
-                "SQLSTATE", "SUBSTRING", "SUM", "SYSTEM_USER",
-                "TABLE", "TEMPORARY", "THEN", "TIME", "TIMESTAMP", "TIMEZONE_HOUR",
-                "TIMEZONE_MINUTE", "TO", "TRAILING", "TRANSACTION", "TRANSLATE",
-                "TRANSLATION", "TRIM", "TRUE",
-                "UNION", "UNIQUE", "UNKNOWN", "UPDATE", "UPPER", "USAGE", "USER", "USING",
-                "VALUE", "VALUES", "VARCHAR", "VARYING", "VIEW",
-                "WHEN", "WHENEVER", "WHERE", "WITH", "WORK", "WRITE",
-                "YEAR",
-                "ZONE"
-            }));
-
-            try {
-                String keywordsArray[] = new String[] {
-                    meta.getSQLKeywords(),
-                    meta.getSystemFunctions(),
-                    meta.getNumericFunctions(),
-                    meta.getStringFunctions(),
-                    meta.getTimeDateFunctions()
-                };
-                for (int i = 0; i < keywordsArray.length; ++i) {
-                    StringTokenizer tokenizer = new StringTokenizer(keywordsArray[i].toUpperCase(), ",");
-
-                    while (tokenizer.hasMoreTokens()) {
-                        keywords.add(tokenizer.nextToken().trim());
-                    }
-                }
-            } catch (Exception exc) {
-                // don't totally fail just because we can't extract these details...
-                System.err.println(exc);
-            }
-        }
-
-        return keywords;
-    }
 }

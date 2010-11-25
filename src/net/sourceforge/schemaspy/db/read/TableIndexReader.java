@@ -16,27 +16,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.sourceforge.schemaspy.model;
+package net.sourceforge.schemaspy.db.read;
 
-/**
- * Treat views as tables that have no rows and are represented by the SQL that
- * defined them.
- */
-public class View extends Table {
-    private String viewSql;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-	public View(String schema, String name, String comments, String viewSql) {
-		super(schema, name, comments);
-		super.setNumRows(0); // no rows in views. probably should be null but leaving as zero for now to not break calling code.
-		this.viewSql = viewSql;
-    }
+import net.sourceforge.schemaspy.model.TableIndex;
 
-    @Override
-    public boolean isView() {
-        return true;
-    }
+public class TableIndexReader {
 
-    public String getViewSql() {
-        return viewSql;
+    /**
+     * @param rs
+     * @throws java.sql.SQLException
+     */
+    public static TableIndex ReadTableIndex(ResultSet rs) throws SQLException {
+        String name = rs.getString("INDEX_NAME");
+        boolean isUnique = !rs.getBoolean("NON_UNIQUE");
+    	return new TableIndex(name, isUnique);
     }
 }

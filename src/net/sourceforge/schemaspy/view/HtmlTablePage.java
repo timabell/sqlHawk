@@ -87,7 +87,8 @@ public class HtmlTablePage extends HtmlFormatter {
         out.writeln("</td></tr></table>");
         writeCheckConstraints(table, out);
         writeIndexes(table, out);
-        writeView(table, db, out);
+        
+        writeView((View)table, db, out);
         writeDiagram(table, stats, diagramsDir, out);
         writeFooter(out);
 
@@ -292,7 +293,7 @@ public class HtmlTablePage extends HtmlFormatter {
         } else {
             out.write("Analyzed at ");
         }
-        out.write(db.getConnectTime());
+        out.write(formatDate(db.getGeneratedDate()));
         out.writeln("<p/>");
     }
 
@@ -411,42 +412,41 @@ public class HtmlTablePage extends HtmlFormatter {
         }
     }
 
-    private void writeView(Table table, Database db, LineWriter out) throws IOException {
-        String sql;
-        if (table.isView() && (sql = table.getViewSql()) != null) {
-            Map<String, Table> tables = new CaseInsensitiveMap<Table>();
+    private void writeView(View table, Database db, LineWriter out) throws IOException {
+        String sql = table.getViewSql();
+        if (sql == null)
+        	return;
+        Map<String, Table> tables = new CaseInsensitiveMap<Table>();
 
-            for (Table t : db.getTables())
-                tables.put(t.getName(), t);
-            for (View v : db.getViews())
-                tables.put(v.getName(), v);
+        for (Table t : db.getTables())
+            tables.put(t.getName(), t);
+        for (View v : db.getViews())
+            tables.put(v.getName(), v);
 
-            Set<Table> references = new TreeSet<Table>();
-            String formatted = Config.getInstance().getSqlFormatter().format(sql, db, references);
+        Set<Table> references = new TreeSet<Table>();
+        String formatted = Config.getInstance().getSqlFormatter().format(sql, db, references);
 
-            out.writeln("<div class='indent spacer'>");
-            out.writeln("  View Definition:");
-            out.writeln(formatted);
-            out.writeln("</div>");
-            out.writeln("<div class='spacer'>&nbsp;</div>");
+        out.writeln("<div class='indent spacer'>");
+        out.writeln("  View Definition:");
+        out.writeln(formatted);
+        out.writeln("</div>");
+        out.writeln("<div class='spacer'>&nbsp;</div>");
 
-            if (!references.isEmpty()) {
-                out.writeln("<div class='indent'>");
-                out.writeln("  Possibly Referenced Tables/Views:");
-                out.writeln("  <div class='viewReferences'>");
-                out.write("  ");
-                for (Table t : references) {
-                    out.write("<a href='");
-                    out.write(t.getName());
-                    out.write(".html'>");
-                    out.write(t.getName());
-                    out.write("</a>&nbsp;");
-                }
-
-                out.writeln("  </div>");
-                out.writeln("</div><p/>");
+        if (!references.isEmpty()) {
+            out.writeln("<div class='indent'>");
+            out.writeln("  Possibly Referenced Tables/Views:");
+            out.writeln("  <div class='viewReferences'>");
+            out.write("  ");
+            for (Table t : references) {
+                out.write("<a href='");
+                out.write(t.getName());
+                out.write(".html'>");
+                out.write(t.getName());
+                out.write("</a>&nbsp;");
             }
 
+            out.writeln("  </div>");
+            out.writeln("</div><p/>");
         }
     }
 

@@ -16,27 +16,41 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.sourceforge.schemaspy.model;
+package net.sourceforge.schemaspy.db.read;
 
 /**
- * Treat views as tables that have no rows and are represented by the SQL that
- * defined them.
+ * Indicates that we couldn't connect to the database
+ *
+ * @author John Currier
  */
-public class View extends Table {
-    private String viewSql;
-
-	public View(String schema, String name, String comments, String viewSql) {
-		super(schema, name, comments);
-		super.setNumRows(0); // no rows in views. probably should be null but leaving as zero for now to not break calling code.
-		this.viewSql = viewSql;
+public class ConnectionFailure extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+    /**
+     * When a message is sufficient
+     *
+     * @param msg
+     */
+    public ConnectionFailure(String msg) {
+        super(msg);
     }
 
-    @Override
-    public boolean isView() {
-        return true;
+    /**
+     * When there's an associated root cause.
+     * The resultant msg will be a combination of <code>msg</code> and cause's <code>msg</code>.
+     *
+     * @param msg
+     * @param cause
+     */
+    public ConnectionFailure(String msg, Throwable cause) {
+        super(msg + " " + cause.getMessage(), cause);
     }
 
-    public String getViewSql() {
-        return viewSql;
+    /**
+     * When there are no details other than the root cause
+     *
+     * @param cause
+     */
+    public ConnectionFailure(Throwable cause) {
+        super(cause);
     }
 }

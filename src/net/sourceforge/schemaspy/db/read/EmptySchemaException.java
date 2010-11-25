@@ -16,27 +16,22 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-package net.sourceforge.schemaspy.model;
+package net.sourceforge.schemaspy.db.read;
 
 /**
- * Treat views as tables that have no rows and are represented by the SQL that
- * defined them.
+ * Indicates that we attempted to evaluate an empty schema
+ *
+ * @author John Currier
  */
-public class View extends Table {
-    private String viewSql;
+public class EmptySchemaException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
 
-	public View(String schema, String name, String comments, String viewSql) {
-		super(schema, name, comments);
-		super.setNumRows(0); // no rows in views. probably should be null but leaving as zero for now to not break calling code.
-		this.viewSql = viewSql;
-    }
-
-    @Override
-    public boolean isView() {
-        return true;
-    }
-
-    public String getViewSql() {
-        return viewSql;
+    /**
+     * When a message is sufficient
+     *
+     * @param msg
+     */
+    public EmptySchemaException() {
+        super();
     }
 }

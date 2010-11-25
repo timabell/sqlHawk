@@ -18,8 +18,6 @@
  */
 package net.sourceforge.schemaspy.model;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,9 +34,9 @@ public class TableIndex implements Comparable<TableIndex> {
      * @param rs
      * @throws java.sql.SQLException
      */
-    public TableIndex(ResultSet rs) throws SQLException {
-        name = rs.getString("INDEX_NAME");
-        isUnique = !rs.getBoolean("NON_UNIQUE");
+    public TableIndex(String name, boolean isUnique) {
+        this.name = name;
+        this.isUnique = isUnique;
     }
 
     public void setId(Object id) {
@@ -53,7 +51,7 @@ public class TableIndex implements Comparable<TableIndex> {
         return name;
     }
 
-    void addColumn(TableColumn column, String sortOrder) {
+    public void addColumn(TableColumn column, String sortOrder) {
         if (column != null) {
             columns.add(column);
             columnsAscending.add(Boolean.valueOf(sortOrder == null || sortOrder.equals("A")));

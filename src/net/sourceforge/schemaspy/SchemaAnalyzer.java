@@ -39,23 +39,18 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import net.sourceforge.schemaspy.model.ConnectionFailure;
+import net.sourceforge.schemaspy.db.read.ConnectionFailure;
+import net.sourceforge.schemaspy.db.read.DbReader;
+import net.sourceforge.schemaspy.db.read.EmptySchemaException;
 import net.sourceforge.schemaspy.model.Database;
-import net.sourceforge.schemaspy.model.EmptySchemaException;
 import net.sourceforge.schemaspy.model.ForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.ImpliedForeignKeyConstraint;
-import net.sourceforge.schemaspy.model.InvalidConfigurationException;
-import net.sourceforge.schemaspy.model.Proc;
+import net.sourceforge.schemaspy.model.Procedure;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
 import net.sourceforge.schemaspy.model.xml.SchemaMeta;
 import net.sourceforge.schemaspy.util.ConnectionURLBuilder;
-import net.sourceforge.schemaspy.util.DOMUtil;
 import net.sourceforge.schemaspy.util.DbSpecificOption;
 import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.util.LineWriter;
@@ -74,9 +69,7 @@ import net.sourceforge.schemaspy.view.ImageWriter;
 import net.sourceforge.schemaspy.view.StyleSheet;
 import net.sourceforge.schemaspy.view.TextFormatter;
 import net.sourceforge.schemaspy.view.WriteStats;
-import net.sourceforge.schemaspy.view.XmlTableFormatter;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import net.sourceforge.schemaspy.xml.write.xmlWriter;
 
 /**
  * @author John Currier
@@ -93,9 +86,7 @@ public class SchemaAnalyzer {
             File outputDir = setupOuputDir(config);
             if (processMultipleSchemas(config, outputDir))
             	return null;
-            String dbName = config.getDb();
-            String schema = config.getSchema();
-            Database db = readDb(config, dbName, schema);
+            Database db = readDb(config, config.getDb(), config.getSchema());
             long start = System.currentTimeMillis();
             long startDiagrammingDetails = start; //set a value so that initialised if html not run
             if (config.isHtmlGenerationEnabled()) {
@@ -103,8 +94,9 @@ public class SchemaAnalyzer {
 						db);
             }
             if (config.isSourceControlOutputEnabled())
-	        	writeForSourceControl(outputDir, dbName, schema, db);
-			writeXml(outputDir, dbName, schema, db);
+	        	writeForSourceControl(outputDir, db);
+            if (config.isXmlOutputEnabled())
+            	xmlWriter.writeXml(outputDir, db);
             writeOrderingFiles(outputDir, db);
             int tableCount = db.getTables().size() + db.getViews().size();
             if (config.isHtmlGenerationEnabled()) {
@@ -119,16 +111,15 @@ public class SchemaAnalyzer {
         }
     }
 
-	private void writeForSourceControl(File outputDir, String dbName,
-			String schema, Database db) throws IOException {
+	private void writeForSourceControl(File outputDir, Database db) throws IOException {
 		File procFolder = new File(outputDir, "Procedures");
 		if (!procFolder.isDirectory()) {
 		    if (!procFolder.mkdirs()) {
 		        throw new IOException("Failed to create directory '" + procFolder + "'");
 		    }
 		}
-		Collection<Proc> procs = db.getProcs();
-		for (Proc proc : procs) {
+		Collection<Procedure> procs = db.getProcs();
+		for (Procedure proc : procs) {
 			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), Config.DOT_CHARSET);
 			out.write(proc.getDefinition());
 			out.close();		
@@ -201,7 +192,8 @@ public class SchemaAnalyzer {
         logger.info("Gathering schema details");
         if (!fineEnabled)
             System.out.print("Gathering schema details...");
-        Database db = new Database(config, connection, meta, dbName, schema, properties, schemaMeta);
+        DbReader reader = new DbReader();
+        Database db = reader.Read(config, connection, meta, dbName, schema, properties, schemaMeta);
 
         schemaMeta = null; // done with it so let GC reclaim it
 
@@ -236,12 +228,6 @@ public class SchemaAnalyzer {
 
         connection = getConnection(config, urlBuilder.getConnectionURL(), driverClass, driverPath);
 		return connection;
-	}
-    
-	private Collection<Table> getTablesAndViews(Database db) {
-		Collection<Table> tablesAndViews = new ArrayList<Table>(db.getTables());
-        tablesAndViews.addAll(db.getViews());
-		return tablesAndViews;
 	}
 
 	private File setupOuputDir(Config config) throws IOException {
@@ -340,38 +326,6 @@ public class SchemaAnalyzer {
 		}
 	}
 
-	private void writeXml(File outputDir, String dbName, String schema,
-			Database db)
-			throws ParserConfigurationException, UnsupportedEncodingException,
-			FileNotFoundException, TransformerException, IOException {
-		LineWriter out;
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		Document document = builder.newDocument();
-		Element rootNode = document.createElement("database");
-		document.appendChild(rootNode);
-		DOMUtil.appendAttribute(rootNode, "name", dbName);
-		if (schema != null)
-		    DOMUtil.appendAttribute(rootNode, "schema", schema);
-		DOMUtil.appendAttribute(rootNode, "type", db.getDatabaseProduct());
-
-		Collection<Table> tablesAndViews = getTablesAndViews(db);
-		XmlTableFormatter.getInstance().appendTables(rootNode, tablesAndViews);
-
-		String xmlName = dbName;
-
-		// some dbNames have path info in the name...strip it
-		xmlName = new File(xmlName).getName();
-
-		if (schema != null)
-		    xmlName += '.' + schema;
-
-		out = new LineWriter(new File(outputDir, xmlName + ".xml"), Config.DOT_CHARSET);
-		document.getDocumentElement().normalize();
-		DOMUtil.printDOM(document, out);
-		out.close();
-	}
-
 	private long writeHtml(Config config, long start, File outputDir,
 			Database db) throws IOException,
 			UnsupportedEncodingException, FileNotFoundException {
@@ -397,7 +351,7 @@ public class SchemaAnalyzer {
 		ResourceWriter.getInstance().writeResource("/schemaSpy.js", new File(outputDir, "/schemaSpy.js"));
 		if (!fineEnabled)
 		    System.out.print(".");
-		Collection<Table> tablesAndViews = getTablesAndViews(db);
+		Collection<Table> tablesAndViews = db.getTablesAndViews();
 		boolean showDetailedTables = tablesAndViews.size() <= config.getMaxDetailedTables();
 		final boolean includeImpliedConstraints = config.isImpliedConstraintsEnabled();
 
