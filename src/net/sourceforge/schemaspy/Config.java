@@ -101,6 +101,7 @@ public class Config
     private SqlFormatter sqlFormatter;
     private String sqlFormatterClass;
     private Boolean generateHtml;
+    private Boolean sourceControlOutput;
     private Boolean includeImpliedConstraints;
     private Boolean logoEnabled;
     private Boolean rankDirBugEnabled;
@@ -177,7 +178,13 @@ public class Config
         return generateHtml;
     }
 
-    public void setImpliedConstraintsEnabled(boolean includeImpliedConstraints) {
+	public boolean isSourceControlOutputEnabled() {
+		if (sourceControlOutput == null)
+			sourceControlOutput = options.remove("-scm");
+		return sourceControlOutput;
+	}
+
+	public void setImpliedConstraintsEnabled(boolean includeImpliedConstraints) {
         this.includeImpliedConstraints = includeImpliedConstraints;
     }
 

@@ -50,6 +50,7 @@ import net.sourceforge.schemaspy.model.EmptySchemaException;
 import net.sourceforge.schemaspy.model.ForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.ImpliedForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.InvalidConfigurationException;
+import net.sourceforge.schemaspy.model.Proc;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
 import net.sourceforge.schemaspy.model.xml.SchemaMeta;
@@ -101,6 +102,8 @@ public class SchemaAnalyzer {
                 startDiagrammingDetails = writeHtml(config, start, outputDir,
 						db);
             }
+            if (config.isSourceControlOutputEnabled())
+	        	writeForSourceControl(outputDir, dbName, schema, db);
 			writeXml(outputDir, dbName, schema, db);
             writeOrderingFiles(outputDir, db);
             int tableCount = db.getTables().size() + db.getViews().size();
@@ -115,6 +118,22 @@ public class SchemaAnalyzer {
             return null;
         }
     }
+
+	private void writeForSourceControl(File outputDir, String dbName,
+			String schema, Database db) throws IOException {
+		File procFolder = new File(outputDir, "Procedures");
+		if (!procFolder.isDirectory()) {
+		    if (!procFolder.mkdirs()) {
+		        throw new IOException("Failed to create directory '" + procFolder + "'");
+		    }
+		}
+		Collection<Proc> procs = db.getProcs();
+		for (Proc proc : procs) {
+			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), Config.DOT_CHARSET);
+			out.write(proc.getDefinition());
+			out.close();		
+		}
+	}
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
 			throws IOException, SQLException, FileNotFoundException {

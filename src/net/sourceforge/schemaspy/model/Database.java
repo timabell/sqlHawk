@@ -53,6 +53,7 @@ public class Database {
     private final Map<String, Table> tables = new CaseInsensitiveMap<Table>();
     private final Map<String, View> views = new CaseInsensitiveMap<View>();
     private final Map<String, Table> remoteTables = new CaseInsensitiveMap<Table>(); // key: schema.tableName value: RemoteTable
+    private final Map<String, Proc> procs = new CaseInsensitiveMap<Proc>();
     private final DatabaseMetaData meta;
     private final Connection connection;
     private final String connectTime = new SimpleDateFormat("EEE MMM dd HH:mm z yyyy").format(new Date());
@@ -79,12 +80,45 @@ public class Database {
         initTableColumnComments(properties);
         initViewComments(properties);
         initViewColumnComments(properties);
+        initStoredProcedures(properties);
 
         connectTables();
         updateFromXmlMetadata(schemaMeta);
     }
 
-    public String getName() {
+    private void initStoredProcedures(Properties properties) throws SQLException {
+        String sql = properties.getProperty("selectStoredProcsSql");
+        if (sql == null)
+        	return; 
+        
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = prepareStatement(sql, null);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String procName = rs.getString("name");
+                String procDefinition = rs.getString("definition");
+                Proc proc = new Proc(schema, procName, procDefinition);
+                this.procs.put(procName, proc);
+            }
+        } catch (SQLException sqlException) {
+            // don't die just because this failed
+            System.err.println();
+            System.err.println("Failed to retrieve table/view comments: " + sqlException);
+            System.err.println(sql);
+        } finally {
+            if (rs != null)
+                rs.close();
+            if (stmt != null)
+                stmt.close();
+        }
+        
+	}
+
+	public String getName() {
         return databaseName;
     }
 
@@ -1091,4 +1125,8 @@ public class Database {
             }
         }
     }
+
+	public Collection<Proc> getProcs() {
+		return procs.values();
+	}
 }
