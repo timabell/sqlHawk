@@ -19,6 +19,8 @@
       </fileset>
       <manifest>
         <attribute name="Main-Class" value="net.sourceforge.schemaspy.Main"/>
+      	<attribute name="Implementation-Version" 
+      	                     value="${version}"/> 
       </manifest>
     </jar>
     <jar compress="true" destfile="${dist}/schemaSpy_source.jar">
@@ -57,11 +59,17 @@
     />
   </target>
 
-  <target name="revision" depends="compile">
-    <echo>Extracting revision information</echo>
-    <java classname="net.sourceforge.schemaspy.Revision" classpath="output">
-      <arg value="output"/>
-    </java>
+  <target name="revision" >
+    <exec executable="git" outputproperty="git.tag">
+      <arg value="describe"/>
+    </exec>
+    <exec executable="git" outputproperty="git.hash">
+      <arg value="log"/>
+        <arg value="--pretty=%h %ci"/>
+        <arg value="-n 1"/>
+      <arg value="HEAD"/>
+    </exec>
+    <property name="version" value="${git.tag} ${git.hash}"/>
   </target>
 
   <target name="make" depends="compile,revision,archive"/>

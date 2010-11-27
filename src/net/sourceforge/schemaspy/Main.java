@@ -32,7 +32,7 @@ public class Main {
             new MainFrame().setVisible(true);
             return;
         }
-
+        System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
         SchemaAnalyzer analyzer = new SchemaAnalyzer();
 
         int rc = 1;
