@@ -12,7 +12,7 @@
     <exclude name="dependency cache/"/>
   </patternset>
   <target name="archive" depends="resource">
-    <jar compress="true" destfile="${dist}/schemaSpy.jar" manifest="${src}/META-INF/MANIFEST.MF">
+    <jar compress="true" destfile="${dist}/sqlHawk-.jar" manifest="${src}/META-INF/MANIFEST.MF">
       <fileset dir="${dest}">
         <patternset refid="dest.exclude"/>
         <include name="**/*.*"/>
@@ -23,13 +23,12 @@
       	                     value="${version}"/> 
       </manifest>
     </jar>
-    <jar compress="true" destfile="${dist}/schemaSpy_source.jar">
+    <jar compress="true" destfile="${dist}/sqlHawk_source.jar">
       <fileset dir="${src}"/>
     </jar>
   </target>
   <target name="clean">
-    <delete file="${dist}/schemaSpy.jar"/>
-    <delete file="${dist}/schemaSpy_source.jar"/>
+    <delete file="${dist}/*.jar"/>
     <delete failonerror="false" includeemptydirs="true">
       <fileset dir="${dest}"/>
     </delete>
