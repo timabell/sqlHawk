@@ -19,23 +19,19 @@
 package net.sourceforge.schemaspy;
 
 import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.DatabaseMetaData;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
@@ -89,7 +85,6 @@ public class Config
     private String userConnectionPropertiesFile;
     private Properties userConnectionProperties;
     private Integer maxDbThreads;
-    private Integer maxDetailedTables;
     private String css;
     private String charset;
     private String font;
@@ -99,10 +94,7 @@ public class Config
     private Level logLevel;
     private SqlFormatter sqlFormatter;
     private String sqlFormatterClass;
-    private Boolean meterEnabled;
-    private Boolean evaluteAll;
     private Boolean highQuality;
-    private Boolean lowQuality;
     private String schemaSpec;  // used in conjunction with evaluateAll
     public static final String DOT_CHARSET = "UTF-8";
     private static final String ESCAPED_EQUALS = "\\=";
@@ -147,6 +139,8 @@ public class Config
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this optino to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
 				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
+				new Switch("high-quality", JSAP.NO_SHORTFLAG, "high-quality", "Use a high quality 'dot' renderer. Higher quality output takes longer to generate and results in significantly larger image files (which take longer to download / display), but it generally looks better."),
+				new FlaggedOption("renderer", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "renderer", "Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified at http://www.graphviz.org/doc/info/command.html Note that the leading ':' is required while :formatter is optional. The default renderer is typically GD. Note that using the high-quality option is the preferred approach over using this option."),
 				new FlaggedOption("css", JSAP.STRING_PARSER, "schemaSpy.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within schemaSpy.css."),
 				new FlaggedOption("schema-description", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-description", "Description of schema that gets display on main html pages."),
 				new FlaggedOption("charset", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "charset", "The character set to use within HTML pages. Default is 'ISO-8859-1')."),
@@ -155,6 +149,8 @@ public class Config
 				new FlaggedOption("indirect-column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "indirect-column-exclusion-pattern", "Set the columns to exclude from relationship diagrams where the specified columns aren't directly referenced by the focal table. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
 				new FlaggedOption("table-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "table-inclusion-pattern", "Set the tables to include in analysis. Regular expression for matching table names. By default everything is included."), // default value matches anything, i.e. everything included
 				new FlaggedOption("table-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "table-exclusion-pattern", "Set the tables to exclude from analysis. Regular expression for matching table names."), // default value matches nothing, i.e. everything included
+				new FlaggedOption("sql-formatter", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "sql-formatter", "The name of the SQL formatter class to use to format SQL into HTML. The implementation of the class must be made available to the class loader, typically by specifying the path to its jar with option '-dp'"),
+				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
 				new Switch("sso", JSAP.NO_SHORTFLAG, "sso", "Use single-signon when connecting to the database."),
 				new Switch("pfp", JSAP.NO_SHORTFLAG, "pfp", "Prompt For Password to use when connecting to the database."),
 				new Switch("no-implied", JSAP.NO_SHORTFLAG, "no-implied", "Don't add implied relationships."),
@@ -164,6 +160,7 @@ public class Config
 				new Switch("db-help", JSAP.NO_SHORTFLAG, "db-help", "Show database specific usage information."),
 				new Switch("no-schema", JSAP.NO_SHORTFLAG, "no-schema", "Some databases types (e.g. older versions of Informix) don't really have the concept of a schema but still return true from 'supportsSchemasInTableDefinitions()'. This option lets you ignore that and treat all the tables as if they were in one flat namespace."),
 				new Switch("all", JSAP.NO_SHORTFLAG, "all", "Output all the available schemas"),
+				new FlaggedOption("schema-spec", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-spec", "When -all is specified then this is the regular expression that determines which schemas to evaluate."),
 				new Switch("no-logo", JSAP.NO_SHORTFLAG, "no-logo", "Supress inclusion of SourceForge logo in html output."),
 				new Switch("rankdirbug", JSAP.NO_SHORTFLAG, "rankdirbug", "Don't use this unless absolutely necessary as it screws up the layout. Changes dot's rank direction rankdir to right-to-left (RL). See http://www.graphviz.org/doc/info/attrs.html#d:rankdir"),
 				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
@@ -715,32 +712,24 @@ public class Config
     public SqlFormatter getSqlFormatter() throws InvalidConfigurationException {
         if (sqlFormatter == null) {
             if (sqlFormatterClass == null) {
-                sqlFormatterClass = pullParam("-sqlFormatter");
-
-                if (sqlFormatterClass == null)
+            	if (jsapConfig.userSpecified("sql-formatter"))
+            		sqlFormatterClass = jsapConfig.getString("sql-formatter");
+            	else
                     sqlFormatterClass = DefaultSqlFormatter.class.getName();
             }
-
             try {
                 Class<SqlFormatter> clazz = (Class<SqlFormatter>)Class.forName(sqlFormatterClass);
                 sqlFormatter = clazz.newInstance();
             } catch (Exception exc) {
                 throw new InvalidConfigurationException("Failed to initialize instance of SQL formatter: ", exc)
-                            .setParamName("-sqlFormatter");
+                            .setParamName("sql-formatter");
             }
         }
-
         return sqlFormatter;
     }
 
-    public void setEvaluateAllEnabled(boolean enabled) {
-        evaluteAll = enabled;
-    }
-
     public boolean isEvaluateAllEnabled() {
-        if (evaluteAll == null)
-            evaluteAll = options.remove("-all");
-        return evaluteAll;
+        return jsapConfig.getBoolean("all");
     }
 
     /**
@@ -757,17 +746,10 @@ public class Config
     /**
      * When -all (evaluateAll) is specified then this is the regular
      * expression that determines which schemas to evaluate.
-     *
-     * @param schemaSpec
      */
-    public void setSchemaSpec(String schemaSpec) {
-        this.schemaSpec = schemaSpec;
-    }
-
     public String getSchemaSpec() {
         if (schemaSpec == null)
-            schemaSpec = pullParam("-schemaSpec");
-
+            schemaSpec = jsapConfig.getString("schema-spec");
         return schemaSpec;
     }
 
@@ -789,10 +771,9 @@ public class Config
      * @return
      */
     public String getRenderer() {
-        String renderer = pullParam("-renderer");
+        String renderer = jsapConfig.getString("renderer");
         if (renderer != null)
             setRenderer(renderer);
-
         return Dot.getInstance().getRenderer();
     }
 
@@ -809,7 +790,6 @@ public class Config
      */
     public void setHighQuality(boolean highQuality) {
         this.highQuality = highQuality;
-        lowQuality = !highQuality;
         Dot.getInstance().setHighQuality(highQuality);
     }
 
@@ -818,31 +798,14 @@ public class Config
      */
     public boolean isHighQuality() {
         if (highQuality == null) {
-            highQuality = options.remove("-hq");
+            highQuality = jsapConfig.getBoolean("high-quality");
             if (highQuality) {
                 // use whatever is the default unless explicitly specified otherwise
                 Dot.getInstance().setHighQuality(highQuality);
             }
         }
-
         highQuality = Dot.getInstance().isHighQuality();
         return highQuality;
-    }
-
-    /**
-     * @see #setHighQuality(boolean)
-     */
-    public boolean isLowQuality() {
-        if (lowQuality == null) {
-            lowQuality = options.remove("-lq");
-            if (lowQuality) {
-                // use whatever is the default unless explicitly specified otherwise
-                Dot.getInstance().setHighQuality(!lowQuality);
-            }
-        }
-
-        lowQuality = !Dot.getInstance().isHighQuality();
-        return lowQuality;
     }
 
     /**
@@ -890,14 +853,14 @@ public class Config
      */
     public Level getLogLevel() {
         if (logLevel == null) {
-            setLogLevel(pullParam("-loglevel"));
+            setLogLevel(jsapConfig.getString("log-level"));
         }
 
         return logLevel;
     }
 
     public boolean isDbHelpRequired() {
-        return false;// dbHelpRequired;
+        return jsapConfig.getBoolean("db-help");// dbHelpRequired;
     }
 
     public static String getLoadedFromJar() {
@@ -986,25 +949,6 @@ public class Config
         if (dbPropertiesLoadedFrom == null)
             getDbProperties(getDbType());
         return dbPropertiesLoadedFrom;
-    }
-
-    public List<String> getRemainingParameters()
-    {
-        try {
-            populate();
-        } catch (IllegalArgumentException exc) {
-            throw new InvalidConfigurationException(exc);
-        } catch (IllegalAccessException exc) {
-            throw new InvalidConfigurationException(exc);
-        } catch (InvocationTargetException exc) {
-            if (exc.getCause() instanceof InvalidConfigurationException)
-                throw (InvalidConfigurationException)exc.getCause();
-            throw new InvalidConfigurationException(exc.getCause());
-        } catch (IntrospectionException exc) {
-            throw new InvalidConfigurationException(exc);
-        }
-
-        return options;
     }
 
     /**
@@ -1127,160 +1071,7 @@ public class Config
         return null;
     }
 
-    /**
-     * Return all of the configuration options as a List of Strings, with
-     * each parameter and its value as a separate element.
-     *
-     * @return
-     * @throws IOException
-     */
-    public List<String> asList() throws IOException {
-        List<String> params = new ArrayList<String>();
-
-        if (originalDbSpecificOptions != null) {
-            for (String key : originalDbSpecificOptions.keySet()) {
-                String value = originalDbSpecificOptions.get(key);
-                if (!key.startsWith("-"))
-                    key = "-" + key;
-                params.add(key);
-                params.add(value);
-            }
-        }
-        if (isEncodeCommentsEnabled())
-            params.add("-ahic");
-        if (isEvaluateAllEnabled())
-            params.add("-all");
-        if (!isHtmlGenerationEnabled())
-            params.add("-nohtml");
-        if (!isImpliedConstraintsEnabled())
-            params.add("-noimplied");
-        if (!isLogoEnabled())
-            params.add("-nologo");
-        if (isMeterEnabled())
-            params.add("-meter");
-        if (!isNumRowsEnabled())
-            params.add("-norows");
-        if (!isViewsEnabled())
-            params.add("-noviews");
-        if (isRankDirBugEnabled())
-            params.add("-rankdirbug");
-        if (isRailsEnabled())
-            params.add("-rails");
-        if (isSingleSignOn())
-            params.add("-sso");
-        if (isSchemaDisabled())
-            params.add("-noschema");
-
-        String value = getDriverPath();
-        if (value != null) {
-            params.add("-dp");
-            params.add(value);
-        }
-        params.add("-css");
-        params.add(getCss());
-        params.add("-charset");
-        params.add(getCharset());
-        params.add("-font");
-        params.add(getFont());
-        params.add("-fontsize");
-        params.add(String.valueOf(getFontSize()));
-        params.add("-t");
-        params.add(getDbType());
-        params.add("-renderer");  // instead of -hq and/or -lq
-        params.add(getRenderer());
-        value = getDescription();
-        if (value != null) {
-            params.add("-desc");
-            params.add(value);
-        }
-        value = getPassword();
-        if (value != null) {
-            params.add("-p");
-            params.add(value);
-        }
-        if (isPromptForPasswordEnabled())
-            params.add("-pfp");
-        value = getSchema();
-        if (value != null) {
-            params.add("-s");
-            params.add(value);
-        }
-        value = getUser();
-        if (value != null) {
-            params.add("-u");
-            params.add(value);
-        }
-        value = getConnectionPropertiesFile();
-        if (value != null) {
-            params.add("-connprops");
-            params.add(value);
-        } else {
-            Properties props = getConnectionProperties();
-            if (!props.isEmpty() ) {
-                params.add("-connprops");
-                StringBuilder buf = new StringBuilder();
-                for (Entry<Object, Object> entry : props.entrySet()) {
-                    buf.append(entry.getKey());
-                    buf.append(ESCAPED_EQUALS);
-                    buf.append(entry.getValue());
-                    buf.append(';');
-                }
-                params.add(buf.toString());
-            }
-        }
-        value = getDb();
-        if (value != null) {
-            params.add("-db");
-            params.add(value);
-        }
-        value = getHost();
-        if (value != null) {
-            params.add("-host");
-            params.add(value);
-        }
-        if (getPort() != null) {
-            params.add("-port");
-            params.add(getPort().toString());
-        }
-        value = getServer();
-        if (value != null) {
-            params.add("-server");
-            params.add(value);
-        }
-        value = getMeta();
-        if (value != null) {
-            params.add("-meta");
-            params.add(value);
-        }
-        if (getGraphvizDir() != null) {
-            params.add("-gv");
-            params.add(getGraphvizDir().toString());
-        }
-        params.add("-loglevel");
-        params.add(getLogLevel().toString().toLowerCase());
-        params.add("-sqlFormatter");
-        params.add(getSqlFormatter().getClass().getName());
-        params.add("-i");
-        params.add(getTableInclusions().pattern());
-        params.add("-I");
-        params.add(getTableExclusions().pattern());
-        params.add("-x");
-        params.add(getColumnExclusions().pattern());
-        params.add("-X");
-        params.add(getIndirectColumnExclusions().pattern());
-        params.add("-dbthreads");
-        params.add(String.valueOf(getMaxDbThreads()));
-        params.add("-maxdet");
-        params.add(String.valueOf(getMaxDetailedTables()));
-        params.add("-o");
-        params.add(getOutputDir().toString());
-
-        return params;
-    }
-
-
     public boolean isShowDetailedTablesEnabled() {
 		return !jsapConfig.getBoolean("compact-relationship-diagram");
 	}
-
 }

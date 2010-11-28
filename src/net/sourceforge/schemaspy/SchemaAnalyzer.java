@@ -51,7 +51,6 @@ import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
 import net.sourceforge.schemaspy.model.xml.SchemaMeta;
 import net.sourceforge.schemaspy.util.ConnectionURLBuilder;
-import net.sourceforge.schemaspy.util.DbSpecificOption;
 import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.util.LineWriter;
 import net.sourceforge.schemaspy.util.LogFormatter;
@@ -106,7 +105,8 @@ public class SchemaAnalyzer {
             }
             return db;
         } catch (Config.MissingRequiredParameterException missingParam) {
-            config.dumpUsage(missingParam.getMessage(), missingParam.isDbTypeSpecific());
+            System.err.println(missingParam.getMessage());
+            System.exit(1);
             return null;
         }
     }
@@ -136,16 +136,18 @@ public class SchemaAnalyzer {
 		    String dbName = config.getDb();
 
 		    if (schemas != null){
-		    	MultipleSchemaAnalyzer.getInstance().analyze(dbName, schemas, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+		    	//MultipleSchemaAnalyzer.getInstance().analyze(dbName, schemas, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+		    	throw new UnsupportedOperationException("Multi schema support awaiting re-write");
 		    } else { //EvaluateAllEnabled
 		        String schemaSpec = config.getSchemaSpec();
 		        if (schemaSpec == null)
 		            schemaSpec = properties.getProperty("schemaSpec", ".*");
 		        Connection connection = getConnection(config, properties);
 		        DatabaseMetaData meta = connection.getMetaData();
-		        MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+		        //MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+		    	throw new UnsupportedOperationException("Multi schema support awaiting re-write");
 		    }
-		    return true;
+		    //return true;
 		}
 		return false;
 	}
@@ -197,13 +199,6 @@ public class SchemaAnalyzer {
         if (config.getDb() == null)
             config.setDb(urlBuilder.getConnectionURL());
 
-        if (config.getRemainingParameters().size() != 0) {
-            StringBuilder msg = new StringBuilder("Unrecognized option(s):");
-            for (String remnant : config.getRemainingParameters())
-                msg.append(" " + remnant);
-            logger.warning(msg.toString());
-        }
-
         String driverClass = properties.getProperty("driver");
         String driverPath = properties.getProperty("driverPath");
         if (driverPath == null)
@@ -243,7 +238,7 @@ public class SchemaAnalyzer {
 
 	private boolean showHelp(Config config) {
 		if (config.isDbHelpRequired()) {
-		    config.dumpUsage(null, true);
+		    config.dumpDbUsage();
 		    return true;
 		}
 		return false;
