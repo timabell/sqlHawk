@@ -37,7 +37,7 @@ public class Database {
     private final Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
     private Date generatedDate = null;
     /**
-     * used for syntax highlighting.
+     * used for syntax highlighting and identifier quoting.
      * dbms specific list of keywords.
      */
     private Set<String> keywords;

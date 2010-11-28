@@ -70,6 +70,7 @@ public class DbReader {
         this.schema = schema;
         database.setDescription(config.getDescription());
         database.setDbms(getDatabaseProduct());
+        database.setKeywords(getKeywords(meta));
 
         initTables(meta, properties, config);
         if (config.isViewsEnabled())
@@ -86,7 +87,6 @@ public class DbReader {
 
         connectTables();
         updateFromXmlMetadata(schemaMeta);
-        database.setKeywords(getKeywords(meta));
         return database;
     }
 
@@ -237,7 +237,7 @@ public class DbReader {
                 BasicTableMeta entry = entries.remove(0);
 
                 if (validator.isValid(entry.name, entry.type)) {
-                    new TableCreator(tables).create(entry, properties);
+                    new TableCreator(tables).create(database, entry, properties, this);
                     break;
                 }
             }
@@ -246,7 +246,7 @@ public class DbReader {
         // kick off the secondary threads to do the creation in parallel
         for (BasicTableMeta entry : entries) {
             if (validator.isValid(entry.name, entry.type)) {
-                creator.create(entry, properties);
+                creator.create(database, entry, properties, this);
             }
         }
 
@@ -950,12 +950,14 @@ public class DbReader {
         /**
          * Create a table and put it into <code>tables</code>
          */
-        void create(BasicTableMeta tableMeta, Properties properties) throws SQLException {
-            createImpl(tableMeta, properties);
+        void create(Database db, BasicTableMeta tableMeta, Properties properties, DbReader dbReader) throws SQLException {
+            createImpl(db, tableMeta, properties, dbReader);
         }
 
-        protected void createImpl(BasicTableMeta tableMeta, Properties properties) throws SQLException {
-            Table table = new Table(tableMeta.schema, tableMeta.name, tableMeta.remarks);
+        protected void createImpl(Database db, BasicTableMeta tableMeta, Properties properties, DbReader dbReader) throws SQLException {
+        	TableReader reader = new TableReader();
+        	Table table = reader.ReadTable(db, tableMeta.schema, tableMeta.name, tableMeta.remarks, properties, excludeIndirectColumns, excludeColumns, meta, dbReader);
+
             if (tableMeta.numRows != -1) {
                 table.setNumRows(tableMeta.numRows);
             }
@@ -992,12 +994,12 @@ public class DbReader {
         }
 
         @Override
-        void create(final BasicTableMeta tableMeta, final Properties properties) throws SQLException {
+        void create(final Database db, final BasicTableMeta tableMeta, final Properties properties, final DbReader dbReader) throws SQLException {
             Thread runner = new Thread() {
                 @Override
                 public void run() {
                     try {
-                        createImpl(tableMeta, properties);
+                        createImpl(db, tableMeta, properties, dbReader);
                     } catch (SQLException exc) {
                         exc.printStackTrace(); // nobody above us in call stack...dump it here
                     } finally {
