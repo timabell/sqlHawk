@@ -46,10 +46,10 @@ import net.sourceforge.schemaspy.db.read.EmptySchemaException;
 import net.sourceforge.schemaspy.model.Database;
 import net.sourceforge.schemaspy.model.ForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.ImpliedForeignKeyConstraint;
-import net.sourceforge.schemaspy.model.Procedure;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
 import net.sourceforge.schemaspy.model.xml.SchemaMeta;
+import net.sourceforge.schemaspy.scm.write.ScmDbWriter;
 import net.sourceforge.schemaspy.util.ConnectionURLBuilder;
 import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.util.LineWriter;
@@ -93,7 +93,7 @@ public class SchemaAnalyzer {
 						db);
             }
             if (config.isSourceControlOutputEnabled())
-	        	writeForSourceControl(outputDir, db);
+	        	new ScmDbWriter().writeForSourceControl(outputDir, db);
             if (config.isXmlOutputEnabled())
             	xmlWriter.writeXml(outputDir, db);
             writeOrderingFiles(outputDir, db);
@@ -110,21 +110,6 @@ public class SchemaAnalyzer {
             return null;
         }
     }
-
-	private void writeForSourceControl(File outputDir, Database db) throws IOException {
-		File procFolder = new File(outputDir, "Procedures");
-		if (!procFolder.isDirectory()) {
-		    if (!procFolder.mkdirs()) {
-		        throw new IOException("Failed to create directory '" + procFolder + "'");
-		    }
-		}
-		Collection<Procedure> procs = db.getProcs();
-		for (Procedure proc : procs) {
-			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), Config.DOT_CHARSET);
-			out.write(proc.getDefinition());
-			out.close();		
-		}
-	}
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
 			throws IOException, SQLException, FileNotFoundException {
