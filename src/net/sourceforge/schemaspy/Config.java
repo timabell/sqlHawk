@@ -139,7 +139,7 @@ public class Config
 				new FlaggedOption("graphviz-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "graphviz-path", "Path to graphviz binaries. Used to find the 'dot' executable used to generate ER diagrams. If not specified then the program expects to find Graphviz's bin directory on the PATH."),
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
-				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
+				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, "11", false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
 				new Switch("high-quality", JSAP.NO_SHORTFLAG, "high-quality", "Use a high quality 'dot' renderer. Higher quality output takes longer to generate and results in significantly larger image files (which take longer to download / display), but it generally looks better."),
 				new FlaggedOption("renderer", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "renderer", "Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified at http://www.graphviz.org/doc/info/command.html Note that the leading ':' is required while :formatter is optional. The default renderer is typically GD. Note that using the high-quality option is the preferred approach over using this option."),
 				new FlaggedOption("css", JSAP.STRING_PARSER, "schemaSpy.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within schemaSpy.css."),
@@ -517,8 +517,6 @@ public class Config
     public int getFontSize() {
         if (fontSize == null) {
         	fontSize = jsapConfig.getInt("diagram-font-size");
-            if (fontSize == null)
-            	fontSize = 11; // default
         }
         return fontSize.intValue();
     }
