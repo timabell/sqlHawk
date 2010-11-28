@@ -295,7 +295,9 @@ public class Config
 
     public String getDbType() {
         if (dbType == null)
-            dbType = jsapConfig.getString("type");
+            dbType = jsapConfig.getString("db-type");
+        if (dbType==null)
+        	throw new MissingRequiredParameterException("db-type", false);
         return dbType;
     }
 
@@ -685,8 +687,10 @@ public class Config
 
     public List<String> getSchemas() {
         if (schemas == null) {
-            String[] tmp = jsapConfig.getStringArray("schemas");
-            schemas = Arrays.asList(tmp);
+        	if (jsapConfig.userSpecified("schemas")) {
+	            String[] tmp = jsapConfig.getStringArray("schemas");
+	            schemas = Arrays.asList(tmp);
+        	}
         }
         return schemas;
     }
