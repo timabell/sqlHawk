@@ -43,22 +43,11 @@ public class ConnectionURLBuilder {
             opts.add((key.startsWith("-") ? "" : "-") + key);
             opts.add(config.getDbSpecificOptions().get(key));
         }
-        opts.addAll(config.getRemainingParameters());
+        opts.addAll(config.getConnectionParameters());
 
         DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
         options = dbConfig.getOptions();
         connectionURL = buildUrl(opts, properties, config);
-
-        List<String> remaining = config.getRemainingParameters();
-
-        for (DbSpecificOption option : options) {
-            int idx = remaining.indexOf("-" + option.getName());
-            if (idx >= 0) {
-                remaining.remove(idx);  // -paramKey
-                remaining.remove(idx);  // paramValue
-            }
-        }
-
         logger.config("connectionURL: " + connectionURL);
     }
 
