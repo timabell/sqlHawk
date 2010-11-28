@@ -142,25 +142,21 @@ public class Config
     public Config(String[] argv) throws JSAPException
     {
     	//new code for arg parsing using jsap library.
-    	JSAP jsap = new JSAP();
-    	setParameters(jsap);
+		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+		String usage = "java -jar " + jarFile.getName();
+    	SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
+    		new Parameter[] {
+	    		new Switch("xml")
+	        		.setLongFlag("xml")
+	        		.setHelp("Produce xml representation of schema to file."),
+	        	new FlaggedOption("output-path")
+	        		.setShortFlag('o')
+	        		.setLongFlag("output-path")
+	        		.setRequired(true)
+	        		.setHelp("Sets the folder where generated files will be put. The folder will be created if missing.")
+    	});
     	jsapConfig = jsap.parse(argv);
-    	if(!jsapConfig.success())
-    	{
-            // print out specific error messages describing the problems
-            // with the command line, THEN print usage, THEN print full
-            // help.  This is called "beating the user with a clue stick."
-            for (java.util.Iterator errs = jsapConfig.getErrorMessageIterator();
-                    errs.hasNext();) {
-                System.err.println("Error: " + errs.next());
-            }
-    		showUsage(jsap);
-    		System.exit(1);
-    	}
-    	if(jsapConfig.getBoolean("help"))
-    	{
-    		showUsage(jsap, true);
-    	}
+    	if ( jsap.messagePrinted() ) System.exit( 1 );
         //legacy arg parsing
         setInstance(this);
         options = fixupArgs(Arrays.asList(argv));
@@ -174,24 +170,6 @@ public class Config
         dbHelpRequired =  options.remove("-dbHelp") || options.remove("-dbhelp");
     }
 
-    private void showUsage(JSAP jsap){
-    	showUsage(jsap, false);
-    }
-
-	private void showUsage(JSAP jsap, boolean detailed) {
-		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-		System.err.println();
-		System.err.println("Usage: java -jar "
-		                    + jarFile.getName());
-		System.err.println("                "
-		                    + jsap.getUsage());
-		System.err.println();
-		if (detailed)
-		{
-			System.err.println(jsap.getHelp());
-		}
-	}
-    
     private void setParameters(JSAP jsap) throws JSAPException {
     	Switch sw = new Switch("help")
     		.setShortFlag('h')
