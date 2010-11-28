@@ -43,16 +43,16 @@ public class Main {
         //begin analysis
         SchemaAnalyzer analyzer = new SchemaAnalyzer();
 
-        int rc = 1;
+        int exitCode = 1;
 
         try {
-            rc = analyzer.analyze(new Config(argv)) == null ? 1 : 0;
+            exitCode = analyzer.analyze(new Config(argv)) == null ? 1 : 0;
         } catch (ConnectionFailure couldntConnect) {
             // failure already logged
-            rc = 3;
+            exitCode = 3;
         } catch (EmptySchemaException noData) {
             // failure already logged
-            rc = 2;
+            exitCode = 2;
         } catch (InvalidConfigurationException badConfig) {
             System.err.println();
             if (badConfig.getParamName() != null)
@@ -66,6 +66,6 @@ public class Main {
             exc.printStackTrace();
         }
 
-        System.exit(rc);
+        System.exit(exitCode);
     }
 }
