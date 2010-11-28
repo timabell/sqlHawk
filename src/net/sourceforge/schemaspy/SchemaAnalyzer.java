@@ -257,11 +257,6 @@ public class SchemaAnalyzer {
 	}
 
 	private boolean showHelp(Config config) {
-		if (config.isHelpRequired()) {
-		    config.dumpUsage(null, false);
-		    return true;
-		}
-
 		if (config.isDbHelpRequired()) {
 		    config.dumpUsage(null, true);
 		    return true;

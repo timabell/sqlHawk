@@ -67,7 +67,6 @@ public class Config
     private final List<String> options;
     private Map<String, String> dbSpecificOptions;
     private Map<String, String> originalDbSpecificOptions;
-    private boolean helpRequired;
     private boolean dbHelpRequired;
     private File outputDir;
     private File graphvizDir;
@@ -161,12 +160,6 @@ public class Config
         setInstance(this);
         options = fixupArgs(Arrays.asList(argv));
 
-        helpRequired =  options.remove("-?") ||
-                        options.remove("/?") ||
-                        options.remove("?") ||
-                        options.remove("-h") ||
-                        options.remove("-help") ||
-                        options.remove("--help");
         dbHelpRequired =  options.remove("-dbHelp") || options.remove("-dbhelp");
     }
 
@@ -1212,16 +1205,6 @@ public class Config
         }
 
         return logLevel;
-    }
-
-    /**
-     * Returns <code>true</code> if the options indicate that the user wants
-     * to see some help information.
-     *
-     * @return
-     */
-    public boolean isHelpRequired() {
-        return false;//helpRequired;
     }
 
     public boolean isDbHelpRequired() {
