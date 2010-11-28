@@ -53,6 +53,8 @@ import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.view.DefaultSqlFormatter;
 import net.sourceforge.schemaspy.view.SqlFormatter;
 
+import com.martiansoftware.jsap.*;
+
 /**
  * Configuration of a SchemaSpy run
  *
@@ -101,7 +103,6 @@ public class Config
     private String sqlFormatterClass;
     private Boolean generateHtml;
     private Boolean sourceControlOutput;
-    private Boolean xmlOutputEnabled;
     private Boolean includeImpliedConstraints;
     private Boolean logoEnabled;
     private Boolean rankDirBugEnabled;
@@ -117,6 +118,7 @@ public class Config
     private boolean populating = false;
     public static final String DOT_CHARSET = "UTF-8";
     private static final String ESCAPED_EQUALS = "\\=";
+    private JSAPResult jsapConfig;
 
     /**
      * Default constructor. Intended for when you want to inject properties
@@ -134,9 +136,26 @@ public class Config
      * line interface).
      *
      * @param options
+     * @throws JSAPException 
      */
-    public Config(String[] argv)
+    public Config(String[] argv) throws JSAPException
     {
+    	//new code for arg parsing using jsap library.
+    	JSAP jsap = new JSAP();
+    	setParameters(jsap);
+    	jsapConfig = jsap.parse(argv);
+    	if(!jsapConfig.success())
+    	{
+    		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+            System.err.println();
+	        System.err.println("Usage: java -jar "
+	                            + jarFile.getName());
+	        System.err.println("                "
+	                            + jsap.getUsage());
+	        System.err.println();
+	        System.exit(1);
+    	}
+        //legacy arg parsing
         setInstance(this);
         options = fixupArgs(Arrays.asList(argv));
 
@@ -147,6 +166,17 @@ public class Config
                         options.remove("-help") ||
                         options.remove("--help");
         dbHelpRequired =  options.remove("-dbHelp") || options.remove("-dbhelp");
+    }
+    
+    private void setParameters(JSAP jsap) throws JSAPException {
+    	Switch sw = new Switch("xml")
+    		.setLongFlag("xml");
+    	jsap.registerParameter(sw);
+    	FlaggedOption opt = new FlaggedOption("outputDir")
+    		.setShortFlag('o')
+    		.setLongFlag("output")
+    		.setRequired(true);
+    	jsap.registerParameter(opt);
     }
 
     public static Config getInstance() {
@@ -185,9 +215,7 @@ public class Config
 	}
 
 	public boolean isXmlOutputEnabled() {
-		if (xmlOutputEnabled == null)
-			xmlOutputEnabled = options.remove("-noXml");
-		return xmlOutputEnabled;
+		return jsapConfig.getBoolean("xml");
 	}
 	
 	public void setImpliedConstraintsEnabled(boolean includeImpliedConstraints) {
@@ -213,10 +241,8 @@ public class Config
     }
 
     public File getOutputDir() {
-        if (outputDir == null) {
-            setOutputDir(pullRequiredParam("-o"));
-        }
-
+        if (outputDir == null)
+            setOutputDir(jsapConfig.getString("ouputDir"));
         return outputDir;
     }
 
@@ -1188,11 +1214,11 @@ public class Config
      * @return
      */
     public boolean isHelpRequired() {
-        return helpRequired;
+        return false;//helpRequired;
     }
 
     public boolean isDbHelpRequired() {
-        return dbHelpRequired;
+        return false;// dbHelpRequired;
     }
 
     public static String getLoadedFromJar() {
@@ -1362,8 +1388,8 @@ public class Config
                                 throws MissingRequiredParameterException {
         int paramIndex = options.indexOf(paramId);
         if (paramIndex < 0) {
-            if (required)
-                throw new MissingRequiredParameterException(paramId, dbTypeSpecific);
+            //if (required)
+            //    throw new MissingRequiredParameterException(paramId, dbTypeSpecific);
             return null;
         }
         options.remove(paramIndex);
@@ -1703,4 +1729,5 @@ public class Config
 
         return params;
     }
+
 }

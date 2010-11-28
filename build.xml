@@ -22,7 +22,7 @@
     <exclude name="package cache/"/>
     <exclude name="dependency cache/"/>
   </patternset>
-  <target name="archive" depends="resource">
+  <target name="archive" depends="compile,resource,revision">
     <jar compress="true" destfile="${dist}/sqlHawk-${git.version}.jar" manifest="${src}/META-INF/MANIFEST.MF">
       <fileset dir="${dest}">
         <patternset refid="dest.exclude"/>
@@ -82,7 +82,7 @@
     <property name="version" value="${git.version} ${git.date}"/>
   </target>
 
-  <target name="make" depends="compile,revision,archive"/>
+  <target name="make" depends="compile,archive"/>
   <target name="rebuild" depends="clean,make"/>
   <target name="init">
     <mkdir dir="${dest}"/>
