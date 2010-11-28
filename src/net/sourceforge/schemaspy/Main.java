@@ -39,14 +39,16 @@ public class Main {
         	System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
         System.out.println("More information at http://timwise.wikispaces.com/sqlHawk");
         System.out.println();
-        
-        //begin analysis
-        SchemaAnalyzer analyzer = new SchemaAnalyzer();
+
+        //load config
+        Config config = new Config(argv);
 
         int exitCode = 1;
 
         try {
-            exitCode = analyzer.analyze(new Config(argv)) == null ? 1 : 0;
+	        //begin analysis
+	        SchemaAnalyzer analyzer = new SchemaAnalyzer();
+            exitCode = analyzer.analyze(config) == null ? 1 : 0;
         } catch (ConnectionFailure couldntConnect) {
             // failure already logged
             exitCode = 3;
