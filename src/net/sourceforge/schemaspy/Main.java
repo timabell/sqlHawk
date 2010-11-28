@@ -32,9 +32,15 @@ public class Main {
             new MainFrame().setVisible(true);
             return;
         }
+        
+        //print welcome message to console
         String version = Main.class.getPackage().getImplementationVersion();
         if (version!=null) //will be null if run outside package, i.e. in eclipse.
         	System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
+        System.out.println("More information at http://timwise.wikispaces.com/sqlHawk");
+        System.out.println();
+        
+        //begin analysis
         SchemaAnalyzer analyzer = new SchemaAnalyzer();
 
         int rc = 1;

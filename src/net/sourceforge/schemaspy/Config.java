@@ -175,6 +175,10 @@ public class Config
     		System.err.println();
     		System.err.println("Usage:");
     		System.err.println("  " + usage + " " + jsap.getUsage());
+    		System.err.println();
+    		System.err.println("Run");
+    		System.err.println(" " + usage + " --help");
+    		System.err.println("for full usage information.");
     		System.exit( 1 );
     	}
     }
