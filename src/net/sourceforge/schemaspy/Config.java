@@ -64,20 +64,15 @@ import com.martiansoftware.jsap.xml.JSAPConfig;
 public class Config
 {
     private static Config instance;
-    private final List<String> options;
     private Map<String, String> dbSpecificOptions;
     private Map<String, String> originalDbSpecificOptions;
-    private boolean dbHelpRequired;
     private File outputDir;
     private File graphvizDir;
     private String dbType;
     private String schema;
     private List<String> schemas;
     private String user;
-    private Boolean singleSignOn;
-    private Boolean noSchema;
     private String password;
-    private Boolean promptForPassword;
     private String db;
     private String host;
     private Integer port;
@@ -91,7 +86,6 @@ public class Config
     private Properties userConnectionProperties;
     private Integer maxDbThreads;
     private Integer maxDetailedTables;
-    private String driverPath;
     private String css;
     private String charset;
     private String font;
@@ -101,21 +95,11 @@ public class Config
     private Level logLevel;
     private SqlFormatter sqlFormatter;
     private String sqlFormatterClass;
-    private Boolean generateHtml;
-    private Boolean sourceControlOutput;
-    private Boolean includeImpliedConstraints;
-    private Boolean logoEnabled;
-    private Boolean rankDirBugEnabled;
-    private Boolean encodeCommentsEnabled;
-    private Boolean numRowsEnabled;
-    private Boolean viewsEnabled;
     private Boolean meterEnabled;
-    private Boolean railsEnabled;
     private Boolean evaluteAll;
     private Boolean highQuality;
     private Boolean lowQuality;
     private String schemaSpec;  // used in conjunction with evaluateAll
-    private boolean populating = false;
     public static final String DOT_CHARSET = "UTF-8";
     private static final String ESCAPED_EQUALS = "\\=";
     private JSAPResult jsapConfig;
@@ -128,7 +112,6 @@ public class Config
     {
         if (instance == null)
             setInstance(this);
-        options = new ArrayList<String>();
     }
 
     /**
@@ -140,6 +123,7 @@ public class Config
      */
     public Config(String[] argv) throws JSAPException
     {
+        setInstance(this);
     	//new code for arg parsing using jsap library.
 		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
 		String usage = "java -jar " + jarFile.getName();
@@ -148,24 +132,32 @@ public class Config
 				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
 				new FlaggedOption("db-type", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 't', "db-type"),
 				new FlaggedOption("host", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'h', "host"),
-				new FlaggedOption("port", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'p', "port"),
-				new FlaggedOption("db", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'd', "db", "Name of the database to connect to."),
+				new FlaggedOption("port", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'p', "port"),
+				new FlaggedOption("user", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'u', "user", "Username to connect to database with."),
+				new FlaggedOption("database", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'd', "database", "Name of the database to connect to."),
 				new FlaggedOption("schema", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 's', "schema", "Name of the schema to use/analyse."),
-				new FlaggedOption("dp", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "dp"),
+				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
+				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
 				new FlaggedOption("gv", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "gv", "Path to graphviz binaries."),
+				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this optino to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 				new Switch("sso", JSAP.NO_SHORTFLAG, "sso", "Use single-signon when connecting to the database."),
+				new Switch("pfp", JSAP.NO_SHORTFLAG, "pfp", "Prompt For Password to use when connecting to the database."),
 				new Switch("no-implied", JSAP.NO_SHORTFLAG, "no-implied", "Don't add implied relationships."),
 				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate SchemaSpy style html documentation."),
 				new Switch("scm-output", JSAP.NO_SHORTFLAG, "scm-output", "Generate output suitable for storing in source control."),
-				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema")
+				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema"),
+				new Switch("db-help", JSAP.NO_SHORTFLAG, "db-help", "Show database specific usage information."),
+				new Switch("no-schema", JSAP.NO_SHORTFLAG, "no-schema", "Some databases types (e.g. older versions of Informix) don't really have the concept of a schema but still return true from 'supportsSchemasInTableDefinitions()'. This option lets you ignore that and treat all the tables as if they were in one flat namespace."),
+				new Switch("all", JSAP.NO_SHORTFLAG, "all", "Output all the available schemas"),
+				new Switch("no-logo", JSAP.NO_SHORTFLAG, "no-logo", "Supress inclusion of SourceForge logo in html output."),
+				new Switch("rankdirbug", JSAP.NO_SHORTFLAG, "rankdirbug", "Don't use this unless absolutely necessary as it screws up the layout. Changes dot's rank direction rankdir to right-to-left (RL). See http://www.graphviz.org/doc/info/attrs.html#d:rankdir"),
+				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
+				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
+				new Switch("disable-row-counts", JSAP.NO_SHORTFLAG, "disable-row-counts", "Disables read and output of current row count of each table."),
+				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details.")
     	});
     	jsapConfig = jsap.parse(argv);
     	if ( jsap.messagePrinted() ) System.exit( 1 );
-        //legacy arg parsing
-        setInstance(this);
-        options = fixupArgs(Arrays.asList(argv));
-
-        dbHelpRequired =  options.remove("-dbHelp") || options.remove("-dbhelp");
     }
 
     public static Config getInstance() {
@@ -197,16 +189,9 @@ public class Config
 	public boolean isXmlOutputEnabled() {
 		return jsapConfig.getBoolean("xml-output");
 	}
-	
-	public void setImpliedConstraintsEnabled(boolean includeImpliedConstraints) {
-        this.includeImpliedConstraints = includeImpliedConstraints;
-    }
 
     public boolean isImpliedConstraintsEnabled() {
-        if (includeImpliedConstraints == null)
-            includeImpliedConstraints = !options.remove("-noimplied");
-
-        return includeImpliedConstraints;
+        return jsapConfig.getBoolean("no-implied");
     }
 
     public void setOutputDir(String outputDirName) {
@@ -276,17 +261,10 @@ public class Config
      * the directory that contains meta files.<p>
      * If a directory is specified then it is expected to contain files
      * matching the pattern <code>[schema].meta.xml</code>.
-     * For databases that don't have schema substitute database for schema.
-     * @param meta
+     * For databases that don't have schema substitute [schema] with [database].
      */
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
-
     public String getMeta() {
-        if (meta == null)
-            meta = pullParam("-meta");
-        return meta;
+        return jsapConfig.getString("metadata-path");
     }
 
     public void setDbType(String dbType) {
@@ -331,10 +309,7 @@ public class Config
      * as if they were in one flat namespace.
      */
     public boolean isSchemaDisabled() {
-        if (noSchema == null)
-            noSchema = options.remove("-noschema");
-
-        return noSchema;
+        return jsapConfig.getBoolean("no-schema");
     }
 
     public void setHost(String host) {
@@ -343,7 +318,7 @@ public class Config
 
     public String getHost() {
         if (host == null)
-            host = pullParam("-host");
+            host = jsapConfig.getString("host");
         return host;
     }
 
@@ -353,9 +328,7 @@ public class Config
 
     public Integer getPort() {
         if (port == null)
-            try {
-                port = Integer.valueOf(pullParam("-port"));
-            } catch (Exception notSpecified) {}
+            port = jsapConfig.getInt("port");
         return port;
     }
 
@@ -364,10 +337,8 @@ public class Config
     }
 
     public String getServer() {
-        if (server == null) {
-            server = pullParam("-server");
-        }
-
+        if (server == null)
+            server = jsapConfig.getString("host");
         return server;
     }
 
@@ -378,16 +349,10 @@ public class Config
     /**
      * User used to connect to the database.
      * Required unless single sign-on is enabled
-     * (see {@link #setSingleSignOn(boolean)}).
-     * @return
      */
     public String getUser() {
-        if (user == null) {
-            if (!isSingleSignOn())
-                user = pullRequiredParam("-u");
-            else
-                user = pullParam("-u");
-        }
+        if (user == null)
+            user = jsapConfig.getString("user");
         return user;
     }
 
@@ -395,21 +360,9 @@ public class Config
      * By default a "user" (as specified with -u) is required.
      * This option allows disabling of that requirement for
      * single sign-on environments.
-     *
-     * @param enabled defaults to <code>false</code>
-     */
-    public void setSingleSignOn(boolean enabled) {
-        singleSignOn = enabled;
-    }
-
-    /**
-     * @see #setSingleSignOn(boolean)
      */
     public boolean isSingleSignOn() {
-        if (singleSignOn == null)
-            singleSignOn = options.remove("-sso");
-
-        return singleSignOn;
+        return jsapConfig.getBoolean("sso");
     }
 
     /**
@@ -431,23 +384,11 @@ public class Config
     }
 
     /**
-     * Set to <code>true</code> to prompt for the password
-     * @param promptForPassword
-     */
-    public void setPromptForPasswordEnabled(boolean promptForPassword) {
-        this.promptForPassword = promptForPassword;
-    }
-
-    /**
      * @see #setPromptForPasswordEnabled(boolean)
      * @return
      */
     public boolean isPromptForPasswordEnabled() {
-        if (promptForPassword == null) {
-            promptForPassword = options.remove("-pfp");
-        }
-
-        return promptForPassword;
+        return jsapConfig.getBoolean("pfp");
     }
 
     public void setMaxDetailedTabled(int maxDetailedTables) {
@@ -535,21 +476,6 @@ public class Config
                 userConnectionProperties.put(key, value);
             }
         }
-    }
-
-    public void setDriverPath(String driverPath) {
-        this.driverPath = driverPath;
-    }
-
-    public String getDriverPath() {
-        if (driverPath == null)
-            driverPath = pullParam("-dp");
-
-        // was previously -cp:
-        if (driverPath == null)
-            driverPath = pullParam("-cp");
-
-        return driverPath;
     }
 
     /**
@@ -712,29 +638,16 @@ public class Config
     }
 
     public boolean isLogoEnabled() {
-        if (logoEnabled == null)
-            logoEnabled = !options.remove("-nologo");
-
-        return logoEnabled;
+        return jsapConfig.getBoolean("no-logo");
     }
 
     /**
-     * Don't use this unless absolutely necessary as it screws up the layout
-     *
-     * @param enabled
-     */
-    public void setRankDirBugEnabled(boolean enabled) {
-        rankDirBugEnabled = enabled;
-    }
-
-    /**
-     * @see #setRankDirBugEnabled(boolean)
+     * Don't use this unless absolutely necessary as it screws up the layout.
+     * Changes dot's rank direction rankdir to right-to-left (RL)
+     * http://www.graphviz.org/doc/info/attrs.html#d:rankdir
      */
     public boolean isRankDirBugEnabled() {
-        if (rankDirBugEnabled == null)
-            rankDirBugEnabled = options.remove("-rankdirbug");
-
-        return rankDirBugEnabled;
+        return jsapConfig.getBoolean("rankdirbug");
     }
 
     /**
@@ -745,40 +658,16 @@ public class Config
      * All tables are named plural names.
      * The columns that logically reference that <code>ID</code> are the singular
      * form of the table name suffixed with <code>_ID</code>.<p>
-     *
-     * @param enabled
-     */
-    public void setRailsEnabled(boolean enabled) {
-        railsEnabled = enabled;
-    }
-
-    /**
-     * @see #setRailsEnabled(boolean)
-     *
-     * @return
      */
     public boolean isRailsEnabled() {
-        if (railsEnabled == null)
-            railsEnabled = options.remove("-rails");
-
-        return railsEnabled;
+        return jsapConfig.getBoolean("rails");
     }
 
     /**
      * Allow Html In Comments - encode them unless otherwise specified
      */
-    public void setEncodeCommentsEnabled(boolean enabled) {
-        encodeCommentsEnabled = enabled;
-    }
-
-    /**
-     * @see #setEncodeCommentsEnabled(boolean)
-     */
     public boolean isEncodeCommentsEnabled() {
-        if (encodeCommentsEnabled == null)
-            encodeCommentsEnabled = !options.remove("-ahic");
-
-        return encodeCommentsEnabled;
+        return !jsapConfig.getBoolean("html-comments");
     }
 
     /**
@@ -786,44 +675,16 @@ public class Config
      * each table contains.<p/>
      *
      * Defaults to <code>true</code> (enabled).
-     *
-     * @param enabled
-     */
-    public void setNumRowsEnabled(boolean enabled) {
-        numRowsEnabled = enabled;
-    }
-
-    /**
-     * @see #setNumRowsEnabled(boolean)
-     * @return
      */
     public boolean isNumRowsEnabled() {
-        if (numRowsEnabled == null)
-            numRowsEnabled = !options.remove("-norows");
-
-        return numRowsEnabled;
+        return !jsapConfig.getBoolean("disable-row-counts");
     }
 
     /**
      * If enabled we'll include views in the analysis.<p/>
-     *
-     * Defaults to <code>true</code> (enabled).
-     *
-     * @param enabled
-     */
-    public void setViewsEnabled(boolean enabled) {
-        viewsEnabled = enabled;
-    }
-
-    /**
-     * @see #setViewsEnabled(boolean)
-     * @return
      */
     public boolean isViewsEnabled() {
-        if (viewsEnabled == null)
-            viewsEnabled = !options.remove("-noviews");
-
-        return viewsEnabled;
+        return !jsapConfig.getBoolean("disable-views");
     }
 
     /**
@@ -1333,42 +1194,6 @@ public class Config
     }
 
     /**
-     * 'Pull' the specified parameter from the collection of options. Returns
-     * null if the parameter isn't in the list and removes it if it is.
-     *
-     * @param paramId
-     * @return
-     */
-    private String pullParam(String paramId) {
-        return pullParam(paramId, false, false);
-    }
-
-    private String pullRequiredParam(String paramId) {
-        return pullParam(paramId, true, false);
-    }
-
-    /**
-     * @param paramId
-     * @param required
-     * @param dbTypeSpecific
-     * @return
-     * @throws MissingRequiredParameterException
-     */
-    private String pullParam(String paramId, boolean required, boolean dbTypeSpecific)
-                                throws MissingRequiredParameterException {
-        int paramIndex = options.indexOf(paramId);
-        if (paramIndex < 0) {
-            //if (required)
-            //    throw new MissingRequiredParameterException(paramId, dbTypeSpecific);
-            return null;
-        }
-        options.remove(paramIndex);
-        String param = options.get(paramIndex).toString();
-        options.remove(paramIndex);
-        return param;
-    }
-
-    /**
      * Thrown to indicate that a required parameter is missing
      */
     public static class MissingRequiredParameterException extends RuntimeException {
@@ -1389,65 +1214,6 @@ public class Config
 
         public boolean isDbTypeSpecific() {
             return dbTypeSpecific;
-        }
-    }
-
-    /**
-     * Allow an equal sign in args...like "-o=foo.bar". Useful for things like
-     * Ant and Maven.
-     *
-     * @param args
-     *            List
-     * @return List
-     */
-    protected List<String> fixupArgs(List<String> args) {
-        List<String> expandedArgs = new ArrayList<String>();
-
-        for (String arg : args) {
-            int indexOfEquals = arg.indexOf('=');
-            if (indexOfEquals != -1 && indexOfEquals -1 != arg.indexOf(ESCAPED_EQUALS)) {
-                expandedArgs.add(arg.substring(0, indexOfEquals));
-                expandedArgs.add(arg.substring(indexOfEquals + 1));
-            } else {
-                expandedArgs.add(arg);
-            }
-        }
-
-        // some OSes/JVMs do filename expansion with runtime.exec() and some don't,
-        // so MultipleSchemaAnalyzer has to surround params with double quotes...
-        // strip them here for the OSes/JVMs that don't do anything with the params
-        List<String> unquotedArgs = new ArrayList<String>();
-
-        for (String arg : expandedArgs) {
-            if (arg.startsWith("\"") && arg.endsWith("\""))  // ".*" becomes .*
-                arg = arg.substring(1, arg.length() - 1);
-            unquotedArgs.add(arg);
-        }
-
-        return unquotedArgs;
-    }
-
-    /**
-     * Call all the getters to populate all the lazy initialized stuff.
-     *
-     * @throws InvocationTargetException
-     * @throws IllegalAccessException
-     * @throws IllegalArgumentException
-     * @throws IntrospectionException
-     */
-    private void populate() throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, IntrospectionException {
-        if (!populating) { // prevent recursion
-            populating = true;
-
-            BeanInfo beanInfo = Introspector.getBeanInfo(Config.class);
-            PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
-            for (int i = 0; i < props.length; ++i) {
-                Method readMethod = props[i].getReadMethod();
-                if (readMethod != null)
-                    readMethod.invoke(this, (Object[])null);
-            }
-
-            populating = false;
         }
     }
 
@@ -1477,51 +1243,15 @@ public class Config
         return databaseTypes;
     }
 
-    protected void dumpUsage(String errorMessage, boolean detailedDb) {
-        if (errorMessage != null) {
-            System.out.flush();
-            System.err.println("*** " + errorMessage + " ***");
-        } else {
-            System.out.println("SchemaSpy generates an HTML representation of a database schema's relationships.");
+    protected void dumpDbUsage() {
+        System.out.println("Built-in database types and their required connection parameters:");
+        for (String type : getBuiltInDatabaseTypes(getLoadedFromJar())) {
+            new DbSpecificConfig(type).dumpUsage();
         }
-
-        System.err.flush();
         System.out.println();
-
-        if (!detailedDb) {
-            System.out.println("Usage:");
-            System.out.println(" java -jar " + getLoadedFromJar() + " [options]");
-            System.out.println("   -t databaseType       type of database - defaults to ora");
-            System.out.println("                           use -dbhelp for a list of built-in types");
-            System.out.println("   -u user               connect to the database with this user id");
-            System.out.println("   -s schema             defaults to the specified user");
-            System.out.println("   -p password           defaults to no password");
-            System.out.println("   -o outputDirectory    directory to place the generated output in");
-            System.out.println("   -dp pathToDrivers     optional - looks for JDBC drivers here before looking");
-            System.out.println("                           in driverPath in [databaseType].properties.");
-            System.out.println("Go to http://schemaspy.sourceforge.net for a complete list/description");
-            System.out.println(" of additional parameters.");
-            System.out.println();
-        }
-
-        if (detailedDb) {
-            System.out.println("Built-in database types and their required connection parameters:");
-            for (String type : getBuiltInDatabaseTypes(getLoadedFromJar())) {
-                new DbSpecificConfig(type).dumpUsage();
-            }
-            System.out.println();
-        }
-
-        if (detailedDb) {
-            System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
-            System.out.println("Grab one out of " + getLoadedFromJar() + " and modify it to suit your needs.");
-            System.out.println();
-        }
-
-        System.out.println("Sample usage using the default database type (implied -t ora):");
-        System.out.println(" java -jar schemaSpy.jar -db mydb -s myschema -u devuser -p password -o output");
+        System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
+        System.out.println("Grab one out of " + getLoadedFromJar() + " and modify it to suit your needs.");
         System.out.println();
-        System.out.flush();
     }
 
     /**
