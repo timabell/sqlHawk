@@ -87,8 +87,8 @@ public class HtmlTablePage extends HtmlFormatter {
         out.writeln("</td></tr></table>");
         writeCheckConstraints(table, out);
         writeIndexes(table, out);
-        
-        writeView((View)table, db, out);
+        if (table.isView())
+        	writeView((View)table, db, out);
         writeDiagram(table, stats, diagramsDir, out);
         writeFooter(out);
 

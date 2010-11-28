@@ -106,7 +106,8 @@ public class XmlTableFormatter {
         appendPrimaryKeys(tableNode, table);
         appendIndexes(tableNode, table);
         appendCheckConstraints(tableNode, table);
-        appendView(tableNode, (View)table);
+        if (table.isView())
+        	appendView(tableNode, (View)table);
     }
 
     /**
