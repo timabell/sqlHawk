@@ -27,7 +27,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -172,7 +171,12 @@ public class Config
 				new Switch("compact-relationship-diagram", JSAP.NO_SHORTFLAG, "compact-relationship-diagram", "Switches dot to compact relationship diagrams. Use if generating diagrams for large numbers of tables (suggested for >300)"),
 		});
     	jsapConfig = jsap.parse(argv);
-    	if ( jsap.messagePrinted() ) System.exit( 1 );
+    	if (jsap.messagePrinted()){
+    		System.err.println();
+    		System.err.println("Usage:");
+    		System.err.println("  " + usage + " " + jsap.getUsage());
+    		System.exit( 1 );
+    	}
     }
 
     public static Config getInstance() {
