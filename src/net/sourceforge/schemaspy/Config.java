@@ -145,14 +145,10 @@ public class Config
 		String usage = "java -jar " + jarFile.getName();
     	SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
     		new Parameter[] {
-	    		new Switch("xml")
-	        		.setLongFlag("xml")
-	        		.setHelp("Produce xml representation of schema to file."),
-	        	new FlaggedOption("output-path")
-	        		.setShortFlag('o')
-	        		.setLongFlag("output-path")
-	        		.setRequired(true)
-	        		.setHelp("Sets the folder where generated files will be put. The folder will be created if missing.")
+				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
+				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate SchemaSpy style html documentation."),
+				new Switch("scm-output", JSAP.NO_SHORTFLAG, "scm-output", "Generate output suitable for storing in source control."),
+				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema")
     	});
     	jsapConfig = jsap.parse(argv);
     	if ( jsap.messagePrinted() ) System.exit( 1 );
@@ -161,22 +157,6 @@ public class Config
         options = fixupArgs(Arrays.asList(argv));
 
         dbHelpRequired =  options.remove("-dbHelp") || options.remove("-dbhelp");
-    }
-
-    private void setParameters(JSAP jsap) throws JSAPException {
-    	Switch sw = new Switch("help")
-    		.setShortFlag('h')
-    		.setLongFlag("help");
-    	jsap.registerParameter(sw);    	
-    	sw = new Switch("xml")
-    		.setLongFlag("xml");
-    	sw.setHelp("Produce xml representation of schema to file.");
-    	jsap.registerParameter(sw);
-    	FlaggedOption opt = new FlaggedOption("output-path")
-    		.setShortFlag('o')
-    		.setLongFlag("output-path")
-    		.setRequired(true);
-    	jsap.registerParameter(opt);
     }
 
     public static Config getInstance() {
@@ -197,25 +177,16 @@ public class Config
         instance = config;
     }
 
-    public void setHtmlGenerationEnabled(boolean generateHtml) {
-        this.generateHtml = generateHtml;
-    }
-
     public boolean isHtmlGenerationEnabled() {
-        if (generateHtml == null)
-            generateHtml = !options.remove("-nohtml");
-
-        return generateHtml;
+        return jsapConfig.getBoolean("html-output");
     }
 
 	public boolean isSourceControlOutputEnabled() {
-		if (sourceControlOutput == null)
-			sourceControlOutput = options.remove("-scm");
-		return sourceControlOutput;
+		return jsapConfig.getBoolean("scm-output");
 	}
 
 	public boolean isXmlOutputEnabled() {
-		return jsapConfig.getBoolean("xml");
+		return jsapConfig.getBoolean("xml-output");
 	}
 	
 	public void setImpliedConstraintsEnabled(boolean includeImpliedConstraints) {
