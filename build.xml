@@ -3,9 +3,20 @@
   <property name="dest" value="output"/>
   <property name="dist" value="dist"/>
   <property name="src" value="src"/>
+  <property name="lib.dir" value="lib/"/>
   <path id="project.class.path">
     <pathelement location="${dest}"/>
   </path>
+	
+	<path id="external.jars">
+	    <fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+	
+	<path id="project.classpath">
+	    <pathelement location="${src.dir}"/>
+	    <path refid="external.jars" />
+	</path>
+
   <!--Patternset to exclude files from the output directory:-->
   <patternset id="dest.exclude">
     <exclude name="package cache/"/>
@@ -17,6 +28,7 @@
         <patternset refid="dest.exclude"/>
         <include name="**/*.*"/>
       </fileset>
+      <zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
       <manifest>
         <attribute name="Main-Class" value="net.sourceforge.schemaspy.Main"/>
       	<attribute name="Implementation-Version" 
@@ -53,6 +65,7 @@
       debuglevel="source,lines"
       source="1.5"
       target="1.5"
+      classpathref="project.classpath"
     />
   </target>
 
