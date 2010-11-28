@@ -54,6 +54,7 @@ import net.sourceforge.schemaspy.view.DefaultSqlFormatter;
 import net.sourceforge.schemaspy.view.SqlFormatter;
 
 import com.martiansoftware.jsap.*;
+import com.martiansoftware.jsap.xml.JSAPConfig;
 
 /**
  * Configuration of a SchemaSpy run
@@ -146,14 +147,19 @@ public class Config
     	jsapConfig = jsap.parse(argv);
     	if(!jsapConfig.success())
     	{
-    		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-            System.err.println();
-	        System.err.println("Usage: java -jar "
-	                            + jarFile.getName());
-	        System.err.println("                "
-	                            + jsap.getUsage());
-	        System.err.println();
-	        System.exit(1);
+            // print out specific error messages describing the problems
+            // with the command line, THEN print usage, THEN print full
+            // help.  This is called "beating the user with a clue stick."
+            for (java.util.Iterator errs = jsapConfig.getErrorMessageIterator();
+                    errs.hasNext();) {
+                System.err.println("Error: " + errs.next());
+            }
+    		showUsage(jsap);
+    		System.exit(1);
+    	}
+    	if(jsapConfig.getBoolean("help"))
+    	{
+    		showUsage(jsap, true);
     	}
         //legacy arg parsing
         setInstance(this);
@@ -167,14 +173,37 @@ public class Config
                         options.remove("--help");
         dbHelpRequired =  options.remove("-dbHelp") || options.remove("-dbhelp");
     }
+
+    private void showUsage(JSAP jsap){
+    	showUsage(jsap, false);
+    }
+
+	private void showUsage(JSAP jsap, boolean detailed) {
+		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+		System.err.println();
+		System.err.println("Usage: java -jar "
+		                    + jarFile.getName());
+		System.err.println("                "
+		                    + jsap.getUsage());
+		System.err.println();
+		if (detailed)
+		{
+			System.err.println(jsap.getHelp());
+		}
+	}
     
     private void setParameters(JSAP jsap) throws JSAPException {
-    	Switch sw = new Switch("xml")
+    	Switch sw = new Switch("help")
+    		.setShortFlag('h')
+    		.setLongFlag("help");
+    	jsap.registerParameter(sw);    	
+    	sw = new Switch("xml")
     		.setLongFlag("xml");
+    	sw.setHelp("Produce xml representation of schema to file.");
     	jsap.registerParameter(sw);
-    	FlaggedOption opt = new FlaggedOption("outputDir")
+    	FlaggedOption opt = new FlaggedOption("output-path")
     		.setShortFlag('o')
-    		.setLongFlag("output")
+    		.setLongFlag("output-path")
     		.setRequired(true);
     	jsap.registerParameter(opt);
     }
@@ -242,7 +271,7 @@ public class Config
 
     public File getOutputDir() {
         if (outputDir == null)
-            setOutputDir(jsapConfig.getString("ouputDir"));
+            setOutputDir(jsapConfig.getString("output-path"));
         return outputDir;
     }
 
