@@ -171,14 +171,16 @@ public class Config
 				new Switch("compact-relationship-diagram", JSAP.NO_SHORTFLAG, "compact-relationship-diagram", "Switches dot to compact relationship diagrams. Use if generating diagrams for large numbers of tables (suggested for >300)"),
 		});
     	jsapConfig = jsap.parse(argv);
-    	if (jsap.messagePrinted()){
-    		System.err.println();
-    		System.err.println("Usage:");
-    		System.err.println("  " + usage + " " + jsap.getUsage());
-    		System.err.println();
-    		System.err.println("Run");
-    		System.err.println(" " + usage + " --help");
-    		System.err.println("for full usage information.");
+    	if (jsap.messagePrinted()) {
+    		if (!jsapConfig.getBoolean("help")) {
+	    		System.err.println();
+	    		System.err.println("Usage:");
+	    		System.err.println("  " + usage + " " + jsap.getUsage());
+	    		System.err.println();
+	    		System.err.println("Run");
+	    		System.err.println(" " + usage + " --help");
+	    		System.err.println("for full usage information.");
+    		}
     		System.exit( 1 );
     	}
     }
