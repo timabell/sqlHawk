@@ -43,16 +43,18 @@ import net.sourceforge.schemaspy.view.DotNode.DotNodeConfig;
  * @author John Currier
  */
 public class DotFormatter {
-    private static DotFormatter instance = new DotFormatter();
-    private final int fontSize = Config.getInstance().getFontSize();
+    private static DotFormatter instance;
+    private int fontSize;
 
     /**
      * Singleton - prevent creation
      */
     private DotFormatter() {
+    	fontSize = Config.getInstance().getFontSize();
     }
 
     public static DotFormatter getInstance() {
+    	instance = new DotFormatter();
         return instance;
     }
 
