@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,13 +47,19 @@ import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
 import net.sourceforge.schemaspy.util.DbSpecificConfig;
 import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.view.DefaultSqlFormatter;
 import net.sourceforge.schemaspy.view.SqlFormatter;
 
-import com.martiansoftware.jsap.*;
-import com.martiansoftware.jsap.xml.JSAPConfig;
+import com.martiansoftware.jsap.FlaggedOption;
+import com.martiansoftware.jsap.JSAP;
+import com.martiansoftware.jsap.JSAPException;
+import com.martiansoftware.jsap.JSAPResult;
+import com.martiansoftware.jsap.Parameter;
+import com.martiansoftware.jsap.SimpleJSAP;
+import com.martiansoftware.jsap.Switch;
 
 /**
  * Configuration of a SchemaSpy run
@@ -77,7 +82,6 @@ public class Config
     private String host;
     private Integer port;
     private String server;
-    private String meta;
     private Pattern tableInclusions;
     private Pattern tableExclusions;
     private Pattern columnExclusions;
@@ -132,14 +136,25 @@ public class Config
 				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
 				new FlaggedOption("db-type", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 't', "db-type"),
 				new FlaggedOption("host", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'h', "host"),
-				new FlaggedOption("port", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'p', "port"),
-				new FlaggedOption("user", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'u', "user", "Username to connect to database with."),
+				new FlaggedOption("port", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "port"),
+				new FlaggedOption("user", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'u', "user", "Username to use when connecting to the database."),
+				new FlaggedOption("password", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'p', "password", "Password to use when connecting to the database."),
 				new FlaggedOption("database", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'd', "database", "Name of the database to connect to."),
 				new FlaggedOption("schema", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 's', "schema", "Name of the schema to use/analyse."),
 				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
 				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
-				new FlaggedOption("gv", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "gv", "Path to graphviz binaries."),
+				new FlaggedOption("graphviz-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "graphviz-path", "Path to graphviz binaries. Used to find the 'dot' executable used to generate ER diagrams. If not specified then the program expects to find Graphviz's bin directory on the PATH."),
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this optino to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
+				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
+				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
+				new FlaggedOption("css", JSAP.STRING_PARSER, "schemaSpy.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within schemaSpy.css."),
+				new FlaggedOption("schema-description", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-description", "Description of schema that gets display on main html pages."),
+				new FlaggedOption("charset", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "charset", "The character set to use within HTML pages. Default is 'ISO-8859-1')."),
+				new FlaggedOption("max-threads", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "max-threads", "Set a limit the number of threads used to connect to the database."),
+				new FlaggedOption("column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "column-exclusion-pattern", "Set the columns to exclude from all relationship diagrams. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
+				new FlaggedOption("indirect-column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "indirect-column-exclusion-pattern", "Set the columns to exclude from relationship diagrams where the specified columns aren't directly referenced by the focal table. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
+				new FlaggedOption("table-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "table-inclusion-pattern", "Set the tables to include in analysis. Regular expression for matching table names. By default everything is included."), // default value matches anything, i.e. everything included
+				new FlaggedOption("table-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "table-exclusion-pattern", "Set the tables to exclude from analysis. Regular expression for matching table names."), // default value matches nothing, i.e. everything included
 				new Switch("sso", JSAP.NO_SHORTFLAG, "sso", "Use single-signon when connecting to the database."),
 				new Switch("pfp", JSAP.NO_SHORTFLAG, "pfp", "Prompt For Password to use when connecting to the database."),
 				new Switch("no-implied", JSAP.NO_SHORTFLAG, "no-implied", "Don't add implied relationships."),
@@ -154,8 +169,9 @@ public class Config
 				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
 				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
 				new Switch("disable-row-counts", JSAP.NO_SHORTFLAG, "disable-row-counts", "Disables read and output of current row count of each table."),
-				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details.")
-    	});
+				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
+				new Switch("compact-relationship-diagram", JSAP.NO_SHORTFLAG, "compact-relationship-diagram", "Switches dot to compact relationship diagrams. Use if generating diagrams for large numbers of tables (suggested for >300)"),
+		});
     	jsapConfig = jsap.parse(argv);
     	if ( jsap.messagePrinted() ) System.exit( 1 );
     }
@@ -219,7 +235,6 @@ public class Config
     public void setGraphvizDir(String graphvizDir) {
         if (graphvizDir.endsWith("\""))
             graphvizDir = graphvizDir.substring(0, graphvizDir.length() - 1);
-
         setGraphvizDir(new File(graphvizDir));
     }
 
@@ -234,7 +249,9 @@ public class Config
 
     /**
      * Return the path to Graphviz (used to find the dot executable to run to
-     * generate ER diagrams).<p/>
+     * generate ER diagrams).
+     * 
+     * If not specified then the program expects to find Graphviz's bin directory on the PATH.
      *
      * Returns {@link #getDefaultGraphvizPath()} if a specific Graphviz path
      * was not specified.
@@ -242,15 +259,11 @@ public class Config
      * @return
      */
     public File getGraphvizDir() {
-        if (graphvizDir == null) {
-            String gv = pullParam("-gv");
-            if (gv != null) {
+        if (graphvizDir == null) {        	
+            String gv = jsapConfig.getString("graphviz-path");
+            if (gv != null)
                 setGraphvizDir(gv);
-            } else {
-                // expect to find Graphviz's bin directory on the PATH
-            }
         }
-
         return graphvizDir;
     }
 
@@ -272,12 +285,8 @@ public class Config
     }
 
     public String getDbType() {
-        if (dbType == null) {
-            dbType = pullParam("-t");
-            if (dbType == null)
-                dbType = "ora";
-        }
-
+        if (dbType == null)
+            dbType = jsapConfig.getString("type");
         return dbType;
     }
 
@@ -287,7 +296,7 @@ public class Config
 
     public String getDb() {
         if (db == null)
-            db = pullParam("-db");
+            db = jsapConfig.getString("database");
         return db;
     }
 
@@ -297,7 +306,7 @@ public class Config
 
     public String getSchema() {
         if (schema == null)
-            schema = pullParam("-s");
+            schema = jsapConfig.getString("schema");
         return schema;
     }
 
@@ -379,7 +388,7 @@ public class Config
      */
     public String getPassword() {
         if (password == null)
-            password = pullParam("-p");
+            password = jsapConfig.getString("password");
         return password;
     }
 
@@ -389,23 +398,6 @@ public class Config
      */
     public boolean isPromptForPasswordEnabled() {
         return jsapConfig.getBoolean("pfp");
-    }
-
-    public void setMaxDetailedTabled(int maxDetailedTables) {
-        this.maxDetailedTables = new Integer(maxDetailedTables);
-    }
-
-    public int getMaxDetailedTables() {
-        if (maxDetailedTables == null) {
-            int max = 300; // default
-            try {
-                max = Integer.parseInt(pullParam("-maxdet"));
-            } catch (Exception notSpecified) {}
-
-            maxDetailedTables = new Integer(max);
-        }
-
-        return maxDetailedTables.intValue();
     }
 
     public String getConnectionPropertiesFile() {
@@ -438,18 +430,17 @@ public class Config
      */
     public Properties getConnectionProperties() throws FileNotFoundException, IOException {
         if (userConnectionProperties == null) {
-            String props = pullParam("-connprops");
-            if (props != null) {
+        	if (jsapConfig.userSpecified("connprops")) {
+        		String props = jsapConfig.getString("connprops");
                 if (props.indexOf(ESCAPED_EQUALS) != -1) {
                     setConnectionProperties(props);
                 } else {
                     setConnectionPropertiesFile(props);
                 }
-            } else {
+        	} else {
                 userConnectionProperties = new Properties();
             }
         }
-
         return userConnectionProperties;
     }
 
@@ -479,43 +470,27 @@ public class Config
     }
 
     /**
-     * The filename of the cascading style sheet to use.
+     * The filename of the cascading style sheet to use in generated html.
      * Note that this file is parsed and used to determine characteristics
      * of the generated diagrams, so it must contain specific settings that
      * are documented within schemaSpy.css.<p>
      *
      * Defaults to <code>"schemaSpy.css"</code>.
-     *
-     * @param css
      */
-    public void setCss(String css) {
-        this.css = css;
-    }
-
     public String getCss() {
         if (css == null) {
-            css = pullParam("-css");
-            if (css == null)
-                css = "schemaSpy.css";
+            css = jsapConfig.getString("css");
         }
         return css;
     }
 
     /**
-     * The font to use within diagrams.  Modify the .css to specify HTML fonts.
-     *
-     * @param font
-     */
-    public void setFont(String font) {
-        this.font = font;
-    }
-
-    /**
-     * @see #setFont(String)
+     * The font to use within diagram images.
+     * Default: Helvetica
      */
     public String getFont() {
         if (font == null) {
-            font = pullParam("-font");
+            font = jsapConfig.getString("diagram-font");
             if (font == null)
                 font = "Helvetica";
         }
@@ -526,48 +501,23 @@ public class Config
      * The font size to use within diagrams.  This is the size of the font used for
      * 'large' (e.g. not 'compact') diagrams.<p>
      *
-     * Modify the .css to specify HTML font sizes.<p>
-     *
      * Defaults to 11.
-     *
-     * @param fontSize
-     */
-    public void setFontSize(int fontSize) {
-        this.fontSize = new Integer(fontSize);
-    }
-
-    /**
-     * @see #setFontSize(int)
-     * @return
-     */
+      */
     public int getFontSize() {
         if (fontSize == null) {
-            int size = 11; // default
-            try {
-                size = Integer.parseInt(pullParam("-fontsize"));
-            } catch (Exception notSpecified) {}
-
-            fontSize = new Integer(size);
+        	fontSize = jsapConfig.getInt("diagram-font-size");
+            if (fontSize == null)
+            	fontSize = 11; // default
         }
-
         return fontSize.intValue();
     }
 
     /**
      * The character set to use within HTML pages (defaults to <code>"ISO-8859-1"</code>).
-     *
-     * @param charset
-     */
-    public void setCharset(String charset) {
-        this.charset = charset;
-    }
-
-    /**
-     * @see #setCharset(String)
      */
     public String getCharset() {
         if (charset == null) {
-            charset = pullParam("-charset");
+            charset = jsapConfig.getString("charset");
             if (charset == null)
                 charset = "ISO-8859-1";
         }
@@ -576,33 +526,15 @@ public class Config
 
     /**
      * Description of schema that gets display on main pages.
-     *
-     * @param description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * @see #setDescription(String)
      */
     public String getDescription() {
         if (description == null)
-            description = pullParam("-desc");
+            description = jsapConfig.getString("schema-description");
         return description;
     }
 
     /**
      * Maximum number of threads to use when querying database metadata information.
-     *
-     * @param maxDbThreads
-     */
-    public void setMaxDbThreads(int maxDbThreads) {
-        this.maxDbThreads = new Integer(maxDbThreads);
-    }
-
-    /**
-     * @see #setMaxDbThreads(int)
      * @throws InvalidConfigurationException if unable to load properties
      */
     public int getMaxDbThreads() throws InvalidConfigurationException {
@@ -621,19 +553,14 @@ public class Config
                 threads = properties.getProperty("dbthreads");
             if (threads != null)
                 max = Integer.parseInt(threads);
-            threads = pullParam("-dbThreads");
-            if (threads == null)
-                threads = pullParam("-dbthreads");
-            if (threads != null)
-                max = Integer.parseInt(threads);
-            if (max < 0)
+            if(jsapConfig.contains("max-threads"))
+            	max = jsapConfig.getInt("max-threads");
+            if (max < 0) //-1 means no limit
                 max = Integer.MAX_VALUE;
             else if (max == 0)
                 max = 1;
-
             maxDbThreads = new Integer(max);
         }
-
         return maxDbThreads.intValue();
     }
 
@@ -688,41 +615,14 @@ public class Config
     }
 
     /**
-     * Returns <code>true</code> if metering should be embedded in
-     * the generated pages.<p/>
-     * Defaults to <code>false</code> (disabled).
-     * @return
-     */
-    public boolean isMeterEnabled() {
-        if (meterEnabled == null)
-            meterEnabled = options.remove("-meter");
-
-        return meterEnabled;
-    }
-
-    /**
      * Set the columns to exclude from all relationship diagrams.
-     *
-     * @param columnExclusions regular expression of the columns to
-     *        exclude
-     */
-    public void setColumnExclusions(String columnExclusions) {
-        this.columnExclusions = Pattern.compile(columnExclusions);
-    }
-
-    /**
-     * See {@link #setColumnExclusions(String)}
-     * @return
+     * Regular expression of the columns to exclude.
      */
     public Pattern getColumnExclusions() {
         if (columnExclusions == null) {
-            String strExclusions = pullParam("-X");
-            if (strExclusions == null)
-                strExclusions = "[^.]";   // match nothing
-
+            String strExclusions = jsapConfig.getString("column-exclusion-pattern");
             columnExclusions = Pattern.compile(strExclusions);
         }
-
         return columnExclusions;
     }
 
@@ -730,65 +630,31 @@ public class Config
      * Set the columns to exclude from relationship diagrams where the specified
      * columns aren't directly referenced by the focal table.
      *
-     * @param columnExclusions regular expression of the columns to
-     *        exclude
-     */
-    public void setIndirectColumnExclusions(String fullColumnExclusions) {
-        indirectColumnExclusions = Pattern.compile(fullColumnExclusions);
-    }
-
-    /**
-     * @see #setIndirectColumnExclusions(String)
-     *
-     * @return
+     * columnExclusions - regular expression of the columns to exclude
      */
     public Pattern getIndirectColumnExclusions() {
         if (indirectColumnExclusions == null) {
-            String strExclusions = pullParam("-x");
-            if (strExclusions == null)
-                strExclusions = "[^.]";   // match nothing
-
+            String strExclusions = jsapConfig.getString("indirect-column-exclusion-pattern");
             indirectColumnExclusions = Pattern.compile(strExclusions);
         }
-
         return indirectColumnExclusions;
     }
 
-    /**
-     * Set the tables to include as a regular expression
-     * @param tableInclusions
-     */
-    public void setTableInclusions(String tableInclusions) {
-        this.tableInclusions = Pattern.compile(tableInclusions);
-    }
-
-    /**
+     /**
      * Get the regex {@link Pattern} for which tables to include in the analysis.
      *
      * @return
      */
     public Pattern getTableInclusions() {
         if (tableInclusions == null) {
-            String strInclusions = pullParam("-i");
-            if (strInclusions == null)
-                strInclusions = ".*";     // match anything
-
+            String strInclusions = jsapConfig.getString("table-inclusion-pattern");
             try {
                 tableInclusions = Pattern.compile(strInclusions);
             } catch (PatternSyntaxException badPattern) {
-                throw new InvalidConfigurationException(badPattern).setParamName("-i");
+                throw new InvalidConfigurationException(badPattern).setParamName("table-inclusion-pattern");
             }
         }
-
         return tableInclusions;
-    }
-
-    /**
-     * Set the tables to exclude as a regular expression
-     * @param tableInclusions
-     */
-    public void setTableExclusions(String tableExclusions) {
-        this.tableExclusions = Pattern.compile(tableExclusions);
     }
 
     /**
@@ -798,39 +664,21 @@ public class Config
      */
     public Pattern getTableExclusions() {
         if (tableExclusions == null) {
-            String strExclusions = pullParam("-I");
-            if (strExclusions == null)
-                strExclusions = "";  // match nothing
-
+            String strExclusions = jsapConfig.getString("table-exclusion-pattern");
             try {
                 tableExclusions = Pattern.compile(strExclusions);
             } catch (PatternSyntaxException badPattern) {
-                throw new InvalidConfigurationException(badPattern).setParamName("-I");
+                throw new InvalidConfigurationException(badPattern).setParamName("table-exclusion-pattern");
             }
         }
-
         return tableExclusions;
     }
 
-    /**
-     * @return
-     */
     public List<String> getSchemas() {
         if (schemas == null) {
-            String tmp = pullParam("-schemas");
-            if (tmp == null)
-                tmp = pullParam("-schemata");
-            if (tmp != null) {
-                schemas = new ArrayList<String>();
-
-                for (String name : tmp.split("[ ,\"]"))
-                    schemas.add(name);
-
-                if (schemas.isEmpty())
-                    schemas = null;
-            }
+            String[] tmp = jsapConfig.getStringArray("schemas");
+            schemas = Arrays.asList(tmp);
         }
-
         return schemas;
     }
 
@@ -1429,5 +1277,10 @@ public class Config
 
         return params;
     }
+
+
+    public boolean isShowDetailedTablesEnabled() {
+		return !jsapConfig.getBoolean("compact-relationship-diagram");
+	}
 
 }

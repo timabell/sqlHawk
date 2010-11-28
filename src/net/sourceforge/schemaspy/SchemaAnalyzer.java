@@ -130,23 +130,8 @@ public class SchemaAnalyzer {
 			throws IOException, SQLException, FileNotFoundException {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
-		    List<String> args = config.asList();
-
 		    Properties properties = config.getDbProperties(config.getDbType());
 		    ConnectionURLBuilder urlBuilder = new ConnectionURLBuilder(config, properties);
-		    for (DbSpecificOption option : urlBuilder.getOptions()) {
-		        if (!args.contains("-" + option.getName())) {
-		            args.add("-" + option.getName());
-		            args.add(option.getValue().toString());
-		        }
-		    }
-
-		    // following params will be replaced by something appropriate
-		    yankParam(args, "-o");
-		    yankParam(args, "-s");
-		    args.remove("-all");
-		    args.remove("-schemas");
-		    args.remove("-schemata");
 
 		    String dbName = config.getDb();
 
@@ -347,7 +332,7 @@ public class SchemaAnalyzer {
 		if (!fineEnabled)
 		    System.out.print(".");
 		Collection<Table> tablesAndViews = db.getTablesAndViews();
-		boolean showDetailedTables = tablesAndViews.size() <= config.getMaxDetailedTables();
+		boolean showDetailedTables = config.isShowDetailedTablesEnabled();
 		final boolean includeImpliedConstraints = config.isImpliedConstraintsEnabled();
 
 		// if evaluating a 'ruby on rails-based' database then connect the columns
