@@ -78,18 +78,17 @@ public class SchemaMapper {
     private boolean fineEnabled;
 
     /**
-     * Connect to a database, load schema information into memory,
-     * write out to specified formats.
+     * Performs whatever mappings are requested by the config.
      * @param config
-     * @return
+     * @return true if ran without issue. Use to set exit code.
      * @throws Exception
      */
-    public Database analyze(Config config) throws Exception {
+    public boolean RunMapping(Config config) throws Exception {
         setupLogger(config);
         File outputDir = setupOuputDir(config);
         if (processMultipleSchemas(config, outputDir))
-        	return null;
-        Database db = readDb(config, config.getDb(), config.getSchema());
+        	return false; //probably checking and tidying up.
+        Database db = analyze(config);
         long start = System.currentTimeMillis();
         long startDiagrammingDetails = start; //set a value so that initialised if html not run
         if (config.isHtmlGenerationEnabled()) {
@@ -108,7 +107,18 @@ public class SchemaMapper {
             showTimingInformation(config, start, startDiagrammingDetails,
             		tableCount, end);
         }
-        return db;
+        return true; //success
+    }
+    
+    /**
+     * Connect to a database, load schema information into memory,
+     * return an in-memory representation of the database.
+     * @param config
+     * @return
+     * @throws Exception
+     */
+    private Database analyze(Config config) throws Exception {
+        return readDb(config, config.getDb(), config.getSchema());
     }
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
