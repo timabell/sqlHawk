@@ -28,7 +28,7 @@ import net.sourceforge.schemaspy.util.CaseInsensitiveMap;
 
 public class Database {
     private final String databaseName;
-    private final String schema;
+    private String schema;
     private String description;
     public String Dbms;
 	private Map<String, Table> tables = new CaseInsensitiveMap<Table>();
@@ -153,6 +153,14 @@ public class Database {
 
 	public void setProcs(Map<String, Procedure> procs) {
 		this.procs = procs;
+	}
+
+	public void setSchema(String schema) {
+		this.schema = schema;
+	}
+
+	public Map<String, Procedure> getProcMap() {
+		return procs;
 	}
 
 }

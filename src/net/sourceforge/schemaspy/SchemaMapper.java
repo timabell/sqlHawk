@@ -125,7 +125,8 @@ public class SchemaMapper {
             		tableCount, end);
         }
         if (config.isDatabaseOutputEnabled())
-        	DbWriter.Write(db);
+        	db.setSchema(config.getSchema());
+        	writeDb(config, db);
         return true; //success
     }
     
@@ -170,7 +171,6 @@ public class SchemaMapper {
     		throws IOException, SQLException {
         Properties properties = config.getDbProperties(config.getDbType());
         Connection connection = getConnection(config, properties);
-
         DatabaseMetaData meta = connection.getMetaData();
 
         if (schema == null && meta.supportsSchemasInTableDefinitions() &&
@@ -200,11 +200,36 @@ public class SchemaMapper {
 
         if (db.getTables().isEmpty() && db.getViews().isEmpty()) {
             dumpNoTablesMessage(schema, config.getUser(), meta, config.getTableInclusions() != null);
-            if (!config.isOneOfMultipleSchemas()) // don't bail if we're doing the whole enchilada
+            if (!config.isOneOfMultipleSchemas()) // don't bail if we're doing the whole enchilada. TODO: catch further up instead of checking here.
                 throw new EmptySchemaException();
         }
     	return db;
     }
+
+    private void writeDb(Config config, Database db)
+    		throws Exception {
+		Properties properties = config.getDbProperties(config.getDbType());
+		Connection connection = getConnection(config, properties);
+		DatabaseMetaData meta = connection.getMetaData();
+		String schema = db.getSchema();
+		String dbName = db.getName();
+		if (schema == null && meta.supportsSchemasInTableDefinitions() &&
+		        !config.isSchemaDisabled()) {
+		    schema = config.getUser();
+		    if (schema == null)
+		        throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
+		    config.setSchema(schema);
+		}
+		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
+		logger.info("Gathering existing schema details");
+		if (!fineEnabled)
+		    System.out.print("Gathering existing schema details...");
+        DbReader reader = new DbReader();
+        Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
+		logger.info("Applying changes");
+		DbWriter writer = new DbWriter(); 
+		writer.write(config, connection, meta, dbName, schema, properties, db, existingDb);
+	}
 
 	private Connection getConnection(Config config, Properties properties)
 			throws FileNotFoundException, IOException {
