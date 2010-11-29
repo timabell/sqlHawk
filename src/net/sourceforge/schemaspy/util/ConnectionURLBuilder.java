@@ -28,34 +28,33 @@ import net.sourceforge.schemaspy.Config;
  * @author John Currier
  */
 public class ConnectionURLBuilder {
-    private final String connectionURL;
-    private final List<DbSpecificOption> options;
     private final Logger logger = Logger.getLogger(getClass().getName());
 
     /**
+     * 
      * @param config
      * @param properties
      */
-    public ConnectionURLBuilder(Config config, Properties properties) {
-        List<String> opts = new ArrayList<String>();
+    public String buildUrl(Config config, Properties properties) {
+        List<String> madeUpCommandLineArguments = new ArrayList<String>();
 
         for (String key : config.getDbSpecificOptions().keySet()) {
-            opts.add((key.startsWith("-") ? "" : "-") + key);
-            opts.add(config.getDbSpecificOptions().get(key));
+            madeUpCommandLineArguments.add((key.startsWith("-") ? "" : "-") + key);
+            madeUpCommandLineArguments.add(config.getDbSpecificOptions().get(key));
         }
-        opts.addAll(config.getConnectionParameters());
+        madeUpCommandLineArguments.addAll(config.getConnectionParameters());
 
         DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
-        options = dbConfig.getOptions();
-        connectionURL = buildUrl(opts, properties, config);
+        List<DbSpecificOption> options = dbConfig.getOptions();
+        String connectionURL = buildUrlFromArgs(madeUpCommandLineArguments, properties, config, options);
         logger.config("connectionURL: " + connectionURL);
+        return connectionURL;
     }
 
-    private String buildUrl(List<String> args, Properties properties, Config config) {
+    private String buildUrlFromArgs(List<String> madeUpCommandLineArguments, Properties properties, Config config, List<DbSpecificOption> options) {
         String connectionSpec = properties.getProperty("connectionSpec");
-
         for (DbSpecificOption option : options) {
-            option.setValue(getParam(args, option, config));
+            option.setValue(getParam(madeUpCommandLineArguments, option, config));
 
             // replace e.g. <host> with <myDbHost>
             connectionSpec = connectionSpec.replaceAll("\\<" + option.getName() + "\\>", option.getValue().toString());
@@ -64,27 +63,13 @@ public class ConnectionURLBuilder {
         return connectionSpec;
     }
 
-    public String getConnectionURL() {
-        return connectionURL;
-    }
-
-    /**
-     * Returns a {@link List} of populated {@link DbSpecificOption}s that are applicable to
-     * the specified database type.
-     *
-     * @return
-     */
-    public List<DbSpecificOption> getOptions() {
-        return options;
-    }
-
     private String getParam(List<String> args, DbSpecificOption option, Config config) {
         String param = null;
         int paramIndex = args.indexOf("-" + option.getName());
 
         if (paramIndex < 0) {
             if (config != null)
-                param = config.getParam(option.getName());  // not in args...might be one of
+                param = null;// config.getParam(option.getName());  // not in args...might be one of
                                                             // the common db params
             if (param == null)
                 throw new Config.MissingRequiredParameterException(option.getName(), option.getDescription(), true);

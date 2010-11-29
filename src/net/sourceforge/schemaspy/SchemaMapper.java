@@ -147,8 +147,6 @@ public class SchemaMapper {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
 		    Properties properties = config.getDbProperties(config.getDbType());
-		    ConnectionURLBuilder urlBuilder = new ConnectionURLBuilder(config, properties);
-
 		    String dbName = config.getDb();
 
 		    if (schemas != null){
@@ -235,9 +233,9 @@ public class SchemaMapper {
 	private Connection getConnection(Config config, Properties properties)
 			throws FileNotFoundException, IOException {
 		Connection connection;
-		ConnectionURLBuilder urlBuilder = new ConnectionURLBuilder(config, properties);
+		String connectionUrl = new ConnectionURLBuilder().buildUrl(config, properties);
         if (config.getDb() == null)
-            config.setDb(urlBuilder.getConnectionURL());
+            config.setDb(connectionUrl);
 
         String driverClass = properties.getProperty("driver");
         String driverPath = properties.getProperty("driverPath");
@@ -246,7 +244,7 @@ public class SchemaMapper {
         if (config.getDriverPath() != null)
             driverPath = config.getDriverPath() + File.pathSeparator + driverPath;
 
-        connection = getConnection(config, urlBuilder.getConnectionURL(), driverClass, driverPath);
+        connection = getConnection(config, connectionUrl, driverClass, driverPath);
 		return connection;
 	}
 
