@@ -125,50 +125,59 @@ public class Config
 		String usage = "java -jar " + jarFile.getName();
     	SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
     		new Parameter[] {
-				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
+				//global options
+				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
+				//options for connecting to db
+				new Switch("db-help", JSAP.NO_SHORTFLAG, "db-help", "Show database specific usage information."),
 				new FlaggedOption("db-type", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 't', "db-type"),
 				new FlaggedOption("host", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'h', "host"),
 				new FlaggedOption("port", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "port"),
 				new FlaggedOption("user", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'u', "user", "Username to use when connecting to the database."),
+				new Switch("sso", JSAP.NO_SHORTFLAG, "sso", "Use single-signon when connecting to the database."),
+				new Switch("pfp", JSAP.NO_SHORTFLAG, "pfp", "Prompt For Password to use when connecting to the database."),
 				new FlaggedOption("password", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, 'p', "password", "Password to use when connecting to the database."),
 				new FlaggedOption("database", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'd', "database", "Name of the database to connect to."),
 				new FlaggedOption("schema", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 's', "schema", "Name of the schema to use/analyse."),
 				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
 				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
 				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver."),
-				new FlaggedOption("graphviz-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "graphviz-path", "Path to graphviz binaries. Used to find the 'dot' executable used to generate ER diagrams. If not specified then the program expects to find Graphviz's bin directory on the PATH."),
-				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
-				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
-				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, "11", false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
-				new Switch("high-quality", JSAP.NO_SHORTFLAG, "high-quality", "Use a high quality 'dot' renderer. Higher quality output takes longer to generate and results in significantly larger image files (which take longer to download / display), but it generally looks better."),
-				new FlaggedOption("renderer", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "renderer", "Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified at http://www.graphviz.org/doc/info/command.html Note that the leading ':' is required while :formatter is optional. The default renderer is typically GD. Note that using the high-quality option is the preferred approach over using this option."),
-				new FlaggedOption("css", JSAP.STRING_PARSER, "schemaSpy.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within schemaSpy.css."),
-				new FlaggedOption("schema-description", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-description", "Description of schema that gets display on main html pages."),
-				new FlaggedOption("charset", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "charset", "The character set to use within HTML pages. Default is 'ISO-8859-1')."),
+				//options for reading from db
 				new FlaggedOption("max-threads", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "max-threads", "Set a limit the number of threads used to connect to the database. The default is 1. Set to -1 for no limit."),
 				new FlaggedOption("column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "column-exclusion-pattern", "Set the columns to exclude from all relationship diagrams. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
 				new FlaggedOption("indirect-column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "indirect-column-exclusion-pattern", "Set the columns to exclude from relationship diagrams where the specified columns aren't directly referenced by the focal table. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
 				new FlaggedOption("table-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "table-inclusion-pattern", "Set the tables to include in analysis. Regular expression for matching table names. By default everything is included."), // default value matches anything, i.e. everything included
 				new FlaggedOption("table-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "table-exclusion-pattern", "Set the tables to exclude from analysis. Regular expression for matching table names."), // default value matches nothing, i.e. everything included
-				new FlaggedOption("sql-formatter", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "sql-formatter", "The name of the SQL formatter class to use to format SQL into HTML. The implementation of the class must be made available to the class loader, typically by specifying the path to its jar with option 'driver-path'"),
-				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
-				new Switch("sso", JSAP.NO_SHORTFLAG, "sso", "Use single-signon when connecting to the database."),
-				new Switch("pfp", JSAP.NO_SHORTFLAG, "pfp", "Prompt For Password to use when connecting to the database."),
 				new Switch("no-implied", JSAP.NO_SHORTFLAG, "no-implied", "Don't add implied relationships."),
-				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate SchemaSpy style html documentation."),
-				new Switch("scm-output", JSAP.NO_SHORTFLAG, "scm-output", "Generate output suitable for storing in source control."),
-				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema"),
-				new Switch("db-help", JSAP.NO_SHORTFLAG, "db-help", "Show database specific usage information."),
 				new Switch("no-schema", JSAP.NO_SHORTFLAG, "no-schema", "Some databases types (e.g. older versions of Informix) don't really have the concept of a schema but still return true from 'supportsSchemasInTableDefinitions()'. This option lets you ignore that and treat all the tables as if they were in one flat namespace."),
 				new Switch("all", JSAP.NO_SHORTFLAG, "all", "Output all the available schemas"),
 				new FlaggedOption("schema-spec", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-spec", "When -all is specified then this is the regular expression that determines which schemas to evaluate."),
-				new Switch("no-logo", JSAP.NO_SHORTFLAG, "no-logo", "Supress inclusion of SourceForge logo in html output."),
-				new Switch("rankdirbug", JSAP.NO_SHORTFLAG, "rankdirbug", "Don't use this unless absolutely necessary as it screws up the layout. Changes dot's rank direction rankdir to right-to-left (RL). See http://www.graphviz.org/doc/info/attrs.html#d:rankdir"),
 				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
-				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
 				new Switch("disable-row-counts", JSAP.NO_SHORTFLAG, "disable-row-counts", "Disables read and output of current row count of each table."),
 				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
+				//options for all file based output types
+				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
+				//options for writing to html
+				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate SchemaSpy style html documentation."),
+				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
+				new FlaggedOption("graphviz-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "graphviz-path", "Path to graphviz binaries. Used to find the 'dot' executable used to generate ER diagrams. If not specified then the program expects to find Graphviz's bin directory on the PATH."),
+				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
+				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, "11", false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
+				new Switch("high-quality", JSAP.NO_SHORTFLAG, "high-quality", "Use a high quality 'dot' renderer. Higher quality output takes longer to generate and results in significantly larger image files (which take longer to download / display), but it generally looks better."),
+				new FlaggedOption("renderer", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "renderer", "Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified at http://www.graphviz.org/doc/info/command.html Note that the leading ':' is required while :formatter is optional. The default renderer is typically GD. Note that using the high-quality option is the preferred approach over using this option."),
+				new FlaggedOption("css", JSAP.STRING_PARSER, "schemaSpy.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within schemaSpy.css."),
+				new FlaggedOption("charset", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "charset", "The character set to use within HTML pages. Default is 'ISO-8859-1')."),
+				new FlaggedOption("schema-description", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-description", "Description of schema that gets display on main html pages."),
+				new FlaggedOption("sql-formatter", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "sql-formatter", "The name of the SQL formatter class to use to format SQL into HTML. The implementation of the class must be made available to the class loader, typically by specifying the path to its jar with option 'driver-path'"),
+				new Switch("no-logo", JSAP.NO_SHORTFLAG, "no-logo", "Supress inclusion of SourceForge logo in html output."),
+				new Switch("rankdirbug", JSAP.NO_SHORTFLAG, "rankdirbug", "Don't use this unless absolutely necessary as it screws up the layout. Changes dot's rank direction rankdir to right-to-left (RL). See http://www.graphviz.org/doc/info/attrs.html#d:rankdir"),
 				new Switch("compact-relationship-diagram", JSAP.NO_SHORTFLAG, "compact-relationship-diagram", "Switches dot to compact relationship diagrams. Use if generating diagrams for large numbers of tables (suggested for >300)"),
+				//options for writing to scm files
+				new Switch("scm-output", JSAP.NO_SHORTFLAG, "scm-output", "Generate output suitable for storing in source control."),
+				//options for writing to xml
+				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema"),
+				//options for writing delete/insert order
+				//options for reading extra metadata
+				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 		});
     	jsapConfig = jsap.parse(argv);
     	if (jsap.messagePrinted()) {
