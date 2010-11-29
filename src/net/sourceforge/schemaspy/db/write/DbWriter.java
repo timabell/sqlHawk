@@ -19,17 +19,21 @@ public class DbWriter {
 		//add/update stored procs.
 		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		for (Procedure updatedProc : db.getProcs()){
-			if (existingProcs.containsKey(updatedProc.getName())) {
-				System.out.println("Updating existing proc " + updatedProc.getName());
-				//TODO: check if definitions match
+			String procName = updatedProc.getName();
+			String updatedDefinition = updatedProc.getDefinition();
+			if (existingProcs.containsKey(procName)) {
+				//check if definitions match
+				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition()))
+					continue; //already up to date, move on to next proc.
+				System.out.println("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.
-				if (!updatedProc.getDefinition().startsWith("CREATE"))
+				if (!updatedDefinition.startsWith("CREATE"))
 					throw new Exception(String.format("Procedure definition doesn't start with CREATE. Procedure name: %s", updatedProc.getName()));
-				String updateSql = updatedProc.getDefinition().replaceFirst("^CREATE", "ALTER");
+				String updateSql = updatedDefinition.replaceFirst("^CREATE", "ALTER");
 				connection.prepareStatement(updateSql).execute();
 			} else { //new proc
-				System.out.println("Adding new proc " + updatedProc.getName());
-				connection.prepareStatement(updatedProc.getDefinition()).execute();
+				System.out.println("Adding new proc " + procName);
+				connection.prepareStatement(updatedDefinition).execute();
 			}
 		}
 		Map<String, Procedure> updatedProcs = db.getProcMap();
@@ -39,6 +43,5 @@ public class DbWriter {
 				connection.prepareStatement("DROP PROCEDURE " + existingProc.getName()).execute();
 			}
 		}
-		//TODO: delete any unexpected procs
 	}
 }
