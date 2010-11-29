@@ -44,6 +44,7 @@ import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import net.sourceforge.schemaspy.util.CaseInsensitiveMap;
 import net.sourceforge.schemaspy.util.DbSpecificConfig;
 import net.sourceforge.schemaspy.util.Dot;
 import net.sourceforge.schemaspy.view.DefaultSqlFormatter;
@@ -140,7 +141,8 @@ public class Config
 				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
 				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
 				new FlaggedOption("connection-options-file", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options-file", "File containing a set of extra options to pass to the database driver."),
-				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver."),
+				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver. Format of this option is --connection-options property1:value1,property2:value2...")
+					.setList(JSAP.LIST).setListSeparator(','),
 				//dbms vendor specific options. Options that don't have an entry here can be specified in connection-options 
 				new FlaggedOption("database-instance", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "database-instance", "Sql server instance to connect to."),
 				//options for reading from db				
@@ -982,13 +984,10 @@ public class Config
         return dbPropertiesLoadedFrom;
     }
 
-   public Map<String, String> getDbSpecificOptions() {
-        if (dbSpecificOptions ==  null) {
-            dbSpecificOptions = new HashMap<String, String>();
-            if (jsapConfig.userSpecified("database-instance"))
-            		dbSpecificOptions.put("instance",jsapConfig.getString("database-instance"));
-        }
-        return dbSpecificOptions;
+   public String getDatabaseInstance() {
+        if (jsapConfig.userSpecified("database-instance"))
+        	return jsapConfig.getString("database-instance");
+        return null;
     }
 
     /**
@@ -1102,9 +1101,22 @@ public class Config
 		return jsapConfig.getString("driver-path");
 	}
 
-	public List<String> getConnectionParameters() {
-		String[] opts = jsapConfig.getStringArray("connection-options");
-		return Arrays.asList(opts);
+	public Map<String, String> getExtraConnectionOptions() {
+		if (!jsapConfig.userSpecified("connection-options"))
+			return null;
+		//get the raw value pairs from the command line argument.
+		//jsap will parse comma separated values into separate strings,
+		//then we manually parse the colon separated key:value into its parts
+		//and add to list of option data.
+		String[] rawOptions = jsapConfig.getStringArray("connection-options");
+		Map<String, String> extraOptions = new CaseInsensitiveMap<String>();
+		for(String rawOption : rawOptions){
+			String parts[] = rawOption.split(":");
+			if (parts.length!=2)
+				throw new InvalidConfigurationException("error parsing value in --connection-options '" + rawOption + "'" );
+			extraOptions.put(parts[0], parts[1]);
+		}
+		return extraOptions;
 	}
 
 	public boolean isOrderingOutputEnabled() {

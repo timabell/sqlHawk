@@ -20,6 +20,7 @@ package net.sourceforge.schemaspy.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 import net.sourceforge.schemaspy.Config;
@@ -36,49 +37,32 @@ public class ConnectionURLBuilder {
      * @param properties
      */
     public String buildUrl(Config config, Properties properties) {
-        List<String> madeUpCommandLineArguments = new ArrayList<String>();
-
-        for (String key : config.getDbSpecificOptions().keySet()) {
-            madeUpCommandLineArguments.add((key.startsWith("-") ? "" : "-") + key);
-            madeUpCommandLineArguments.add(config.getDbSpecificOptions().get(key));
-        }
-        madeUpCommandLineArguments.addAll(config.getConnectionParameters());
-
         DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
-        List<DbSpecificOption> options = dbConfig.getOptions();
-        String connectionURL = buildUrlFromArgs(madeUpCommandLineArguments, properties, config, options);
+        List<DbSpecificOption> driverOptions = dbConfig.getOptions();
+        String connectionURL = buildUrlFromArgs(properties, config, driverOptions);
         logger.config("connectionURL: " + connectionURL);
         return connectionURL;
     }
 
-    private String buildUrlFromArgs(List<String> madeUpCommandLineArguments, Properties properties, Config config, List<DbSpecificOption> options) {
+    private String buildUrlFromArgs(Properties properties, Config config, List<DbSpecificOption> driverOptions) {
         String connectionSpec = properties.getProperty("connectionSpec");
-        for (DbSpecificOption option : options) {
-            option.setValue(getParam(madeUpCommandLineArguments, option, config));
-
-            // replace e.g. <host> with <myDbHost>
+        Map<String, String> extraConnectionOptions = config.getExtraConnectionOptions();
+        for (DbSpecificOption option : driverOptions) {
+        	//options available directly in hard coded command line arguments of sqlHawk
+        	if (option.getName().equalsIgnoreCase("host") && config.getHost() != null)
+        		option.setValue(config.getHost());
+        	else if (option.getName().equalsIgnoreCase("port") && config.getPort() != null)
+        		option.setValue(config.getPort());
+        	else if (option.getName().equalsIgnoreCase("db") && config.getDb() != null)
+        		option.setValue(config.getDb());
+        	else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null)
+        		option.setValue(config.getDatabaseInstance());
+        	//options available through the "connection-options" multi-part command line argument of sqlHawk
+        	else if (extraConnectionOptions.containsKey(option.getName()))
+        		option.setValue(extraConnectionOptions.get(option.getName()));
+            //perform actual replacement in driver string e.g. <host> with <myDbHost>
             connectionSpec = connectionSpec.replaceAll("\\<" + option.getName() + "\\>", option.getValue().toString());
         }
-
         return connectionSpec;
-    }
-
-    private String getParam(List<String> args, DbSpecificOption option, Config config) {
-        String param = null;
-        int paramIndex = args.indexOf("-" + option.getName());
-
-        if (paramIndex < 0) {
-            if (config != null)
-                param = null;// config.getParam(option.getName());  // not in args...might be one of
-                                                            // the common db params
-            if (param == null)
-                throw new Config.MissingRequiredParameterException(option.getName(), option.getDescription(), true);
-        } else {
-            args.remove(paramIndex);
-            param = args.get(paramIndex).toString();
-            args.remove(paramIndex);
-        }
-
-        return param;
     }
 }
