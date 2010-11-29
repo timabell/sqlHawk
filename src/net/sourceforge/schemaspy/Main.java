@@ -47,8 +47,8 @@ public class Main {
 
         try {
 	        //begin analysis
-	        SchemaAnalyzer analyzer = new SchemaAnalyzer();
-            exitCode = analyzer.analyze(config) == null ? 1 : 0;
+	        SchemaMapper mapper = new SchemaMapper();
+            exitCode = mapper.analyze(config) == null ? 1 : 0;
         } catch (ConnectionFailure couldntConnect) {
             // failure already logged
             exitCode = 3;
