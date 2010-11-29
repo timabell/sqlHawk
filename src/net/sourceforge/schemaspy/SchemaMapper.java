@@ -104,6 +104,8 @@ public class SchemaMapper {
         	db = analyze(config);
         if (config.isScmInputEnabled())
         	db = ScmDbReader.Load(config);
+        if (db==null)
+        	throw new Exception("No database information has been read. Make sure you set a read flag.");
         //========= schema writing code ============
         long startDiagrammingDetails = start; //set a value so that initialised if html not run
         if (config.isHtmlGenerationEnabled()) {
