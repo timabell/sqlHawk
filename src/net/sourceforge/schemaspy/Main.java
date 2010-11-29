@@ -58,6 +58,9 @@ public class Main {
         } catch (EmptySchemaException noData) {
             // failure already logged
             exitCode = 2;
+        } catch (Config.MissingRequiredParameterException missingParam) {
+            System.err.println(missingParam.getMessage());
+            System.exit(1);
         } catch (InvalidConfigurationException badConfig) {
             System.err.println();
             if (badConfig.getParamName() != null)

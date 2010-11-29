@@ -85,36 +85,30 @@ public class SchemaMapper {
      * @throws Exception
      */
     public Database analyze(Config config) throws Exception {
-        try {
-            setupLogger(config);
-            File outputDir = setupOuputDir(config);
-            if (processMultipleSchemas(config, outputDir))
-            	return null;
-            Database db = readDb(config, config.getDb(), config.getSchema());
-            long start = System.currentTimeMillis();
-            long startDiagrammingDetails = start; //set a value so that initialised if html not run
-            if (config.isHtmlGenerationEnabled()) {
-                startDiagrammingDetails = writeHtml(config, start, outputDir,
-						db);
-            }
-            if (config.isSourceControlOutputEnabled())
-	        	new ScmDbWriter().writeForSourceControl(outputDir, db);
-            if (config.isXmlOutputEnabled())
-            	xmlWriter.writeXml(outputDir, db);
-            if (config.isOrderingOutputEnabled())
-            	writeOrderingFiles(outputDir, db);
-            if (config.isHtmlGenerationEnabled()) {
-                int tableCount = db.getTables().size() + db.getViews().size();
-                long end = System.currentTimeMillis();
-                showTimingInformation(config, start, startDiagrammingDetails,
-                		tableCount, end);
-            }
-            return db;
-        } catch (Config.MissingRequiredParameterException missingParam) {
-            System.err.println(missingParam.getMessage());
-            System.exit(1);
-            return null;
+        setupLogger(config);
+        File outputDir = setupOuputDir(config);
+        if (processMultipleSchemas(config, outputDir))
+        	return null;
+        Database db = readDb(config, config.getDb(), config.getSchema());
+        long start = System.currentTimeMillis();
+        long startDiagrammingDetails = start; //set a value so that initialised if html not run
+        if (config.isHtmlGenerationEnabled()) {
+            startDiagrammingDetails = writeHtml(config, start, outputDir,
+					db);
         }
+        if (config.isSourceControlOutputEnabled())
+        	new ScmDbWriter().writeForSourceControl(outputDir, db);
+        if (config.isXmlOutputEnabled())
+        	xmlWriter.writeXml(outputDir, db);
+        if (config.isOrderingOutputEnabled())
+        	writeOrderingFiles(outputDir, db);
+        if (config.isHtmlGenerationEnabled()) {
+            int tableCount = db.getTables().size() + db.getViews().size();
+            long end = System.currentTimeMillis();
+            showTimingInformation(config, start, startDiagrammingDetails,
+            		tableCount, end);
+        }
+        return db;
     }
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
