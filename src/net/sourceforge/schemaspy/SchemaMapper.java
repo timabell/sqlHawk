@@ -128,6 +128,8 @@ public class SchemaMapper {
         	db.setSchema(config.getSchema());
         	writeDb(config, db);
         }
+        System.out.println();
+        System.out.println("Done.");
         return true; //success
     }
     
