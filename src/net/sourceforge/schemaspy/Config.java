@@ -66,7 +66,6 @@ public class Config
 {
     private static Config instance;
     private Map<String, String> dbSpecificOptions;
-    private Map<String, String> originalDbSpecificOptions;
     private File targetDir;
     private File graphvizDir;
     private String dbType;
@@ -140,7 +139,10 @@ public class Config
 				new FlaggedOption("schema", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 's', "schema", "Name of the schema to use/analyse."),
 				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
 				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
+				new FlaggedOption("connection-options-file", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options-file", "File containing a set of extra options to pass to the database driver."),
 				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver."),
+				//dbms vendor specific options. Options that don't have an entry here can be specified in connection-options 
+				new FlaggedOption("database-instance", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "database-instance", "Sql server instance to connect to."),
 				//options for reading from db				
 				new Switch("database-input", JSAP.NO_SHORTFLAG, "database-input", "Read schema information from a live database / dbms."),
 				new FlaggedOption("max-threads", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "max-threads", "Set a limit the number of threads used to connect to the database. The default is 1. Set to -1 for no limit."),
@@ -980,20 +982,12 @@ public class Config
         return dbPropertiesLoadedFrom;
     }
 
-    /**
-     * Options that are specific to a type of database.  E.g. things like <code>host</code>,
-     * <code>port</code> or <code>db</code>, but <b>don't</b> have a setter in this class.
-     *
-     * @param dbSpecificOptions
-     */
-    public void setDbSpecificOptions(Map<String, String> dbSpecificOptions) {
-        this.dbSpecificOptions = dbSpecificOptions;
-        originalDbSpecificOptions = new HashMap<String, String>(dbSpecificOptions);
-    }
-
-    public Map<String, String> getDbSpecificOptions() {
-        if (dbSpecificOptions ==  null)
+   public Map<String, String> getDbSpecificOptions() {
+        if (dbSpecificOptions ==  null) {
             dbSpecificOptions = new HashMap<String, String>();
+            if (jsapConfig.userSpecified("database-instance"))
+            		dbSpecificOptions.put("instance",jsapConfig.getString("database-instance"));
+        }
         return dbSpecificOptions;
     }
 
