@@ -90,12 +90,12 @@ public class SchemaMapper {
         setupLogger(config);
         //========= schema reading code ============
         //TODO: check for any conflict in request options (read vs write?)
-        File outputDir = null;
+        File targetDir = config.getTargetDir();
         if (config.isSourceControlOutputEnabled()
         		|| config.isXmlOutputEnabled()
         		|| config.isOrderingOutputEnabled()
         		|| config.isHtmlGenerationEnabled()) { //one or more output type enabled so need a target directory
-        	outputDir = setupOuputDir(config);
+        	targetDir = setupOuputDir(targetDir);
         }
         //if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
         //	return false; //probably checking and tidying up.
@@ -103,21 +103,21 @@ public class SchemaMapper {
         if (config.isDatabaseInputEnabled())
         	db = analyze(config);
         if (config.isScmInputEnabled())
-        	db = ScmDbReader.Load(config);
+        	db = ScmDbReader.Load(config, targetDir);
         if (db==null)
         	throw new Exception("No database information has been read. Make sure you set a read flag.");
         //========= schema writing code ============
         long startDiagrammingDetails = start; //set a value so that initialised if html not run
         if (config.isHtmlGenerationEnabled()) {
-            startDiagrammingDetails = writeHtml(config, start, outputDir,
+            startDiagrammingDetails = writeHtml(config, start, targetDir,
 					db);
         }
         if (config.isSourceControlOutputEnabled())
-        	new ScmDbWriter().writeForSourceControl(outputDir, db);
+        	new ScmDbWriter().writeForSourceControl(targetDir, db);
         if (config.isXmlOutputEnabled())
-        	xmlWriter.writeXml(outputDir, db);
+        	xmlWriter.writeXml(targetDir, db);
         if (config.isOrderingOutputEnabled())
-        	writeOrderingFiles(outputDir, db);
+        	writeOrderingFiles(targetDir, db);
         if (config.isHtmlGenerationEnabled()) {
             int tableCount = db.getTables().size() + db.getViews().size();
             long end = System.currentTimeMillis();
@@ -224,8 +224,7 @@ public class SchemaMapper {
 		return connection;
 	}
 
-	private File setupOuputDir(Config config) throws IOException {
-		File outputDir = config.getOutputDir();
+	private File setupOuputDir(File outputDir) throws IOException {
 		if (!outputDir.isDirectory()) {
 		    if (!outputDir.mkdirs()) {
 		        throw new IOException("Failed to create directory '" + outputDir + "'");
@@ -299,11 +298,11 @@ public class SchemaMapper {
 		logger.info("Wrote table details in " + (end - startDiagrammingDetails) / 1000 + " seconds");
 
 		if (logger.isLoggable(Level.INFO)) {
-		    logger.info("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getOutputDir() + "' in " + (end - start) / 1000 + " seconds.");
-		    logger.info("View the results by opening " + new File(config.getOutputDir(), "index.html"));
+		    logger.info("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
+		    logger.info("View the results by opening " + new File(config.getTargetDir(), "index.html"));
 		} else {
-		    System.out.println("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getOutputDir() + "' in " + (end - start) / 1000 + " seconds.");
-		    System.out.println("View the results by opening " + new File(config.getOutputDir(), "index.html"));
+		    System.out.println("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
+		    System.out.println("View the results by opening " + new File(config.getTargetDir(), "index.html"));
 		}
 	}
 

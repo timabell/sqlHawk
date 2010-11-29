@@ -67,7 +67,7 @@ public class Config
     private static Config instance;
     private Map<String, String> dbSpecificOptions;
     private Map<String, String> originalDbSpecificOptions;
-    private File outputDir;
+    private File targetDir;
     private File graphvizDir;
     private String dbType;
     private String schema;
@@ -157,8 +157,8 @@ public class Config
 				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
 				//options for reading from scm files
 				new Switch("scm-input", JSAP.NO_SHORTFLAG, "scm-input", "Read schema information from source control files."),
-				//options for all file based output types
-				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
+				//options for all file based operations
+				new FlaggedOption("target-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, JSAP.NO_SHORTFLAG, "target-path", "Sets the folder where generated files will be put or read from. The folder will be created if missing for write operations."),
 				//options for writing to html
 				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate SchemaSpy style html documentation."),
 				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
@@ -234,21 +234,21 @@ public class Config
         return jsapConfig.getBoolean("no-implied");
     }
 
-    public void setOutputDir(String outputDirName) {
-        if (outputDirName.endsWith("\""))
-            outputDirName = outputDirName.substring(0, outputDirName.length() - 1);
+    public void setTargetDir(String targetDirName) {
+        if (targetDirName.endsWith("\""))
+            targetDirName = targetDirName.substring(0, targetDirName.length() - 1);
 
-        setOutputDir(new File(outputDirName));
+        setTargetDir(new File(targetDirName));
     }
 
-    public void setOutputDir(File outputDir) {
-        this.outputDir = outputDir;
+    public void setTargetDir(File outputDir) {
+        this.targetDir = outputDir;
     }
 
-    public File getOutputDir() {
-        if (outputDir == null)
-            setOutputDir(jsapConfig.getString("output-path"));
-        return outputDir;
+    public File getTargetDir() {
+        if (targetDir == null)
+            setTargetDir(jsapConfig.getString("target-path"));
+        return targetDir;
     }
 
     /**
