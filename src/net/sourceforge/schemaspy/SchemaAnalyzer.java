@@ -98,8 +98,8 @@ public class SchemaAnalyzer {
             	xmlWriter.writeXml(outputDir, db);
             if (config.isOrderingOutputEnabled())
             	writeOrderingFiles(outputDir, db);
-            int tableCount = db.getTables().size() + db.getViews().size();
             if (config.isHtmlGenerationEnabled()) {
+                int tableCount = db.getTables().size() + db.getViews().size();
                 long end = System.currentTimeMillis();
                 showTimingInformation(config, start, startDiagrammingDetails,
                 		tableCount, end);
