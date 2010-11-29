@@ -43,12 +43,14 @@ import java.util.logging.Logger;
 import net.sourceforge.schemaspy.db.read.ConnectionFailure;
 import net.sourceforge.schemaspy.db.read.DbReader;
 import net.sourceforge.schemaspy.db.read.EmptySchemaException;
+import net.sourceforge.schemaspy.db.write.DbWriter;
 import net.sourceforge.schemaspy.model.Database;
 import net.sourceforge.schemaspy.model.ForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.ImpliedForeignKeyConstraint;
 import net.sourceforge.schemaspy.model.Table;
 import net.sourceforge.schemaspy.model.TableColumn;
 import net.sourceforge.schemaspy.model.xml.SchemaMeta;
+import net.sourceforge.schemaspy.scm.read.ScmDbReader;
 import net.sourceforge.schemaspy.scm.write.ScmDbWriter;
 import net.sourceforge.schemaspy.util.ConnectionURLBuilder;
 import net.sourceforge.schemaspy.util.Dot;
@@ -84,12 +86,25 @@ public class SchemaMapper {
      * @throws Exception
      */
     public boolean RunMapping(Config config) throws Exception {
+        long start = System.currentTimeMillis(); //log start time to be able to write out timing information
         setupLogger(config);
-        File outputDir = setupOuputDir(config);
-        if (processMultipleSchemas(config, outputDir))
-        	return false; //probably checking and tidying up.
-        Database db = analyze(config);
-        long start = System.currentTimeMillis();
+        //========= schema reading code ============
+        //TODO: check for any conflict in request options (read vs write?)
+        File outputDir = null;
+        if (config.isSourceControlOutputEnabled()
+        		|| config.isXmlOutputEnabled()
+        		|| config.isOrderingOutputEnabled()
+        		|| config.isHtmlGenerationEnabled()) { //one or more output type enabled so need a target directory
+        	outputDir = setupOuputDir(config);
+        }
+        //if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
+        //	return false; //probably checking and tidying up.
+        Database db = null;
+        if (config.isDatabaseInputEnabled())
+        	db = analyze(config);
+        if (config.isScmInputEnabled())
+        	db = ScmDbReader.Load(config);
+        //========= schema writing code ============
         long startDiagrammingDetails = start; //set a value so that initialised if html not run
         if (config.isHtmlGenerationEnabled()) {
             startDiagrammingDetails = writeHtml(config, start, outputDir,
@@ -107,6 +122,8 @@ public class SchemaMapper {
             showTimingInformation(config, start, startDiagrammingDetails,
             		tableCount, end);
         }
+        if (config.isDatabaseOutputEnabled())
+        	DbWriter.Write(db);
         return true; //success
     }
     

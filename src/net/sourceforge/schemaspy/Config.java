@@ -141,7 +141,8 @@ public class Config
 				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
 				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
 				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver."),
-				//options for reading from db
+				//options for reading from db				
+				new Switch("database-input", JSAP.NO_SHORTFLAG, "database-input", "Read schema information from a live database / dbms."),
 				new FlaggedOption("max-threads", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "max-threads", "Set a limit the number of threads used to connect to the database. The default is 1. Set to -1 for no limit."),
 				new FlaggedOption("column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "column-exclusion-pattern", "Set the columns to exclude from all relationship diagrams. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
 				new FlaggedOption("indirect-column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "indirect-column-exclusion-pattern", "Set the columns to exclude from relationship diagrams where the specified columns aren't directly referenced by the focal table. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
@@ -154,6 +155,8 @@ public class Config
 				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
 				new Switch("disable-row-counts", JSAP.NO_SHORTFLAG, "disable-row-counts", "Disables read and output of current row count of each table."),
 				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
+				//options for reading from scm files
+				new Switch("scm-input", JSAP.NO_SHORTFLAG, "scm-input", "Read schema information from source control files."),
 				//options for all file based output types
 				new FlaggedOption("output-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, 'o', "output-path", "Sets the folder where generated files will be put. The folder will be created if missing."),
 				//options for writing to html
@@ -177,6 +180,8 @@ public class Config
 				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema"),
 				//options for writing delete/insert order
 				new Switch("ordering-output", JSAP.NO_SHORTFLAG, "ordering-output", "Generate text files containing read/write order of tables that will work give current constraints. Useful for creating insert/delete scripts."),
+				//options for writing to a database
+				new Switch("database-output", JSAP.NO_SHORTFLAG, "database-output", "Write schema to a live database / dbms. RISK OF DATA LOSS! TAKE BACKUPS FIRST!"),
 				//options for reading extra metadata
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 		});
@@ -1110,5 +1115,17 @@ public class Config
 
 	public boolean isOrderingOutputEnabled() {
 		return jsapConfig.getBoolean("ordering-output");
+	}
+
+	public boolean isDatabaseInputEnabled() {
+		return jsapConfig.getBoolean("database-input");
+	}
+
+	public boolean isScmInputEnabled() {
+		return jsapConfig.getBoolean("scm-input");
+	}
+
+	public boolean isDatabaseOutputEnabled() {
+		return jsapConfig.getBoolean("database-output");
 	}
 }
