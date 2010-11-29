@@ -124,9 +124,10 @@ public class SchemaMapper {
             showTimingInformation(config, start, startDiagrammingDetails,
             		tableCount, end);
         }
-        if (config.isDatabaseOutputEnabled())
+        if (config.isDatabaseOutputEnabled()) {
         	db.setSchema(config.getSchema());
         	writeDb(config, db);
+        }
         return true; //success
     }
     
