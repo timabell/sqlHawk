@@ -176,6 +176,7 @@ public class Config
 				//options for writing to xml
 				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema"),
 				//options for writing delete/insert order
+				new Switch("ordering-output", JSAP.NO_SHORTFLAG, "ordering-output", "Generate text files containing read/write order of tables that will work give current constraints. Useful for creating insert/delete scripts."),
 				//options for reading extra metadata
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 		});
@@ -1105,5 +1106,9 @@ public class Config
 	public List<String> getConnectionParameters() {
 		String[] opts = jsapConfig.getStringArray("connection-options");
 		return Arrays.asList(opts);
+	}
+
+	public boolean isOrderingOutputEnabled() {
+		return jsapConfig.getBoolean("ordering-output");
 	}
 }

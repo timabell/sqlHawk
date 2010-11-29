@@ -96,7 +96,8 @@ public class SchemaAnalyzer {
 	        	new ScmDbWriter().writeForSourceControl(outputDir, db);
             if (config.isXmlOutputEnabled())
             	xmlWriter.writeXml(outputDir, db);
-            writeOrderingFiles(outputDir, db);
+            if (config.isOrderingOutputEnabled())
+            	writeOrderingFiles(outputDir, db);
             int tableCount = db.getTables().size() + db.getViews().size();
             if (config.isHtmlGenerationEnabled()) {
                 long end = System.currentTimeMillis();
