@@ -143,7 +143,7 @@ public class SchemaMapper {
     }
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
-			throws IOException, SQLException, FileNotFoundException {
+			throws Exception {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
 		    Properties properties = config.getDbProperties(config.getDbType());
@@ -167,7 +167,7 @@ public class SchemaMapper {
 	}
 
     private Database readDb(Config config, String dbName, String schema)
-    		throws IOException, SQLException {
+    		throws Exception {
         Properties properties = config.getDbProperties(config.getDbType());
         Connection connection = getConnection(config, properties);
         DatabaseMetaData meta = connection.getMetaData();
@@ -231,7 +231,7 @@ public class SchemaMapper {
 	}
 
 	private Connection getConnection(Config config, Properties properties)
-			throws FileNotFoundException, IOException {
+			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config, properties);
         if (config.getDb() == null)

@@ -138,9 +138,9 @@ public class Config
 				new FlaggedOption("connection-options-file", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options-file", "File containing a set of extra options to pass to the database driver."),
 				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver. Format of this option is --connection-options property1:value1,property2:value2...")
 					.setList(JSAP.LIST).setListSeparator(','),
-				//dbms vendor specific options. Options that don't have an entry here can be specified in connection-options 
-				new FlaggedOption("database-instance", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "database-instance", "Sql server instance to connect to."),
-				//options for reading from db				
+				//dbms vendor specific options. Options that don't have an entry here can be specified in connection-options. These options will work when specified either way. Explicit command line arguments are supplied purely to improve usability.
+				new FlaggedOption("database-instance", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "database-instance", "Sql server instance to connect to. If you want to use this then you need to use the db-type 'mssql-jtds-instance'"),
+				//options for reading from db
 				new Switch("database-input", JSAP.NO_SHORTFLAG, "database-input", "Read schema information from a live database / dbms."),
 				new FlaggedOption("max-threads", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "max-threads", "Set a limit the number of threads used to connect to the database. The default is 1. Set to -1 for no limit."),
 				new FlaggedOption("column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "column-exclusion-pattern", "Set the columns to exclude from all relationship diagrams. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
@@ -1072,14 +1072,14 @@ public class Config
 	}
 
 	public Map<String, String> getExtraConnectionOptions() {
+		Map<String, String> extraOptions = new CaseInsensitiveMap<String>();
 		if (!jsapConfig.userSpecified("connection-options"))
-			return null;
+			return extraOptions; //return empty list
 		//get the raw value pairs from the command line argument.
 		//jsap will parse comma separated values into separate strings,
 		//then we manually parse the colon separated key:value into its parts
 		//and add to list of option data.
 		String[] rawOptions = jsapConfig.getStringArray("connection-options");
-		Map<String, String> extraOptions = new CaseInsensitiveMap<String>();
 		for(String rawOption : rawOptions){
 			String parts[] = rawOption.split(":");
 			if (parts.length!=2)
