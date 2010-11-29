@@ -86,8 +86,6 @@ public class SchemaMapper {
      */
     public Database analyze(Config config) throws Exception {
         try {
-            if (showHelp(config))
-            	return null;
             setupLogger(config);
             File outputDir = setupOuputDir(config);
             if (processMultipleSchemas(config, outputDir))
@@ -227,14 +225,6 @@ public class SchemaMapper {
 
 		fineEnabled = logger.isLoggable(Level.FINE);
 		logger.info("Starting schema analysis");
-	}
-
-	private boolean showHelp(Config config) {
-		if (config.isDbHelpRequired()) {
-		    config.dumpDbUsage();
-		    return true;
-		}
-		return false;
 	}
 
 	private void writeOrderingFiles(File outputDir, Database db)

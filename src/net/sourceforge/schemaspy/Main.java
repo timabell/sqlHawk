@@ -43,6 +43,9 @@ public class Main {
         //load config
         Config config = new Config(argv);
 
+        if (showHelp(config))
+        	System.exit(0);
+
         int exitCode = 1;
 
         try {
@@ -70,4 +73,12 @@ public class Main {
 
         System.exit(exitCode);
     }
+
+    private static boolean showHelp(Config config) {
+		if (config.isDbHelpRequired()) {
+		    config.dumpDbUsage();
+		    return true;
+		}
+		return false;
+	}
 }
