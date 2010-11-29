@@ -18,9 +18,6 @@
  */
 package net.sourceforge.schemaspy;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -28,7 +25,6 @@ import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +62,6 @@ import com.martiansoftware.jsap.Switch;
 public class Config
 {
     private static Config instance;
-    private Map<String, String> dbSpecificOptions;
     private File targetDir;
     private File graphvizDir;
     private String dbType;
@@ -1066,31 +1061,6 @@ public class Config
         System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
         System.out.println("Grab one out of " + getLoadedFromJar() + " and modify it to suit your needs.");
         System.out.println();
-    }
-
-    /**
-     * Get the value of the specified parameter.
-     * Used for properties that are common to most db's, but aren't required.
-     *
-     * @param paramName
-     * @return
-     */
-    public String getParam(String paramName) {
-        try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(Config.class);
-            PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
-            for (int i = 0; i < props.length; ++i) {
-                PropertyDescriptor prop = props[i];
-                if (prop.getName().equalsIgnoreCase(paramName)) {
-                    Object result = prop.getReadMethod().invoke(this, (Object[])null);
-                    return result == null ? null : result.toString();
-                }
-            }
-        } catch (Exception failed) {
-            failed.printStackTrace();
-        }
-
-        return null;
     }
 
     public boolean isShowDetailedTablesEnabled() {

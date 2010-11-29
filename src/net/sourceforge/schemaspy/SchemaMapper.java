@@ -709,12 +709,4 @@ public class SchemaMapper {
         }
     }
     */
-
-    private static void yankParam(List<String> args, String paramId) {
-        int paramIndex = args.indexOf(paramId);
-        if (paramIndex >= 0) {
-            args.remove(paramIndex);
-            args.remove(paramIndex);
-        }
-    }
 }

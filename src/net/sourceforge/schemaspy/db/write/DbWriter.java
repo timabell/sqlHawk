@@ -2,8 +2,6 @@ package net.sourceforge.schemaspy.db.write;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Properties;
 
