@@ -227,7 +227,8 @@ public class SchemaMapper {
 		    System.out.print("Gathering existing schema details...");
         DbReader reader = new DbReader();
         Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
-		logger.info("Applying changes");
+	    System.out.println();
+	    System.out.println("Applying changes...");
 		DbWriter writer = new DbWriter(); 
 		writer.write(config, connection, meta, dbName, schema, properties, db, existingDb);
 	}

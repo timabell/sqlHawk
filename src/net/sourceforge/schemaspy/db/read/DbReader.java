@@ -106,12 +106,14 @@ public class DbReader {
                 String procName = rs.getString("name");
                 String procDefinition = rs.getString("definition");
                 Procedure proc = new Procedure(schema, procName, procDefinition);
+                if (logger.isLoggable(Level.FINE))
+                    logger.fine("Read procedure definition '" + procName + "'");
                 database.putProc(procName, proc);
             }
         } catch (SQLException sqlException) {
             // don't die just because this failed
             System.err.println();
-            System.err.println("Failed to retrieve table/view comments: " + sqlException);
+            System.err.println("Failed to retrieve procedure definitions: " + sqlException);
             System.err.println(sql);
         } finally {
             if (rs != null)
