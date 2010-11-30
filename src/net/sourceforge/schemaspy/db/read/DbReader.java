@@ -175,7 +175,7 @@ public class DbReader {
             // with bizarre illegal names
             if (name.indexOf("$") != -1) {
                 if (fineEnabled) {
-                    logger.fine("Excluding " + clazz + " " + name +
+                    logger.finest("Excluding " + clazz + " " + name +
                                 ": embedded $ implies illegal name");
                 }
                 return false;
@@ -183,7 +183,7 @@ public class DbReader {
 
             if (exclude.matcher(name).matches()) {
                 if (fineEnabled) {
-                    logger.fine("Excluding " + clazz + " " + name +
+                    logger.finest("Excluding " + clazz + " " + name +
                                 ": matches exclusion pattern \"" + exclude + '"');
                 }
                 return false;
@@ -192,10 +192,10 @@ public class DbReader {
             boolean valid = include.matcher(name).matches();
             if (fineEnabled) {
                 if (valid) {
-                    logger.fine("Including " + clazz + " " + name +
+                    logger.finest("Including " + clazz + " " + name +
                                 ": matches inclusion pattern \"" + include + '"');
                 } else {
-                    logger.fine("Excluding " + clazz + " " + name +
+                    logger.finest("Excluding " + clazz + " " + name +
                                 ": doesn't match inclusion pattern \"" + include + '"');
                 }
             }
