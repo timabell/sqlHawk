@@ -21,7 +21,7 @@ public class ScmDbWriter {
 		Collection<Procedure> procs = db.getProcs();
 		for (Procedure proc : procs) {
 			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), Config.DOT_CHARSET);
-			out.write(proc.getDefinition());
+			out.writeln(proc.getDefinition()); //writeln() in preference to write() in order to make patches for sql files cleaner (\n on every line so new lines at end don't affect original last line)
 			out.close();		
 		}
 	}
