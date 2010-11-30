@@ -228,7 +228,6 @@ public class SchemaMapper {
         DbReader reader = new DbReader();
         Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
 	    System.out.println();
-	    System.out.println("Applying changes...");
 		DbWriter writer = new DbWriter(); 
 		writer.write(config, connection, meta, dbName, schema, properties, db, existingDb);
 	}

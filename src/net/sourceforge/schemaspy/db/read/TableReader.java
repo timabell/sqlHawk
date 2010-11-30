@@ -25,6 +25,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,6 +47,7 @@ public class TableReader {
 	private DatabaseMetaData meta;
     private final static Logger logger = Logger.getLogger(TableReader.class.getName());
     private Pattern invalidIdentifierPattern;
+    private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
     /**
      * Construct a table that knows everything about the database table's metadata
@@ -94,6 +96,8 @@ public class TableReader {
             rs = meta.getImportedKeys(null, table.getSchema(), table.getName());
 
             while (rs.next()) {
+            	if (fineEnabled)
+            		logger.finest("Adding foreign key " + rs.getString("FK_NAME"));
                 addForeignKey(rs.getString("FK_NAME"), rs.getString("FKCOLUMN_NAME"),
                         rs.getString("PKTABLE_SCHEM"), rs.getString("PKTABLE_NAME"),
                         rs.getString("PKCOLUMN_NAME"),
