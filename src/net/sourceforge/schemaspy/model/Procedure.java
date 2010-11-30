@@ -20,7 +20,11 @@ public class Procedure implements Comparable<Procedure> {
     public Procedure(String schema, String name, String definition) {
         this.schema = schema;
         this.name = name;
-        this.definition = definition;
+        //Remove all leading and trailing and whitespace for the procedure sql when saving.
+        //This prevents the alter code failing if there is whitespace before the CREATE block.
+        //It also means trailing and leading whitespace will be ignored when checking if an sp has been updated
+        // which seems sensible.
+        this.definition = definition.trim(); 
     }
 
     /**
