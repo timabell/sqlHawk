@@ -116,6 +116,12 @@ public class DbReader {
             while (rs.next()) {
                 String procName = rs.getString("name");
                 String procDefinition = rs.getString("definition");
+				//Change definition from CREATE to ALTER before saving
+                // - this is to make using scm .sql scripts manually easier.
+                //   A single change to CREATE the first time you use a proc
+                //   is easier than repeatedly changing to ALTER.
+                // - maybe make this a configurable option at some point.
+                procDefinition = procDefinition.replaceFirst("CREATE", "ALTER");
                 Procedure proc = new Procedure(schema, procName, procDefinition);
                 if (logger.isLoggable(Level.FINE))
                     logger.fine("Read procedure definition '" + procName + "'");

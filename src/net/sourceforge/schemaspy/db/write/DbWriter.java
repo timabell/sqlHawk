@@ -40,7 +40,8 @@ public class DbWriter {
 			} else { //new proc
 				if (fineEnabled)
 					logger.finest("Adding new proc " + procName);
-				connection.prepareStatement(updatedDefinition).execute();
+				String createSql = updatedDefinition.replaceFirst("ALTER", "CREATE");
+				connection.prepareStatement(createSql).execute();
 			}
 		}
 		if (fineEnabled)
