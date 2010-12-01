@@ -39,4 +39,7 @@ public class View extends Table {
     public String getViewSql() {
         return viewSql;
     }
+    public void setViewSql(String viewSql) {
+        this.viewSql = viewSql;
+    }
 }

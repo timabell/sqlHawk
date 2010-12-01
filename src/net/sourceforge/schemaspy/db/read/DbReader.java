@@ -91,6 +91,8 @@ public class DbReader {
         initViewComments(properties);
         System.out.println("Reading view column comments from live db...");
         initViewColumnComments(properties);
+        System.out.println("Reading view definitions from live db...");
+        initViewSql(properties);
         System.out.println("Reading procedures from live db...");
         initStoredProcedures(properties);
         System.out.println("Reading relationships from live db...");
@@ -101,7 +103,16 @@ public class DbReader {
         return database;
     }
 
-    private void initStoredProcedures(Properties properties) throws SQLException {
+    private void initViewSql(Properties properties) throws SQLException {
+    	for(View view : database.getViews())
+    	{
+    		if (fineEnabled)
+    			logger.finest("getting sql for view " + view.getName());
+    		view.setViewSql(fetchViewSql(properties, view.getName()));
+    	}
+	}
+
+	private void initStoredProcedures(Properties properties) throws SQLException {
         String sql = properties.getProperty("selectStoredProcsSql");
         if (sql == null)
         	return; 
