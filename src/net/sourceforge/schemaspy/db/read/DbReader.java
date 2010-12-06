@@ -1119,6 +1119,7 @@ public class DbReader {
         if (viewSql==null)
         	return null;
         viewSql = viewSql.trim();
+        viewSql = viewSql.replace("CREATE", "ALTER");
         if (viewSql.length()==0)
         	return null;
         return viewSql;
