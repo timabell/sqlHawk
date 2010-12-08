@@ -28,13 +28,15 @@ public class DbWriter {
 		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		for (Procedure updatedProc : db.getProcs()){
 			String procName = updatedProc.getName();
+			if (fineEnabled)
+				logger.finest("Processing proc " + procName);
 			String updatedDefinition = updatedProc.getDefinition();
 			if (existingProcs.containsKey(procName)) {
 				//check if definitions match
 				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition()))
 					continue; //already up to date, move on to next proc.
 				if (fineEnabled)
-					logger.finest("Updating existing proc " + procName);
+					logger.fine("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.
 				String updateSql = updatedDefinition.replaceFirst("CREATE", "ALTER");
 				try {
@@ -45,7 +47,7 @@ public class DbWriter {
 				}
 			} else { //new proc
 				if (fineEnabled)
-					logger.finest("Adding new proc " + procName);
+					logger.fine("Adding new proc " + procName);
 				String createSql = updatedDefinition.replaceFirst("ALTER", "CREATE");
 				try {
 					connection.prepareStatement(createSql).execute();
@@ -59,10 +61,13 @@ public class DbWriter {
 			logger.fine("Deleting unwanted stored procedures...");
 		Map<String, Procedure> updatedProcs = db.getProcMap();
 		for (Procedure existingProc : existingProcs.values()){
-			if (!updatedProcs.containsKey(existingProc.getName())){
+			String procName = existingProc.getName();
+			if (fineEnabled)
+				logger.finest("Checking if proc " + procName + " needs dropping...");
+			if (!updatedProcs.containsKey(procName)){
 				if (fineEnabled)
-					logger.finest("Dropping unwanted proc " + existingProc.getName());
-				connection.prepareStatement("DROP PROCEDURE " + existingProc.getName()).execute();
+					logger.fine("Dropping unwanted proc " + procName);
+				connection.prepareStatement("DROP PROCEDURE " + procName).execute();
 			}
 		}
 	}
