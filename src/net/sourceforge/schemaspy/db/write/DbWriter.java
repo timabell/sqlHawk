@@ -2,6 +2,7 @@ package net.sourceforge.schemaspy.db.write;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -36,12 +37,22 @@ public class DbWriter {
 					logger.finest("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.
 				String updateSql = updatedDefinition.replaceFirst("CREATE", "ALTER");
-				connection.prepareStatement(updateSql).execute();
+				try {
+					connection.prepareStatement(updateSql).execute();
+				} catch (SQLException ex){
+					//rethrow with information on which proc failed.
+					throw new Exception("Error updating proc " + procName, ex);
+				}
 			} else { //new proc
 				if (fineEnabled)
 					logger.finest("Adding new proc " + procName);
 				String createSql = updatedDefinition.replaceFirst("ALTER", "CREATE");
-				connection.prepareStatement(createSql).execute();
+				try {
+					connection.prepareStatement(createSql).execute();
+				} catch (SQLException ex){
+					//rethrow with information on which proc failed.
+					throw new Exception("Error updating proc " + procName, ex);
+				}
 			}
 		}
 		if (fineEnabled)
