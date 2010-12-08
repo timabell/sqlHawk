@@ -196,14 +196,7 @@ public class SchemaMapper {
             System.out.print("Gathering schema details...");
         DbReader reader = new DbReader();
         Database db = reader.Read(config, connection, meta, dbName, schema, properties, schemaMeta);
-
         schemaMeta = null; // done with it so let GC reclaim it
-
-        if (db.getTables().isEmpty() && db.getViews().isEmpty()) {
-            dumpNoTablesMessage(schema, config.getUser(), meta, config.getTableInclusions() != null);
-            if (!config.isOneOfMultipleSchemas()) // don't bail if we're doing the whole enchilada. TODO: catch further up instead of checking here.
-                throw new EmptySchemaException();
-        }
     	return db;
     }
 
