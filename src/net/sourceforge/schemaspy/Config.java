@@ -122,6 +122,8 @@ public class Config
     		new Parameter[] {
 				//global options
 				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
+				new Switch("disable-tables", JSAP.NO_SHORTFLAG, "disable-tables", "Disables read and output of table details."),
+				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
 				//options for connecting to db
 				new Switch("db-help", JSAP.NO_SHORTFLAG, "db-help", "Show database specific usage information."),
 				new FlaggedOption("db-type", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 't', "db-type"),
@@ -153,7 +155,6 @@ public class Config
 				new FlaggedOption("schema-spec", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-spec", "When -all is specified then this is the regular expression that determines which schemas to evaluate."),
 				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
 				new Switch("disable-row-counts", JSAP.NO_SHORTFLAG, "disable-row-counts", "Disables read and output of current row count of each table."),
-				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
 				//options for reading from scm files
 				new Switch("scm-input", JSAP.NO_SHORTFLAG, "scm-input", "Read schema information from source control files."),
 				//options for all file based operations
@@ -637,7 +638,11 @@ public class Config
         return !jsapConfig.getBoolean("disable-views");
     }
 
-    /**
+	public boolean isTableProcessingEnabled() {
+		return !jsapConfig.getBoolean("disable-tables");
+	}
+
+	/**
      * Set the columns to exclude from all relationship diagrams.
      * Regular expression of the columns to exclude.
      */

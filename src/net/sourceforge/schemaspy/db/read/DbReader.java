@@ -71,32 +71,35 @@ public class DbReader {
         database.setDescription(config.getDescription());
         database.setDbms(getDatabaseProduct());
         database.setKeywords(getKeywords(meta));
-        System.out.println("Reading tables from live db...");
-        initTables(meta, properties, config);
+        if (config.isTableProcessingEnabled())
+        {
+	        System.out.println("Reading tables from live db...");
+	        initTables(meta, properties, config);
+	        System.out.println("Reading constraints from live db...");
+	        initCheckConstraints(properties);
+	        System.out.println("Reading table ids from live db...");
+	        initTableIds(properties);
+	        System.out.println("Reading table indexes from live db...");
+	        initIndexIds(properties);
+	        System.out.println("Reading table comments from live db...");
+	        initTableComments(properties);
+	        System.out.println("Reading table column comments from live db...");
+	        initTableColumnComments(properties);
+	        System.out.println("Reading relationships from live db...");
+	        connectTables();
+        }
         if (config.isViewsEnabled()) {
             System.out.println("Reading views from live db...");
             initViews(meta, properties, config);
+	        System.out.println("Reading view comments from live db...");
+	        initViewComments(properties);
+	        System.out.println("Reading view column comments from live db...");
+	        initViewColumnComments(properties);
+	        System.out.println("Reading view definitions from live db...");
+	        initViewSql(properties);
         }
-        System.out.println("Reading constraints from live db...");
-        initCheckConstraints(properties);
-        System.out.println("Reading table ids from live db...");
-        initTableIds(properties);
-        System.out.println("Reading table indexes from live db...");
-        initIndexIds(properties);
-        System.out.println("Reading table comments from live db...");
-        initTableComments(properties);
-        System.out.println("Reading table column comments from live db...");
-        initTableColumnComments(properties);
-        System.out.println("Reading view comments from live db...");
-        initViewComments(properties);
-        System.out.println("Reading view column comments from live db...");
-        initViewColumnComments(properties);
-        System.out.println("Reading view definitions from live db...");
-        initViewSql(properties);
         System.out.println("Reading procedures from live db...");
         initStoredProcedures(properties);
-        System.out.println("Reading relationships from live db...");
-        connectTables();
         System.out.println("Reading additional data from xml...");
         updateFromXmlMetadata(schemaMeta);
         System.out.println("Done Reading live db.");
