@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="rebuild" name="SchemaSpy">
+<project basedir="." default="rebuild" name="SqlHawk">
   <property name="dest" value="output"/>
   <property name="dist" value="dist"/>
   <property name="src" value="src"/>
@@ -30,7 +30,7 @@
       </fileset>
       <zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
       <manifest>
-        <attribute name="Main-Class" value="net.sourceforge.schemaspy.Main"/>
+        <attribute name="Main-Class" value="uk.co.timwise.sqlhawk.Main"/>
       	<attribute name="Implementation-Version" 
       	                     value="${version}"/> 
       </manifest>
@@ -59,7 +59,6 @@
   <target name="compile" depends="init">
     <javac srcdir="${src}"
       includes="**/*.java"
-      excludes="test/**"
       destdir="${dest}"
       debug="on"
       debuglevel="source,lines"
