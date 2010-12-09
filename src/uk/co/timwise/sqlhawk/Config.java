@@ -118,7 +118,10 @@ public class Config
         setInstance(this);
     	//new code for arg parsing using jsap library.
 		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-		String usage = "java -jar " + jarFile.getName();
+		String jarName = jarFile.getName();
+		if (jarName=="output") //nicer help output if running outside a jar (i.e. debugging in eclipse)
+			jarName = "sqlHawk.jar";
+		String usage = "java -jar " + jarName;
     	SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
     		new Parameter[] {
 				//global options
