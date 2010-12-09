@@ -135,11 +135,8 @@ public class DbReader {
 
             while (rs.next()) {
                 String procName = rs.getString("name");
-                if (!validator.isValid(procName)) {
-                	if (fineEnabled)
-                		logger.finest("Skipping " + procName + " procedure based on exclusion pattern.");
+                if (!validator.isValid(procName))
                 	continue;
-                }
                 String procDefinition = rs.getString("definition");
 				//Change definition from CREATE to ALTER before saving
                 // - this is to make using scm .sql scripts manually easier.

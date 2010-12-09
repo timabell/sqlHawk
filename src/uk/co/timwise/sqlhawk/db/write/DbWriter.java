@@ -34,13 +34,10 @@ public class DbWriter {
 		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		for (Procedure updatedProc : db.getProcs()){
 			String procName = updatedProc.getName();
+			if (!validator.isValid(procName))
+				continue;
 			if (fineEnabled)
 				logger.finest("Processing proc " + procName);
-			if (!validator.isValid(procName)) {
-				if (fineEnabled)
-					logger.finest("Skipping " + procName + " procedure based on exclusion pattern.");
-				continue;
-			}
 			String updatedDefinition = updatedProc.getDefinition();
 			if (existingProcs.containsKey(procName)) {
 				//check if definitions match
