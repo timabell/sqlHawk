@@ -200,8 +200,13 @@ public class DbReader {
          */
         boolean isValid(String name, String type) {
             // some databases (MySQL) return more than we wanted
-            if (!validTypes.contains(type.toUpperCase()))
+            if (!validTypes.contains(type.toUpperCase())){
+                if (fineEnabled) {
+                    logger.finest("Excluding " + clazz + " " + name +
+                                ": unwanted object type");
+                }
                 return false;
+            }
 
             // Oracle 10g introduced problematic flashback tables
             // with bizarre illegal names
