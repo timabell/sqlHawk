@@ -137,7 +137,7 @@ public class DbReader {
                 String procName = rs.getString("name");
                 if (!validator.isValid(procName)) {
                 	if (fineEnabled)
-                		logger.finest("Skipping " + procName + "procedure based on exclusion pattern.");
+                		logger.finest("Skipping " + procName + " procedure based on exclusion pattern.");
                 	continue;
                 }
                 String procDefinition = rs.getString("definition");
