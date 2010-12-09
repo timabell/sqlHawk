@@ -1,3 +1,3 @@
 Manifest-Version: 1.0
-Main-Class: net.sourceforge.schemaspy.Main
+Main-Class: uk.co.timwise.sqlhawk.Main
 
