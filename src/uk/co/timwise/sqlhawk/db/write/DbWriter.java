@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Procedure;
@@ -26,11 +28,19 @@ public class DbWriter {
 		//add/update stored procs.
 		if (fineEnabled)
 			logger.fine("Adding/updating stored procedures...");
+		final Pattern include = config.getProcedureInclusions();
+		final Pattern exclude = config.getProcedureExclusions();
+		NameValidator validator = new NameValidator("procedure", include, exclude, null);
 		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		for (Procedure updatedProc : db.getProcs()){
 			String procName = updatedProc.getName();
 			if (fineEnabled)
 				logger.finest("Processing proc " + procName);
+			if (!validator.isValid(procName)) {
+				if (fineEnabled)
+					logger.finest("Skipping " + procName + " procedure based on exclusion pattern.");
+				continue;
+			}
 			String updatedDefinition = updatedProc.getDefinition();
 			if (existingProcs.containsKey(procName)) {
 				//check if definitions match
