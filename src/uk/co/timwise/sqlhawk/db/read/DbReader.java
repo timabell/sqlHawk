@@ -100,7 +100,7 @@ public class DbReader {
 	        initViewSql(properties);
         }
         System.out.println("Reading procedures from live db...");
-        initStoredProcedures(properties);
+        initStoredProcedures(properties, config);
         System.out.println("Reading additional data from xml...");
         updateFromXmlMetadata(schemaMeta);
         System.out.println("Done Reading live db.");
@@ -116,10 +116,14 @@ public class DbReader {
     	}
 	}
 
-	private void initStoredProcedures(Properties properties) throws SQLException {
+	private void initStoredProcedures(Properties properties, final Config config) throws SQLException {
         String sql = properties.getProperty("selectStoredProcsSql");
         if (sql == null)
         	return; 
+
+        final Pattern include = config.getProcedureInclusions();
+        final Pattern exclude = config.getProcedureExclusions();
+        NameValidator validator = new NameValidator("procedure", include, exclude, null);
         
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -130,6 +134,11 @@ public class DbReader {
 
             while (rs.next()) {
                 String procName = rs.getString("name");
+                if (!validator.isValid(procName)) {
+                	if (fineEnabled)
+                		logger.finest("Skipping " + procName + "procedure based on exclusion pattern.");
+                	continue;
+                }
                 String procDefinition = rs.getString("definition");
 				//Change definition from CREATE to ALTER before saving
                 // - this is to make using scm .sql scripts manually easier.
@@ -178,29 +187,39 @@ public class DbReader {
          * @param include
          * @param exclude
          * @param verbose
-         * @param validTypes
+         * @param validTypes pass null to allow any type
          */
         NameValidator(String clazz, Pattern include, Pattern exclude, String[] validTypes) {
             this.clazz = clazz;
             this.include = include;
             this.exclude = exclude;
-            this.validTypes = new HashSet<String>();
-            for (String type : validTypes)
-            {
-                this.validTypes.add(type.toUpperCase());
+            if (validTypes != null) {
+	            this.validTypes = new HashSet<String>();
+	            for (String type : validTypes)
+	            {
+	                this.validTypes.add(type.toUpperCase());
+	            }
+            } else {
+            	this.validTypes = null;
             }
         }
 
-        /**
+        public boolean isValid(String name) {
+			return isValid(name, null);
+		}
+
+		/**
          * Returns <code>true</code> if the table/view name is deemed "valid"
          *
          * @param name name of the table or view
          * @param type type as returned by metadata.getTables():TABLE_TYPE
+         * 	or null if not filtering by type
          * @return
          */
         boolean isValid(String name, String type) {
-            // some databases (MySQL) return more than we wanted
-            if (!validTypes.contains(type.toUpperCase())){
+            //some databases (MySQL) return more types of object than we wanted
+        	//these can be filtered out with a validTypes list.
+            if (validTypes!=null && type!=null && !validTypes.contains(type.toUpperCase())){
                 if (fineEnabled) {
                     logger.finest("Excluding " + clazz + " " + name +
                                 ": unwanted object type");

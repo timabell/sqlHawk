@@ -76,6 +76,8 @@ public class Config
     private String server;
     private Pattern tableInclusions;
     private Pattern tableExclusions;
+    private Pattern procedureInclusions;
+    private Pattern procedureExclusions;
     private Pattern columnExclusions;
     private Pattern indirectColumnExclusions;
     private String userConnectionPropertiesFile;
@@ -153,6 +155,8 @@ public class Config
 				new FlaggedOption("indirect-column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "indirect-column-exclusion-pattern", "Set the columns to exclude from relationship diagrams where the specified columns aren't directly referenced by the focal table. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
 				new FlaggedOption("table-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "table-inclusion-pattern", "Set the tables to include in analysis. Regular expression for matching table names. By default everything is included."), // default value matches anything, i.e. everything included
 				new FlaggedOption("table-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "table-exclusion-pattern", "Set the tables to exclude from analysis. Regular expression for matching table names."), // default value matches nothing, i.e. everything included
+				new FlaggedOption("procedure-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "procedure-inclusion-pattern", "Set the procedures to include in analysis. Regular expression for matching procedure names. By default everything is included."), // default value matches anything, i.e. everything included
+				new FlaggedOption("procedure-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "procedure-exclusion-pattern", "Set the procedures to exclude from analysis. Regular expression for matching procedure names."), // default value matches nothing, i.e. everything included
 				new Switch("no-implied", JSAP.NO_SHORTFLAG, "no-implied", "Don't add implied relationships."),
 				new Switch("no-schema", JSAP.NO_SHORTFLAG, "no-schema", "Some databases types (e.g. older versions of Informix) don't really have the concept of a schema but still return true from 'supportsSchemasInTableDefinitions()'. This option lets you ignore that and treat all the tables as if they were in one flat namespace."),
 				new Switch("all", JSAP.NO_SHORTFLAG, "all", "Output all the available schemas"),
@@ -704,6 +708,40 @@ public class Config
             }
         }
         return tableExclusions;
+    }
+
+    /**
+     * Get the regex {@link Pattern} for which procedures to include in the analysis.
+     *
+     * @return
+     */
+    public Pattern getProcedureInclusions() {
+        if (procedureInclusions == null) {
+            String strInclusions = jsapConfig.getString("procedure-inclusion-pattern");
+            try {
+                procedureInclusions = Pattern.compile(strInclusions);
+            } catch (PatternSyntaxException badPattern) {
+                throw new InvalidConfigurationException(badPattern).setParamName("procedure-inclusion-pattern");
+            }
+        }
+        return procedureInclusions;
+    }
+
+    /**
+     * Get the regex {@link Pattern} for which procedures to exclude from the analysis.
+     *
+     * @return
+     */
+    public Pattern getProcedureExclusions() {
+        if (procedureExclusions == null) {
+            String strExclusions = jsapConfig.getString("procedure-exclusion-pattern");
+            try {
+                procedureExclusions = Pattern.compile(strExclusions);
+            } catch (PatternSyntaxException badPattern) {
+                throw new InvalidConfigurationException(badPattern).setParamName("procedure-exclusion-pattern");
+            }
+        }
+        return procedureExclusions;
     }
 
     public List<String> getSchemas() {
