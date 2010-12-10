@@ -48,7 +48,8 @@ public class DbWriter {
 				//Change definition from CREATE to ALTER and run.
 				String updateSql = updatedDefinition.replaceFirst("CREATE", "ALTER");
 				try {
-					connection.prepareStatement(updateSql).execute();
+					if (!config.isDryRun())
+						connection.prepareStatement(updateSql).execute();
 				} catch (SQLException ex){
 					//rethrow with information on which proc failed.
 					throw new Exception("Error updating proc " + procName, ex);
@@ -58,7 +59,8 @@ public class DbWriter {
 					logger.fine("Adding new proc " + procName);
 				String createSql = updatedDefinition.replaceFirst("ALTER", "CREATE");
 				try {
-					connection.prepareStatement(createSql).execute();
+					if (!config.isDryRun())
+						connection.prepareStatement(createSql).execute();
 				} catch (SQLException ex){
 					//rethrow with information on which proc failed.
 					throw new Exception("Error updating proc " + procName, ex);
@@ -75,7 +77,8 @@ public class DbWriter {
 			if (!updatedProcs.containsKey(procName)){
 				if (fineEnabled)
 					logger.fine("Dropping unwanted proc " + procName);
-				connection.prepareStatement("DROP PROCEDURE " + procName).execute();
+				if (!config.isDryRun())
+					connection.prepareStatement("DROP PROCEDURE " + procName).execute();
 			}
 		}
 	}
