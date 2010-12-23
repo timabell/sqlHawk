@@ -44,6 +44,7 @@ import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ExplicitRemoteTable;
+import uk.co.timwise.sqlhawk.model.Function;
 import uk.co.timwise.sqlhawk.model.Procedure;
 import uk.co.timwise.sqlhawk.model.RemoteTable;
 import uk.co.timwise.sqlhawk.model.Table;
@@ -102,6 +103,8 @@ public class DbReader {
         }
         System.out.println("Reading procedures from live db...");
         initStoredProcedures(properties, config);
+        System.out.println("Reading functions from live db...");
+        initFunctions(properties, config);
         System.out.println("Reading additional data from xml...");
         updateFromXmlMetadata(schemaMeta);
         System.out.println("Done Reading live db.");
@@ -163,7 +166,53 @@ public class DbReader {
         
 	}
 
-    private String getDatabaseProduct() {
+	private void initFunctions(Properties properties, final Config config) throws SQLException {
+        String sql = properties.getProperty("selectFunctionsSql");
+        if (sql == null)
+        	return; 
+
+        final Pattern include = config.getProcedureInclusions();
+        final Pattern exclude = config.getProcedureExclusions();
+        NameValidator validator = new NameValidator("function", include, exclude, null);
+        
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = prepareStatement(sql, null);
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                String functionName = rs.getString("name");
+                if (!validator.isValid(functionName))
+                	continue;
+                String functionDefinition = rs.getString("definition");
+				//Change definition from CREATE to ALTER before saving
+                // - this is to make using scm .sql scripts manually easier.
+                //   A single change to CREATE the first time you use a proc
+                //   is easier than repeatedly changing to ALTER.
+                // - maybe make this a configurable option at some point.
+                functionDefinition = functionDefinition.replaceFirst("CREATE", "ALTER");
+                Function proc = new Function(schema, functionName, functionDefinition);
+                if (logger.isLoggable(Level.FINE))
+                    logger.fine("Read function definition '" + functionName + "'");
+                database.putFunction(functionName, proc);
+            }
+        } catch (SQLException sqlException) {
+            // don't die just because this failed
+            System.err.println();
+            System.err.println("Failed to retrieve function definitions: " + sqlException);
+            System.err.println(sql);
+        } finally {
+            if (rs != null)
+                rs.close();
+            if (stmt != null)
+                stmt.close();
+        }
+        
+	}
+
+	private String getDatabaseProduct() {
         try {
             return meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion();
         } catch (SQLException exc) {

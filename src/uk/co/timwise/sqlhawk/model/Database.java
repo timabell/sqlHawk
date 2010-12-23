@@ -36,6 +36,7 @@ public class Database {
     private final Map<String, View> views = new CaseInsensitiveMap<View>();
     private final Map<String, Table> remoteTables = new CaseInsensitiveMap<Table>(); // key: schema.tableName value: RemoteTable
     private Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
+    private Map<String, Function> functions = new CaseInsensitiveMap<Function>();
     private Date generatedDate = null;
     /**
      * used for syntax highlighting and identifier quoting.
@@ -136,6 +137,14 @@ public class Database {
 	
 	public void putProc(String name, Procedure proc) {
 		procs.put(name, proc);
+	}
+
+	public Collection<Function> getFunctions() {
+		return functions.values();
+	}
+
+	public void putFunction(String name, Function function) {
+		functions.put(name, function);
 	}
 
 	public void putViews(String name, View view) {

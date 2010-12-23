@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import uk.co.timwise.sqlhawk.Config;
 import uk.co.timwise.sqlhawk.model.Database;
+import uk.co.timwise.sqlhawk.model.Function;
 import uk.co.timwise.sqlhawk.model.Procedure;
 import uk.co.timwise.sqlhawk.model.View;
 import uk.co.timwise.sqlhawk.util.LineWriter;
@@ -15,6 +16,7 @@ public class ScmDbWriter {
 
 	public void writeForSourceControl(File outputDir, Database db) throws IOException {
 		writeProcs(outputDir, db.getProcs());
+		writeFunctions(outputDir, db.getFunctions());
 		writeViews(outputDir, db.getViews());
 	}
 	
@@ -24,6 +26,16 @@ public class ScmDbWriter {
 		for (Procedure proc : procs) {
 			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), Config.DOT_CHARSET);
 			out.writeln(proc.getDefinition()); //writeln() in preference to write() in order to make patches for sql files cleaner (\n on every line so new lines at end don't affect original last line)
+			out.close();		
+		}
+	}
+	
+	private void writeFunctions(File outputDir, Collection<Function> functions) throws IOException {		
+		File functionFolder = new File(outputDir, "Functions");
+		ensureFolder(functionFolder);
+		for (Function function : functions) {
+			LineWriter out = new LineWriter(new File(functionFolder, function.getName() + ".sql"), Config.DOT_CHARSET);
+			out.writeln(function.getDefinition()); //writeln() in preference to write() in order to make patches for sql files cleaner (\n on every line so new lines at end don't affect original last line)
 			out.close();		
 		}
 	}

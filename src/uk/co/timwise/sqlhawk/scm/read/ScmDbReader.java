@@ -16,6 +16,11 @@ public class ScmDbReader {
 
 	public static Database Load(Config config, File inputDir) throws Exception {
 		Database db = new Database(null, null);
+		db.setProcs(readProcs(inputDir));
+		return db;
+	}
+	
+	private static Map<String, Procedure> readProcs(File inputDir) throws Exception{
 		File procFolder = new File(inputDir, "Procedures");
 		if (!procFolder.isDirectory())
 			throw new Exception("input folder not found");
@@ -30,8 +35,7 @@ public class ScmDbReader {
 			Procedure proc = new Procedure(null, name, definition);
 			procs.put(name, proc);
 		}
-		db.setProcs(procs);
-		return db;
+		return procs;
 	}
 
 	 private static String readFile( File file ) throws IOException {
