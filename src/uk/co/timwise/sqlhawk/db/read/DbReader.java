@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.Config;
@@ -146,7 +147,9 @@ public class DbReader {
                 //   A single change to CREATE the first time you use a proc
                 //   is easier than repeatedly changing to ALTER.
                 // - maybe make this a configurable option at some point.
-                procDefinition = procDefinition.replaceFirst("CREATE", "ALTER");
+                Pattern p = Pattern.compile("CREATE", Pattern.CASE_INSENSITIVE);
+                Matcher m = p.matcher(procDefinition);
+                procDefinition = m.replaceFirst("ALTER");
                 Procedure proc = new Procedure(schema, procName, procDefinition);
                 if (logger.isLoggable(Level.FINE))
                     logger.fine("Read procedure definition '" + procName + "'");
@@ -192,7 +195,9 @@ public class DbReader {
                 //   A single change to CREATE the first time you use a proc
                 //   is easier than repeatedly changing to ALTER.
                 // - maybe make this a configurable option at some point.
-                functionDefinition = functionDefinition.replaceFirst("CREATE", "ALTER");
+                Pattern p = Pattern.compile("CREATE", Pattern.CASE_INSENSITIVE);
+                Matcher m = p.matcher(functionDefinition);
+                functionDefinition = m.replaceFirst("ALTER");
                 Function proc = new Function(schema, functionName, functionDefinition);
                 if (logger.isLoggable(Level.FINE))
                     logger.fine("Read function definition '" + functionName + "'");
@@ -1108,7 +1113,9 @@ public class DbReader {
         if (viewSql==null)
         	return null;
         viewSql = viewSql.trim();
-        viewSql = viewSql.replace("CREATE", "ALTER");
+        Pattern p = Pattern.compile("CREATE", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(viewSql);
+        viewSql = m.replaceFirst("ALTER");
         if (viewSql.length()==0)
         	return null;
         return viewSql;
