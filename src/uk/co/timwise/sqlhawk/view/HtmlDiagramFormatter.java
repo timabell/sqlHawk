@@ -45,7 +45,7 @@ public class HtmlDiagramFormatter extends HtmlFormatter {
                 printedInvalidVersionWarning = true;
                 System.err.println();
                 System.err.println("Warning: Invalid version of Graphviz dot detected (" + dot.getVersion() + ").");
-                System.err.println("   SchemaSpy requires " + dot.getSupportedVersions() + ". from www.graphviz.org.");
+                System.err.println("   sqlHawk requires " + dot.getSupportedVersions() + ". from www.graphviz.org.");
                 System.err.println("   Generated pages will not contain a diagramatic view of table relationships.");
             }
 

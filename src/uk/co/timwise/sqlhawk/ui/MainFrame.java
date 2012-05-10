@@ -53,7 +53,7 @@ public class MainFrame extends JFrame {
      */
     private void initialize() {
         setContentPane(getJContentPane());
-        setTitle("SchemaSpy");
+        setTitle("sqlHawk");
         this.setSize(new Dimension(500, 312));
         addWindowListener(new WindowAdapter() {
             @Override
@@ -135,7 +135,7 @@ public class MainFrame extends JFrame {
             GridBagConstraints constraints = new GridBagConstraints();
             constraints.gridx = 0;
             constraints.gridy = 0;
-            header.add(new JLabel("SchemaSpy - Graphical Database Metadata Browser"), constraints);
+            header.add(new JLabel("sqlHawk - Graphical Database Metadata Browser and schema management"), constraints);
             constraints.gridx = 0;
             constraints.gridy++;
             header.add(new JLabel("Select a database type and fill in the required fields"), constraints);

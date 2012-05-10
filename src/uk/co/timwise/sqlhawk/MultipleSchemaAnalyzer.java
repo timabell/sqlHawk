@@ -38,7 +38,7 @@ import uk.co.timwise.sqlhawk.view.HtmlMultipleSchemasIndexPage;
 
 /**
  * Writes an index page of schemas in a database and fires up new instances
- * of SchemaSpy to analyse each one. This should be rewritten to avoid java
+ * of sqlHawk to analyse each one. This should be rewritten to avoid java
  * runtime calls and work from within the java code.
  * @author John Currier
  */

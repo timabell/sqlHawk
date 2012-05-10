@@ -53,7 +53,7 @@ import com.martiansoftware.jsap.SimpleJSAP;
 import com.martiansoftware.jsap.Switch;
 
 /**
- * Configuration of a SchemaSpy run
+ * Configuration of a sqlHawk run
  *
  * @author John Currier
  */
@@ -165,14 +165,14 @@ public class Config
 				//options for all file based operations
 				new FlaggedOption("target-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, JSAP.NO_SHORTFLAG, "target-path", "Sets the folder where generated files will be put or read from. The folder will be created if missing for write operations."),
 				//options for writing to html
-				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate SchemaSpy style html documentation."),
+				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate sqlHawk style html documentation."),
 				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
 				new FlaggedOption("graphviz-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "graphviz-path", "Path to graphviz binaries. Used to find the 'dot' executable used to generate ER diagrams. If not specified then the program expects to find Graphviz's bin directory on the PATH."),
 				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
 				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, "11", false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
 				new Switch("high-quality", JSAP.NO_SHORTFLAG, "high-quality", "Use a high quality 'dot' renderer. Higher quality output takes longer to generate and results in significantly larger image files (which take longer to download / display), but it generally looks better."),
 				new FlaggedOption("renderer", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "renderer", "Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified at http://www.graphviz.org/doc/info/command.html Note that the leading ':' is required while :formatter is optional. The default renderer is typically GD. Note that using the high-quality option is the preferred approach over using this option."),
-				new FlaggedOption("css", JSAP.STRING_PARSER, "schemaSpy.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within schemaSpy.css."),
+				new FlaggedOption("css", JSAP.STRING_PARSER, "sqlHawk.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within sqlHawk.css."),
 				new FlaggedOption("charset", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "charset", "The character set to use within HTML pages. Default is 'ISO-8859-1')."),
 				new FlaggedOption("schema-description", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-description", "Description of schema that gets display on main html pages."),
 				new FlaggedOption("sql-formatter", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "sql-formatter", "The name of the SQL formatter class to use to format SQL into HTML. The implementation of the class must be made available to the class loader, typically by specifying the path to its jar with option 'driver-path'"),
@@ -505,9 +505,9 @@ public class Config
      * The filename of the cascading style sheet to use in generated html.
      * Note that this file is parsed and used to determine characteristics
      * of the generated diagrams, so it must contain specific settings that
-     * are documented within schemaSpy.css.<p>
+     * are documented within sqlHawk.css.<p>
      *
-     * Defaults to <code>"schemaSpy.css"</code>.
+     * Defaults to <code>"sqlHawk.css"</code>.
      */
     public String getCss() {
         if (css == null) {

@@ -16,7 +16,7 @@
 package uk.co.timwise.sqlhawk;
 
 /**
- * Base class to indicate that there was problem with how SchemaSpy was configured / used.
+ * Base class to indicate that there was problem with how sqlHawk was configured / used.
  *
  * @author John Currier
  */

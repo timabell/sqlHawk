@@ -345,7 +345,7 @@ public class SchemaMapper {
 		}
 		ImageWriter.getInstance().writeImages(outputDir);
 		ResourceWriter.getInstance().writeResource("/jquery.js", new File(outputDir, "/jquery.js"));
-		ResourceWriter.getInstance().writeResource("/schemaSpy.js", new File(outputDir, "/schemaSpy.js"));
+		ResourceWriter.getInstance().writeResource("/sqlHawk.js", new File(outputDir, "/sqlHawk.js"));
 		if (!fineEnabled)
 		    System.out.print(".");
 		Collection<Table> tablesAndViews = db.getTablesAndViews();
@@ -474,7 +474,7 @@ public class SchemaMapper {
 		    out.close();
 		}
 
-		out = new LineWriter(new File(outputDir, "schemaSpy.css"), config.getCharset());
+		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
 		StyleSheet.getInstance().write(out);
 		out.close();
 		return startDiagrammingDetails;
