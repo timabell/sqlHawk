@@ -62,6 +62,7 @@
 	<target name="revision">
 		<exec executable="git" outputproperty="git.version">
 			<arg value="describe" />
+			<arg value="--tags" />
 		</exec>
 		<exec executable="git" outputproperty="git.date">
 			<arg value="log" />
