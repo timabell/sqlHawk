@@ -52,7 +52,7 @@ public class ConnectionURLBuilder {
         		option.setValue(config.getHost());
         	else if (option.getName().equalsIgnoreCase("port") && config.getPort() != null)
         		option.setValue(config.getPort());
-        	else if (option.getName().equalsIgnoreCase("db") && config.getDb() != null)
+        	else if (option.getName().equalsIgnoreCase("database") && config.getDb() != null)
         		option.setValue(config.getDb());
         	else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null)
         		option.setValue(config.getDatabaseInstance());
