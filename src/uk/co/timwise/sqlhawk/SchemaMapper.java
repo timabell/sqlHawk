@@ -587,7 +587,7 @@ public class SchemaMapper {
                 System.err.println(invalidClasspathEntries);
             }
             System.err.println();
-            System.err.println("Use the -dp option to specify the location of the database");
+            System.err.println("Use the --driver-path option to specify the location of the database");
             System.err.println("drivers for your database (usually in a .jar or .zip/.Z).");
             System.err.println();
             throw new ConnectionFailure(exc);
