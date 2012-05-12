@@ -64,8 +64,6 @@ public class HtmlAnomaliesPage extends HtmlFormatter {
 	private void writeHeader(Database database, boolean hasOrphans, LineWriter html) throws IOException {
 		writeHeader(database, null, "Anomalies", hasOrphans, html);
 		html.writeln("<table width='100%'>");
-		if (sourceForgeLogoEnabled())
-			html.writeln("  <tr><td class='container' align='right' valign='top' colspan='2'><a href='http://sourceforge.net' target='_blank'><img src='http://sourceforge.net/sflogo.php?group_id=137197&amp;type=1' alt='SourceForge.net' border='0' height='31' width='88'></a></td></tr>");
 		html.writeln("  <tr><td class='container'><b>Things that might not be 'quite right' about your schema:</b></td></tr>");
 		html.writeln("</table>");
 		html.writeln("<ul>");
