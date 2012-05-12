@@ -80,38 +80,34 @@ public class DbType {
 	 */
 	public static DbType getDbType(String type) throws IOException, InvalidConfigurationException {
 		ResourceBundle bundle = null;
-		String dbPropertiesLoadedFrom;
-		try {
-			File propertiesFile = new File(type);
+		String dbPropertiesLoadedFrom = null;
+		File propertiesFile = new File(type);
+		if (!propertiesFile.exists()) {
+			propertiesFile = new File(type + ".properties");
+		}
+		if (propertiesFile.exists()) {
 			bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
 			dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
-		} catch (FileNotFoundException notFoundOnFilesystemWithoutExtension) {
+		} else {
 			try {
-				File propertiesFile = new File(type + ".properties");
-				bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
-				dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
-			} catch (FileNotFoundException notFoundOnFilesystemWithExtensionTackedOn) {
+				bundle = ResourceBundle.getBundle(type);
+				dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]" + File.separator + type + ".properties";
+			} catch (Exception notInJarWithoutPath) {
 				try {
-					bundle = ResourceBundle.getBundle(type);
-					dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]" + File.separator + type + ".properties";
-				} catch (Exception notInJarWithoutPath) {
-					try {
-						String path = TableOrderer.class.getPackage().getName() + ".dbTypes." + type;
-						path = path.replace('.', '/');
-						bundle = ResourceBundle.getBundle(path);
-						dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]/" + path + ".properties";
-					} catch (Exception notInJar) {
-						notInJar.printStackTrace();
-						notFoundOnFilesystemWithExtensionTackedOn.printStackTrace();
-						throw notFoundOnFilesystemWithoutExtension;
-					}
+					String path = DbType.class.getPackage().getName() + ".dbTypes." + type;
+					path = path.replace('.', '/');
+					bundle = ResourceBundle.getBundle(path);
+					dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]/" + path + ".properties";
+				} catch (Exception notInJar) {
+					System.err.println("Failed to find properties for db type '"+type+"' in file '"+type+"' or '"+type+".properties', and no bundled version found:");
+					notInJar.printStackTrace();
+					notInJarWithoutPath.printStackTrace();
 				}
 			}
 		}
 
 		Properties props = asProperties(bundle);
 		bundle = null;
-		String saveLoadedFrom = dbPropertiesLoadedFrom; // keep original thru recursion
 
 		// bring in key/values pointed to by the include directive
 		// example: include.1=mysql::selectRowCountSql
@@ -143,8 +139,6 @@ public class DbType {
 			props = baseProps;
 		}
 
-		// done with this level of recursion...restore original
-		dbPropertiesLoadedFrom = saveLoadedFrom;
 		DbType dbType = new DbType();
 		dbType.dbPropertiesLoadedFrom = dbPropertiesLoadedFrom;
 		dbType.props = props;
