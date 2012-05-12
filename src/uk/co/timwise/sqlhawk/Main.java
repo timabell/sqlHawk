@@ -37,6 +37,10 @@ public class Main {
 
 		//load config
 		Config config = new Config(argv);
+		if (argv.length == 0) {
+			config.showUsage();
+			System.exit(0);
+		}
 
 		if (config.isDbHelpRequired()) {
 			config.dumpDbUsage();

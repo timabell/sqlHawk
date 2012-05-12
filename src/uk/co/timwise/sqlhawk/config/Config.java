@@ -92,6 +92,8 @@ public class Config
 	private static final String ESCAPED_EQUALS = "\\=";
 	private JSAPResult jsapConfig;
 	private DbType dbType;
+	private SimpleJSAP jsapParser;
+	private String jarCommandLine;
 
 	/**
 	 * Default constructor. Intended for when you want to inject properties
@@ -118,8 +120,8 @@ public class Config
 		String jarName = jarFile.getName();
 		if (jarName=="output") //nicer help output if running outside a jar (i.e. debugging in eclipse)
 			jarName = "sqlHawk.jar";
-		String usage = "java -jar " + jarName;
-		SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
+		jarCommandLine = "java -jar " + jarName;
+		jsapParser = new SimpleJSAP(jarCommandLine, "Maps sql schema to and from file formats.",
 				new Parameter[] {
 				//global options
 				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
@@ -188,19 +190,23 @@ public class Config
 				//options for reading extra metadata
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 		});
-		jsapConfig = jsap.parse(argv);
-		if (jsap.messagePrinted()) {
+		jsapConfig = jsapParser.parse(argv);
+		if (jsapParser.messagePrinted()) {
 			if (!jsapConfig.getBoolean("help")) {
-				System.err.println();
-				System.err.println("Usage:");
-				System.err.println("  " + usage + " " + jsap.getUsage());
-				System.err.println();
-				System.err.println("Run");
-				System.err.println(" " + usage + " --help");
-				System.err.println("for full usage information.");
+				showUsage();
 			}
 			System.exit( 1 );
 		}
+	}
+
+	public void showUsage() {
+		System.err.println();
+		System.err.println("Usage:");
+		System.err.println("  " + jarCommandLine + " " + jsapParser.getUsage());
+		System.err.println();
+		System.err.println("Run");
+		System.err.println(" " + jarCommandLine + " --help");
+		System.err.println("for full usage information.");
 	}
 
 	public static Config getInstance() {
