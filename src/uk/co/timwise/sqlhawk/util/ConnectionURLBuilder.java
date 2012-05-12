@@ -45,19 +45,25 @@ public class ConnectionURLBuilder {
 		Map<String, String> extraConnectionOptions = config.getExtraConnectionOptions();
 		for (DbSpecificOption option : driverOptions) {
 			//options available directly in hard coded command line arguments of sqlHawk
-			if (option.getName().equalsIgnoreCase("host") && config.getHost() != null)
+			if (option.getName().equalsIgnoreCase("host") && config.getHost() != null) {
 				option.setValue(config.getHost());
-			else if (option.getName().equalsIgnoreCase("port") && config.getPort() != null)
-				option.setValue(config.getPort());
-			else if (option.getName().equalsIgnoreCase("database") && config.getDb() != null)
+			} else if (option.getName().equalsIgnoreCase("port")
+				         && (config.getPort() != null || properties.getProperty("default-port") != null)) {
+				if (config.getPort() != null){
+					option.setValue(config.getPort());
+				} else {
+					option.setValue(properties.getProperty("default-port"));
+				}
+			} else if (option.getName().equalsIgnoreCase("database") && config.getDb() != null) {
 				option.setValue(config.getDb());
-			else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null)
+			} else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null) {
 				option.setValue(config.getDatabaseInstance());
 			//options available through the "connection-options" multi-part command line argument of sqlHawk
-			else if (extraConnectionOptions.containsKey(option.getName()))
+			} else if (extraConnectionOptions.containsKey(option.getName())) {
 				option.setValue(extraConnectionOptions.get(option.getName()));
-			else
+			} else {
 				throw new Exception("The specified database driver requires option '" + option.getName() + "' which has not been supplied. You can supply extra options with --connection-options (see --help for more information)");
+			}
 			//perform actual replacement in driver string e.g. <host> with <myDbHost>
 			connectionSpec = connectionSpec.replaceAll("\\<" + option.getName() + "\\>", option.getValue().toString());
 		}
