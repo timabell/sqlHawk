@@ -161,7 +161,7 @@ public class Config
 				//options for reading from scm files
 				new Switch("scm-input", JSAP.NO_SHORTFLAG, "scm-input", "Read schema information from source control files."),
 				//options for all file based operations
-				new FlaggedOption("target-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, true, JSAP.NO_SHORTFLAG, "target-path", "Sets the folder where generated files will be put or read from. The folder will be created if missing for write operations."),
+				new FlaggedOption("target-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "target-path", "Sets the folder where generated files will be put or read from. The folder will be created if missing for write operations."),
 				//options for writing to html
 				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate sqlHawk style html documentation."),
 				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
