@@ -81,12 +81,12 @@ public class DbSpecificConfig {
 	 * Dump usage details associated with the associated type of database
 	 */
 	public void dumpUsage() {
-		System.out.println(" " + new File(dbType.getName()).getName() + ":");
-		System.out.println("  " + toString());
+		System.out.println(" " + new File(dbType.getName()).getName() + " - " + toString());
 
 		for (DbSpecificOption option : getOptions()) {
 			System.out.println("   " + option.getName() + ": " + (option.getDescription() != null ? "  \t" + option.getDescription() : ""));
 		}
+		System.out.println();
 	}
 
 	/**

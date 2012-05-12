@@ -966,6 +966,7 @@ public class Config
 
 	protected void dumpDbUsage() {
 		System.out.println("Built-in database types and their required connection parameters:");
+		System.out.println();
 		for (String typeName : DbType.getBuiltInDatabaseTypes()) {
 			try {
 				new DbSpecificConfig(DbType.getDbType(typeName)).dumpUsage();
