@@ -84,13 +84,13 @@ public class DbType {
 			} catch (FileNotFoundException notFoundOnFilesystemWithExtensionTackedOn) {
 				try {
 					bundle = ResourceBundle.getBundle(type);
-					dbPropertiesLoadedFrom = "[" + Config.getLoadedFromJar() + "]" + File.separator + type + ".properties";
+					dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]" + File.separator + type + ".properties";
 				} catch (Exception notInJarWithoutPath) {
 					try {
 						String path = TableOrderer.class.getPackage().getName() + ".dbTypes." + type;
 						path = path.replace('.', '/');
 						bundle = ResourceBundle.getBundle(path);
-						dbPropertiesLoadedFrom = "[" + Config.getLoadedFromJar() + "]/" + path + ".properties";
+						dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]/" + path + ".properties";
 					} catch (Exception notInJar) {
 						notInJar.printStackTrace();
 						notFoundOnFilesystemWithExtensionTackedOn.printStackTrace();

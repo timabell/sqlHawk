@@ -925,7 +925,12 @@ public class Config
 		return jsapConfig.getBoolean("db-help");// dbHelpRequired;
 	}
 
-	public static String getLoadedFromJar() {
+	/**
+	 * Gets the filename of the jar this program was loaded from.
+	 *
+	 * @return the filename of the jar
+	 */
+	public static String getJarName() {
 		String classpath = System.getProperty("java.class.path");
 		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
 	}
@@ -981,7 +986,7 @@ public class Config
 	}
 
 	public static Set<String> getBuiltInDatabaseTypes() {
-		return DbType.getBuiltInDatabaseTypes(getLoadedFromJar());
+		return DbType.getBuiltInDatabaseTypes(getJarName());
 	}
 
 	protected void dumpDbUsage() {
@@ -991,7 +996,7 @@ public class Config
 		}
 		System.out.println();
 		System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
-		System.out.println("Grab one out of " + getLoadedFromJar() + " and modify it to suit your needs.");
+		System.out.println("Grab one out of " + getJarName() + " and modify it to suit your needs.");
 		System.out.println();
 	}
 
