@@ -1075,6 +1075,7 @@ public class Config
 					databaseTypes.add(entryName.substring(0, dotPropsIndex));
 			}
 		} catch (IOException exc) {
+			System.out.println("Failed to open jar to read properties files:\n" + exc);
 		} finally {
 			if (jar != null) {
 				try {
