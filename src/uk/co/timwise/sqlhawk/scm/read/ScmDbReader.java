@@ -21,7 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 
-import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Procedure;
 import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;

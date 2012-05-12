@@ -10,27 +10,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import uk.co.timwise.sqlhawk.Config;
 import uk.co.timwise.sqlhawk.DbAnalyzer;
+import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
-import uk.co.timwise.sqlhawk.util.Dot;
 import uk.co.timwise.sqlhawk.util.LineWriter;
-import uk.co.timwise.sqlhawk.util.ResourceWriter;
-import uk.co.timwise.sqlhawk.view.DotFormatter;
-import uk.co.timwise.sqlhawk.view.HtmlAnomaliesPage;
-import uk.co.timwise.sqlhawk.view.HtmlColumnsPage;
-import uk.co.timwise.sqlhawk.view.HtmlConstraintsPage;
-import uk.co.timwise.sqlhawk.view.HtmlMainIndexPage;
-import uk.co.timwise.sqlhawk.view.HtmlOrphansPage;
-import uk.co.timwise.sqlhawk.view.HtmlRelationshipsPage;
-import uk.co.timwise.sqlhawk.view.HtmlTablePage;
-import uk.co.timwise.sqlhawk.view.ImageWriter;
-import uk.co.timwise.sqlhawk.view.StyleSheet;
-import uk.co.timwise.sqlhawk.view.WriteStats;
 
 public class HtmlWriter {
 	private final Logger logger = Logger.getLogger(getClass().getName());

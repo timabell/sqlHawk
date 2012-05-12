@@ -37,8 +37,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import uk.co.timwise.sqlhawk.Config;
 import uk.co.timwise.sqlhawk.InvalidConfigurationException;
+import uk.co.timwise.sqlhawk.config.Config;
 
 /**
  * Additional metadata about a schema as expressed in XML instead of from

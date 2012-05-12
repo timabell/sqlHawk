@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.RemoteTable;
 import uk.co.timwise.sqlhawk.model.Table;

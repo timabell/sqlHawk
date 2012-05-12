@@ -25,10 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
-import uk.co.timwise.sqlhawk.Config;
-import uk.co.timwise.sqlhawk.Config.MissingRequiredParameterException;
-import uk.co.timwise.sqlhawk.util.DbSpecificConfig;
-import uk.co.timwise.sqlhawk.util.DbSpecificOption;
+import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
+import uk.co.timwise.sqlhawk.config.DbSpecificOption;
+import uk.co.timwise.sqlhawk.config.Config.MissingRequiredParameterException;
 
 public class DbConfigTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;

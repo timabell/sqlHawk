@@ -30,7 +30,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import uk.co.timwise.sqlhawk.util.DbSpecificConfig;
+import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 
 public class DbConfigPanel extends JPanel {
 	private static final long serialVersionUID = 1L;

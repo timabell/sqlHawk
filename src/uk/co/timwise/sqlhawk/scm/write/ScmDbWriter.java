@@ -19,7 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 
-import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Function;
 import uk.co.timwise.sqlhawk.model.Procedure;

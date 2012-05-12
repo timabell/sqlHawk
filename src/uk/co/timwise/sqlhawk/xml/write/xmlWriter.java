@@ -30,12 +30,10 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Table;
-import uk.co.timwise.sqlhawk.util.DOMUtil;
 import uk.co.timwise.sqlhawk.util.LineWriter;
-import uk.co.timwise.sqlhawk.view.XmlTableFormatter;
 
 public class xmlWriter {
 	public static void writeXml(File outputDir, Database db)

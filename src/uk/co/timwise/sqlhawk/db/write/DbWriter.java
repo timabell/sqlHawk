@@ -24,7 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;

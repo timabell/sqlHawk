@@ -35,21 +35,23 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.db.ConnectionURLBuilder;
 import uk.co.timwise.sqlhawk.db.read.ConnectionFailure;
 import uk.co.timwise.sqlhawk.db.read.DbReader;
 import uk.co.timwise.sqlhawk.db.write.DbWriter;
 import uk.co.timwise.sqlhawk.html.HtmlWriter;
+import uk.co.timwise.sqlhawk.logging.LogFormatter;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.xml.SchemaMeta;
 import uk.co.timwise.sqlhawk.scm.read.ScmDbReader;
 import uk.co.timwise.sqlhawk.scm.write.ScmDbWriter;
-import uk.co.timwise.sqlhawk.util.ConnectionURLBuilder;
+import uk.co.timwise.sqlhawk.text.TableOrderer;
+import uk.co.timwise.sqlhawk.text.TextFormatter;
 import uk.co.timwise.sqlhawk.util.LineWriter;
-import uk.co.timwise.sqlhawk.util.LogFormatter;
 import uk.co.timwise.sqlhawk.util.PasswordReader;
-import uk.co.timwise.sqlhawk.view.TextFormatter;
 import uk.co.timwise.sqlhawk.xml.write.xmlWriter;
 
 

@@ -40,7 +40,7 @@ import uk.co.timwise.sqlhawk.model.RailsForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 import uk.co.timwise.sqlhawk.model.TableIndex;
-import uk.co.timwise.sqlhawk.util.Inflection;
+import uk.co.timwise.sqlhawk.rails.Inflection;
 
 public class DbAnalyzer {
 	public static List<ImpliedForeignKeyConstraint> getImpliedConstraints(Collection<Table> tables) {

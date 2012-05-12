@@ -28,12 +28,15 @@ import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.text.TableOrderer;
+
 public class DbType {
 	private String dbPropertiesLoadedFrom;
 	private Properties props;
 	private String name;
 
-	protected String getDbPropertiesLoadedFrom() {
+	public String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
 	}
 
