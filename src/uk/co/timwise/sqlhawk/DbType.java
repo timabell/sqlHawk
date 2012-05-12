@@ -36,6 +36,11 @@ public class DbType {
 		return dbPropertiesLoadedFrom;
 	}
 
+
+	public static Set<String> getBuiltInDatabaseTypes() {
+		return getBuiltInDatabaseTypes(Config.getJarName());
+	}
+
 	public static Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
 		Set<String> databaseTypes = new TreeSet<String>();
 		JarInputStream jar = null;

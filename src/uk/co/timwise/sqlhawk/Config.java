@@ -981,17 +981,9 @@ public class Config
 		}
 	}
 
-	public static Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
-		return DbType.getBuiltInDatabaseTypes(loadedFromJar);
-	}
-
-	public static Set<String> getBuiltInDatabaseTypes() {
-		return DbType.getBuiltInDatabaseTypes(getJarName());
-	}
-
 	protected void dumpDbUsage() {
 		System.out.println("Built-in database types and their required connection parameters:");
-		for (String type : getBuiltInDatabaseTypes()) {
+		for (String type : DbType.getBuiltInDatabaseTypes()) {
 			new DbSpecificConfig(type).dumpUsage();
 		}
 		System.out.println();
