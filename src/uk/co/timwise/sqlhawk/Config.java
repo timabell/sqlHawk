@@ -371,16 +371,6 @@ public class Config
 		return port;
 	}
 
-	public void setServer(String server) {
-		this.server = server;
-	}
-
-	public String getServer() {
-		if (server == null)
-			server = jsapConfig.getString("host");
-		return server;
-	}
-
 	public void setUser(String user) {
 		this.user = user;
 	}
