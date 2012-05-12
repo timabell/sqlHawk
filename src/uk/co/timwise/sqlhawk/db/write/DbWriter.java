@@ -32,8 +32,8 @@ import uk.co.timwise.sqlhawk.model.Procedure;
 
 
 public class DbWriter {
-    private final static Logger logger = Logger.getLogger(TableReader.class.getName());
-    private final boolean fineEnabled = logger.isLoggable(Level.FINE);
+	private final static Logger logger = Logger.getLogger(TableReader.class.getName());
+	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, String dbName, String schema,

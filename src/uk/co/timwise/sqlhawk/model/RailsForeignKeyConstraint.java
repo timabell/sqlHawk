@@ -22,22 +22,22 @@ import uk.co.timwise.sqlhawk.DbAnalyzer;
  * details on Rails naming conventions.
  */
 public class RailsForeignKeyConstraint extends ForeignKeyConstraint {
-    /**
-     * @param parentColumn
-     * @param childColumn
-     */
-    public RailsForeignKeyConstraint(TableColumn parentColumn, TableColumn childColumn) {
-        super(parentColumn, childColumn);
-    }
+	/**
+	 * @param parentColumn
+	 * @param childColumn
+	 */
+	public RailsForeignKeyConstraint(TableColumn parentColumn, TableColumn childColumn) {
+		super(parentColumn, childColumn);
+	}
 
-    /**
-     * Normally the name of the constraint, but this one is implied by
-     * Rails naming conventions.
-     *
-     * @return
-     */
-    @Override
-    public String getName() {
-        return "ByRailsConventionConstraint";
-    }
+	/**
+	 * Normally the name of the constraint, but this one is implied by
+	 * Rails naming conventions.
+	 *
+	 * @return
+	 */
+	@Override
+	public String getName() {
+		return "ByRailsConventionConstraint";
+	}
 }

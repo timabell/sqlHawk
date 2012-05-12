@@ -22,22 +22,22 @@ import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.util.LineWriter;
 
 public class TextFormatter {
-    private static TextFormatter instance = new TextFormatter();
+	private static TextFormatter instance = new TextFormatter();
 
-    /**
-     * Singleton - prevent creation
-     */
-    private TextFormatter() {
-    }
+	/**
+	 * Singleton - prevent creation
+	 */
+	private TextFormatter() {
+	}
 
-    public static TextFormatter getInstance() {
-        return instance;
-    }
+	public static TextFormatter getInstance() {
+		return instance;
+	}
 
-    public void write(Collection<Table> tables, boolean includeViews, LineWriter out) throws IOException {
-        for (Table table : tables) {
-            if (!table.isView() || includeViews)
-                out.writeln(table.getName());
-        }
-    }
+	public void write(Collection<Table> tables, boolean includeViews, LineWriter out) throws IOException {
+		for (Table table : tables) {
+			if (!table.isView() || includeViews)
+				out.writeln(table.getName());
+		}
+	}
 }

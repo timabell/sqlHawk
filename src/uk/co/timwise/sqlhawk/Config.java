@@ -57,70 +57,70 @@ import com.martiansoftware.jsap.Switch;
  */
 public class Config
 {
-    private static Config instance;
-    private File targetDir;
-    private File graphvizDir;
-    private String dbType;
-    private String schema;
-    private List<String> schemas;
-    private String user;
-    private String password;
-    private String db;
-    private String host;
-    private Integer port;
-    private String server;
-    private Pattern tableInclusions;
-    private Pattern tableExclusions;
-    private Pattern procedureInclusions;
-    private Pattern procedureExclusions;
-    private Pattern columnExclusions;
-    private Pattern indirectColumnExclusions;
-    private String userConnectionPropertiesFile;
-    private Properties userConnectionProperties;
-    private Integer maxDbThreads;
-    private String css;
-    private String charset;
-    private String font;
-    private Integer fontSize;
-    private String description;
-    private String dbPropertiesLoadedFrom;
-    private Level logLevel;
-    private SqlFormatter sqlFormatter;
-    private String sqlFormatterClass;
-    private Boolean highQuality;
-    private String schemaSpec;  // used in conjunction with evaluateAll
-    public static final String DOT_CHARSET = "UTF-8";
-    private static final String ESCAPED_EQUALS = "\\=";
-    private JSAPResult jsapConfig;
+	private static Config instance;
+	private File targetDir;
+	private File graphvizDir;
+	private String dbType;
+	private String schema;
+	private List<String> schemas;
+	private String user;
+	private String password;
+	private String db;
+	private String host;
+	private Integer port;
+	private String server;
+	private Pattern tableInclusions;
+	private Pattern tableExclusions;
+	private Pattern procedureInclusions;
+	private Pattern procedureExclusions;
+	private Pattern columnExclusions;
+	private Pattern indirectColumnExclusions;
+	private String userConnectionPropertiesFile;
+	private Properties userConnectionProperties;
+	private Integer maxDbThreads;
+	private String css;
+	private String charset;
+	private String font;
+	private Integer fontSize;
+	private String description;
+	private String dbPropertiesLoadedFrom;
+	private Level logLevel;
+	private SqlFormatter sqlFormatter;
+	private String sqlFormatterClass;
+	private Boolean highQuality;
+	private String schemaSpec;  // used in conjunction with evaluateAll
+	public static final String DOT_CHARSET = "UTF-8";
+	private static final String ESCAPED_EQUALS = "\\=";
+	private JSAPResult jsapConfig;
 
-    /**
-     * Default constructor. Intended for when you want to inject properties
-     * independently (i.e. not from a command line interface).
-     */
-    public Config()
-    {
-        if (instance == null)
-            setInstance(this);
-    }
+	/**
+	 * Default constructor. Intended for when you want to inject properties
+	 * independently (i.e. not from a command line interface).
+	 */
+	public Config()
+	{
+		if (instance == null)
+			setInstance(this);
+	}
 
-    /**
-     * Construct a configuration from an array of options (e.g. from a command
-     * line interface).
-     *
-     * @param options
-     * @throws JSAPException 
-     */
-    public Config(String[] argv) throws JSAPException
-    {
-        setInstance(this);
-    	//new code for arg parsing using jsap library.
+	/**
+	 * Construct a configuration from an array of options (e.g. from a command
+	 * line interface).
+	 *
+	 * @param options
+	 * @throws JSAPException 
+	 */
+	public Config(String[] argv) throws JSAPException
+	{
+		setInstance(this);
+		//new code for arg parsing using jsap library.
 		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
 		String jarName = jarFile.getName();
 		if (jarName=="output") //nicer help output if running outside a jar (i.e. debugging in eclipse)
 			jarName = "sqlHawk.jar";
 		String usage = "java -jar " + jarName;
-    	SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
-    		new Parameter[] {
+		SimpleJSAP jsap = new SimpleJSAP(usage, "Maps sql schema to and from file formats.",
+				new Parameter[] {
 				//global options
 				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
 				new Switch("disable-tables", JSAP.NO_SHORTFLAG, "disable-tables", "Disables read and output of table details."),
@@ -140,7 +140,7 @@ public class Config
 				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
 				new FlaggedOption("connection-options-file", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options-file", "File containing a set of extra options to pass to the database driver."),
 				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver. Format of this option is --connection-options property1:value1,property2:value2...")
-					.setList(JSAP.LIST).setListSeparator(','),
+				.setList(JSAP.LIST).setListSeparator(','),
 				//dbms vendor specific options. Options that don't have an entry here can be specified in connection-options. These options will work when specified either way. Explicit command line arguments are supplied purely to improve usability.
 				new FlaggedOption("database-instance", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "database-instance", "Sql server instance to connect to. If you want to use this then you need to use the db-type 'mssql-jtds-instance'"),
 				//options for reading from db
@@ -189,42 +189,42 @@ public class Config
 				//options for reading extra metadata
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
 		});
-    	jsapConfig = jsap.parse(argv);
-    	if (jsap.messagePrinted()) {
-    		if (!jsapConfig.getBoolean("help")) {
-	    		System.err.println();
-	    		System.err.println("Usage:");
-	    		System.err.println("  " + usage + " " + jsap.getUsage());
-	    		System.err.println();
-	    		System.err.println("Run");
-	    		System.err.println(" " + usage + " --help");
-	    		System.err.println("for full usage information.");
-    		}
-    		System.exit( 1 );
-    	}
-    }
+		jsapConfig = jsap.parse(argv);
+		if (jsap.messagePrinted()) {
+			if (!jsapConfig.getBoolean("help")) {
+				System.err.println();
+				System.err.println("Usage:");
+				System.err.println("  " + usage + " " + jsap.getUsage());
+				System.err.println();
+				System.err.println("Run");
+				System.err.println(" " + usage + " --help");
+				System.err.println("for full usage information.");
+			}
+			System.exit( 1 );
+		}
+	}
 
-    public static Config getInstance() {
-        if (instance == null)
-            instance = new Config();
+	public static Config getInstance() {
+		if (instance == null)
+			instance = new Config();
 
-        return instance;
-    }
+		return instance;
+	}
 
-    /**
-     * Sets the global instance.
-     *
-     * Useful for things like selecting a specific configuration in a UI.
-     *
-     * @param config
-     */
-    public static void setInstance(Config config) {
-        instance = config;
-    }
+	/**
+	 * Sets the global instance.
+	 *
+	 * Useful for things like selecting a specific configuration in a UI.
+	 *
+	 * @param config
+	 */
+	public static void setInstance(Config config) {
+		instance = config;
+	}
 
-    public boolean isHtmlGenerationEnabled() {
-        return jsapConfig.getBoolean("html-output");
-    }
+	public boolean isHtmlGenerationEnabled() {
+		return jsapConfig.getBoolean("html-output");
+	}
 
 	public boolean isSourceControlOutputEnabled() {
 		return jsapConfig.getBoolean("scm-output");
@@ -234,879 +234,879 @@ public class Config
 		return jsapConfig.getBoolean("xml-output");
 	}
 
-    public boolean isImpliedConstraintsEnabled() {
-        return jsapConfig.getBoolean("guess-relationships");
-    }
+	public boolean isImpliedConstraintsEnabled() {
+		return jsapConfig.getBoolean("guess-relationships");
+	}
 
-    public void setTargetDir(String targetDirName) {
-        if (targetDirName.endsWith("\""))
-            targetDirName = targetDirName.substring(0, targetDirName.length() - 1);
+	public void setTargetDir(String targetDirName) {
+		if (targetDirName.endsWith("\""))
+			targetDirName = targetDirName.substring(0, targetDirName.length() - 1);
 
-        setTargetDir(new File(targetDirName));
-    }
+		setTargetDir(new File(targetDirName));
+	}
 
-    public void setTargetDir(File outputDir) {
-        this.targetDir = outputDir;
-    }
+	public void setTargetDir(File outputDir) {
+		this.targetDir = outputDir;
+	}
 
-    public File getTargetDir() {
-        if (targetDir == null)
-            setTargetDir(jsapConfig.getString("target-path"));
-        return targetDir;
-    }
+	public File getTargetDir() {
+		if (targetDir == null)
+			setTargetDir(jsapConfig.getString("target-path"));
+		return targetDir;
+	}
 
-    /**
-     * Set the path to Graphviz so we can find dot to generate ER diagrams
-     *
-     * @param graphvizDir
-     */
-    public void setGraphvizDir(String graphvizDir) {
-        if (graphvizDir.endsWith("\""))
-            graphvizDir = graphvizDir.substring(0, graphvizDir.length() - 1);
-        setGraphvizDir(new File(graphvizDir));
-    }
+	/**
+	 * Set the path to Graphviz so we can find dot to generate ER diagrams
+	 *
+	 * @param graphvizDir
+	 */
+	public void setGraphvizDir(String graphvizDir) {
+		if (graphvizDir.endsWith("\""))
+			graphvizDir = graphvizDir.substring(0, graphvizDir.length() - 1);
+		setGraphvizDir(new File(graphvizDir));
+	}
 
-    /**
-     * Set the path to Graphviz so we can find dot to generate ER diagrams
-     *
-     * @param graphvizDir
-     */
-    public void setGraphvizDir(File graphvizDir) {
-        this.graphvizDir = graphvizDir;
-    }
+	/**
+	 * Set the path to Graphviz so we can find dot to generate ER diagrams
+	 *
+	 * @param graphvizDir
+	 */
+	public void setGraphvizDir(File graphvizDir) {
+		this.graphvizDir = graphvizDir;
+	}
 
-    /**
-     * Return the path to Graphviz (used to find the dot executable to run to
-     * generate ER diagrams).
-     * 
-     * If not specified then the program expects to find Graphviz's bin directory on the PATH.
-     *
-     * Returns {@link #getDefaultGraphvizPath()} if a specific Graphviz path
-     * was not specified.
-     *
-     * @return
-     */
-    public File getGraphvizDir() {
-        if (graphvizDir == null) {        	
-            String gv = jsapConfig.getString("graphviz-path");
-            if (gv != null)
-                setGraphvizDir(gv);
-        }
-        return graphvizDir;
-    }
+	/**
+	 * Return the path to Graphviz (used to find the dot executable to run to
+	 * generate ER diagrams).
+	 * 
+	 * If not specified then the program expects to find Graphviz's bin directory on the PATH.
+	 *
+	 * Returns {@link #getDefaultGraphvizPath()} if a specific Graphviz path
+	 * was not specified.
+	 *
+	 * @return
+	 */
+	public File getGraphvizDir() {
+		if (graphvizDir == null) {        	
+			String gv = jsapConfig.getString("graphviz-path");
+			if (gv != null)
+				setGraphvizDir(gv);
+		}
+		return graphvizDir;
+	}
 
-    /**
-     * Meta files are XML-based files that provide additional metadata
-     * about the schema being evaluated.<p>
-     * <code>meta</code> is either the name of an individual XML file or
-     * the directory that contains meta files.<p>
-     * If a directory is specified then it is expected to contain files
-     * matching the pattern <code>[schema].meta.xml</code>.
-     * For databases that don't have schema substitute [schema] with [database].
-     */
-    public String getMeta() {
-        return jsapConfig.getString("metadata-path");
-    }
+	/**
+	 * Meta files are XML-based files that provide additional metadata
+	 * about the schema being evaluated.<p>
+	 * <code>meta</code> is either the name of an individual XML file or
+	 * the directory that contains meta files.<p>
+	 * If a directory is specified then it is expected to contain files
+	 * matching the pattern <code>[schema].meta.xml</code>.
+	 * For databases that don't have schema substitute [schema] with [database].
+	 */
+	public String getMeta() {
+		return jsapConfig.getString("metadata-path");
+	}
 
-    public void setDbType(String dbType) {
-        this.dbType = dbType;
-    }
+	public void setDbType(String dbType) {
+		this.dbType = dbType;
+	}
 
-    public String getDbType() {
-        if (dbType == null)
-            dbType = jsapConfig.getString("db-type");
-        if (dbType==null)
-        	throw new MissingRequiredParameterException("db-type", false);
-        return dbType;
-    }
+	public String getDbType() {
+		if (dbType == null)
+			dbType = jsapConfig.getString("db-type");
+		if (dbType==null)
+			throw new MissingRequiredParameterException("db-type", false);
+		return dbType;
+	}
 
-    public void setDb(String db) {
-        this.db = db;
-    }
+	public void setDb(String db) {
+		this.db = db;
+	}
 
-    public String getDb() {
-        if (db == null)
-            db = jsapConfig.getString("database");
-        return db;
-    }
+	public String getDb() {
+		if (db == null)
+			db = jsapConfig.getString("database");
+		return db;
+	}
 
-    public void setSchema(String schema) {
-        this.schema = schema;
-    }
+	public void setSchema(String schema) {
+		this.schema = schema;
+	}
 
-    public String getSchema() {
-        if (schema == null)
-            schema = jsapConfig.getString("schema");
-        return schema;
-    }
+	public String getSchema() {
+		if (schema == null)
+			schema = jsapConfig.getString("schema");
+		return schema;
+	}
 
-    /**
-     * Some databases types (e.g. older versions of Informix) don't really
-     * have the concept of a schema but still return true from
-     * {@link DatabaseMetaData#supportsSchemasInTableDefinitions()}.
-     * This option lets you ignore that and treat all the tables
-     * as if they were in one flat namespace.
-     */
-    public boolean isSchemaDisabled() {
-        return jsapConfig.getBoolean("no-schema");
-    }
+	/**
+	 * Some databases types (e.g. older versions of Informix) don't really
+	 * have the concept of a schema but still return true from
+	 * {@link DatabaseMetaData#supportsSchemasInTableDefinitions()}.
+	 * This option lets you ignore that and treat all the tables
+	 * as if they were in one flat namespace.
+	 */
+	public boolean isSchemaDisabled() {
+		return jsapConfig.getBoolean("no-schema");
+	}
 
-    public void setHost(String host) {
-        this.host = host;
-    }
+	public void setHost(String host) {
+		this.host = host;
+	}
 
-    public String getHost() {
-        if (host == null)
-            host = jsapConfig.getString("host");
-        return host;
-    }
+	public String getHost() {
+		if (host == null)
+			host = jsapConfig.getString("host");
+		return host;
+	}
 
-    public void setPort(Integer port) {
-        this.port = port;
-    }
+	public void setPort(Integer port) {
+		this.port = port;
+	}
 
-    public Integer getPort() {
-        if (port == null)
-            port = jsapConfig.getInt("port");
-        return port;
-    }
+	public Integer getPort() {
+		if (port == null)
+			port = jsapConfig.getInt("port");
+		return port;
+	}
 
-    public void setServer(String server) {
-        this.server = server;
-    }
+	public void setServer(String server) {
+		this.server = server;
+	}
 
-    public String getServer() {
-        if (server == null)
-            server = jsapConfig.getString("host");
-        return server;
-    }
+	public String getServer() {
+		if (server == null)
+			server = jsapConfig.getString("host");
+		return server;
+	}
 
-    public void setUser(String user) {
-        this.user = user;
-    }
+	public void setUser(String user) {
+		this.user = user;
+	}
 
-    /**
-     * User used to connect to the database.
-     * Required unless single sign-on is enabled
-     */
-    public String getUser() {
-        if (user == null)
-            user = jsapConfig.getString("user");
-        return user;
-    }
+	/**
+	 * User used to connect to the database.
+	 * Required unless single sign-on is enabled
+	 */
+	public String getUser() {
+		if (user == null)
+			user = jsapConfig.getString("user");
+		return user;
+	}
 
-    /**
-     * By default a "user" (as specified with -u) is required.
-     * This option allows disabling of that requirement for
-     * single sign-on environments.
-     */
-    public boolean isSingleSignOn() {
-        return jsapConfig.getBoolean("sso");
-    }
+	/**
+	 * By default a "user" (as specified with -u) is required.
+	 * This option allows disabling of that requirement for
+	 * single sign-on environments.
+	 */
+	public boolean isSingleSignOn() {
+		return jsapConfig.getBoolean("sso");
+	}
 
-    /**
-     * Set the password used to connect to the database.
-     * @param password
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	/**
+	 * Set the password used to connect to the database.
+	 * @param password
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    /**
-     * @see #setPassword(String)
-     * @return
-     */
-    public String getPassword() {
-        if (password == null)
-            password = jsapConfig.getString("password");
-        return password;
-    }
+	/**
+	 * @see #setPassword(String)
+	 * @return
+	 */
+	public String getPassword() {
+		if (password == null)
+			password = jsapConfig.getString("password");
+		return password;
+	}
 
-    /**
-     * @see #setPromptForPasswordEnabled(boolean)
-     * @return
-     */
-    public boolean isPromptForPasswordEnabled() {
-        return jsapConfig.getBoolean("pfp");
-    }
+	/**
+	 * @see #setPromptForPasswordEnabled(boolean)
+	 * @return
+	 */
+	public boolean isPromptForPasswordEnabled() {
+		return jsapConfig.getBoolean("pfp");
+	}
 
-    public String getConnectionPropertiesFile() {
-        return userConnectionPropertiesFile;
-    }
+	public String getConnectionPropertiesFile() {
+		return userConnectionPropertiesFile;
+	}
 
-    /**
-     * Properties from this file (in key=value pair format) are passed to the
-     * database connection.<br>
-     * user (from -u) and password (from -p) will be passed in the
-     * connection properties if specified.
-     * @param propertiesFilename
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public void setConnectionPropertiesFile(String propertiesFilename) throws FileNotFoundException, IOException {
-        if (userConnectionProperties == null)
-            userConnectionProperties = new Properties();
-        userConnectionProperties.load(new FileInputStream(propertiesFilename));
-        userConnectionPropertiesFile = propertiesFilename;
-    }
+	/**
+	 * Properties from this file (in key=value pair format) are passed to the
+	 * database connection.<br>
+	 * user (from -u) and password (from -p) will be passed in the
+	 * connection properties if specified.
+	 * @param propertiesFilename
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public void setConnectionPropertiesFile(String propertiesFilename) throws FileNotFoundException, IOException {
+		if (userConnectionProperties == null)
+			userConnectionProperties = new Properties();
+		userConnectionProperties.load(new FileInputStream(propertiesFilename));
+		userConnectionPropertiesFile = propertiesFilename;
+	}
 
-    /**
-     * Returns a {@link Properties} populated either from the properties file specified
-     * by {@link #setConnectionPropertiesFile(String)}, the properties specified by
-     * {@link #setConnectionProperties(String)} or not populated.
-     * @return
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
-    public Properties getConnectionProperties() throws FileNotFoundException, IOException {
-        if (userConnectionProperties == null) {
-        	if (jsapConfig.userSpecified("connprops")) {
-        		String props = jsapConfig.getString("connprops");
-                if (props.indexOf(ESCAPED_EQUALS) != -1) {
-                    setConnectionProperties(props);
-                } else {
-                    setConnectionPropertiesFile(props);
-                }
-        	} else {
-                userConnectionProperties = new Properties();
-            }
-        }
-        return userConnectionProperties;
-    }
+	/**
+	 * Returns a {@link Properties} populated either from the properties file specified
+	 * by {@link #setConnectionPropertiesFile(String)}, the properties specified by
+	 * {@link #setConnectionProperties(String)} or not populated.
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public Properties getConnectionProperties() throws FileNotFoundException, IOException {
+		if (userConnectionProperties == null) {
+			if (jsapConfig.userSpecified("connprops")) {
+				String props = jsapConfig.getString("connprops");
+				if (props.indexOf(ESCAPED_EQUALS) != -1) {
+					setConnectionProperties(props);
+				} else {
+					setConnectionPropertiesFile(props);
+				}
+			} else {
+				userConnectionProperties = new Properties();
+			}
+		}
+		return userConnectionProperties;
+	}
 
-    /**
-     * Specifies connection properties to use in the format:
-     * <code>key1\=value1;key2\=value2</code><br>
-     * user (from -u) and password (from -p) will be passed in the
-     * connection properties if specified.<p>
-     * This is an alternative form of passing connection properties than by file
-     * (see {@link #setConnectionPropertiesFile(String)})
-     *
-     * @param properties
-     */
-    public void setConnectionProperties(String properties) {
-        userConnectionProperties = new Properties();
+	/**
+	 * Specifies connection properties to use in the format:
+	 * <code>key1\=value1;key2\=value2</code><br>
+	 * user (from -u) and password (from -p) will be passed in the
+	 * connection properties if specified.<p>
+	 * This is an alternative form of passing connection properties than by file
+	 * (see {@link #setConnectionPropertiesFile(String)})
+	 *
+	 * @param properties
+	 */
+	public void setConnectionProperties(String properties) {
+		userConnectionProperties = new Properties();
 
-        StringTokenizer tokenizer = new StringTokenizer(properties, ";");
-        while (tokenizer.hasMoreElements()) {
-            String pair = tokenizer.nextToken();
-            int index = pair.indexOf(ESCAPED_EQUALS);
-            if (index != -1) {
-                String key = pair.substring(0, index);
-                String value = pair.substring(index + ESCAPED_EQUALS.length());
-                userConnectionProperties.put(key, value);
-            }
-        }
-    }
+		StringTokenizer tokenizer = new StringTokenizer(properties, ";");
+		while (tokenizer.hasMoreElements()) {
+			String pair = tokenizer.nextToken();
+			int index = pair.indexOf(ESCAPED_EQUALS);
+			if (index != -1) {
+				String key = pair.substring(0, index);
+				String value = pair.substring(index + ESCAPED_EQUALS.length());
+				userConnectionProperties.put(key, value);
+			}
+		}
+	}
 
-    /**
-     * The filename of the cascading style sheet to use in generated html.
-     * Note that this file is parsed and used to determine characteristics
-     * of the generated diagrams, so it must contain specific settings that
-     * are documented within sqlHawk.css.<p>
-     *
-     * Defaults to <code>"sqlHawk.css"</code>.
-     */
-    public String getCss() {
-        if (css == null) {
-            css = jsapConfig.getString("css");
-        }
-        return css;
-    }
+	/**
+	 * The filename of the cascading style sheet to use in generated html.
+	 * Note that this file is parsed and used to determine characteristics
+	 * of the generated diagrams, so it must contain specific settings that
+	 * are documented within sqlHawk.css.<p>
+	 *
+	 * Defaults to <code>"sqlHawk.css"</code>.
+	 */
+	public String getCss() {
+		if (css == null) {
+			css = jsapConfig.getString("css");
+		}
+		return css;
+	}
 
-    /**
-     * The font to use within diagram images.
-     * Default: Helvetica
-     */
-    public String getFont() {
-        if (font == null) {
-            font = jsapConfig.getString("diagram-font");
-            if (font == null)
-                font = "Helvetica";
-        }
-        return font;
-    }
+	/**
+	 * The font to use within diagram images.
+	 * Default: Helvetica
+	 */
+	public String getFont() {
+		if (font == null) {
+			font = jsapConfig.getString("diagram-font");
+			if (font == null)
+				font = "Helvetica";
+		}
+		return font;
+	}
 
-    /**
-     * The font size to use within diagrams.  This is the size of the font used for
-     * 'large' (e.g. not 'compact') diagrams.<p>
-     *
-     * Defaults to 11.
-      */
-    public int getFontSize() {
-        if (fontSize == null) {
-        	fontSize = jsapConfig.getInt("diagram-font-size");
-        }
-        return fontSize.intValue();
-    }
+	/**
+	 * The font size to use within diagrams.  This is the size of the font used for
+	 * 'large' (e.g. not 'compact') diagrams.<p>
+	 *
+	 * Defaults to 11.
+	 */
+	public int getFontSize() {
+		if (fontSize == null) {
+			fontSize = jsapConfig.getInt("diagram-font-size");
+		}
+		return fontSize.intValue();
+	}
 
-    /**
-     * The character set to use within HTML pages (defaults to <code>"ISO-8859-1"</code>).
-     */
-    public String getCharset() {
-        if (charset == null) {
-            charset = jsapConfig.getString("charset");
-            if (charset == null)
-                charset = "ISO-8859-1";
-        }
-        return charset;
-    }
+	/**
+	 * The character set to use within HTML pages (defaults to <code>"ISO-8859-1"</code>).
+	 */
+	public String getCharset() {
+		if (charset == null) {
+			charset = jsapConfig.getString("charset");
+			if (charset == null)
+				charset = "ISO-8859-1";
+		}
+		return charset;
+	}
 
-    /**
-     * Description of schema that gets display on main pages.
-     */
-    public String getDescription() {
-        if (description == null)
-            description = jsapConfig.getString("schema-description");
-        return description;
-    }
+	/**
+	 * Description of schema that gets display on main pages.
+	 */
+	public String getDescription() {
+		if (description == null)
+			description = jsapConfig.getString("schema-description");
+		return description;
+	}
 
-    /**
-     * Maximum number of threads to use when querying database metadata information.
-     * @throws InvalidConfigurationException if unable to load properties
-     */
-    public int getMaxDbThreads() throws InvalidConfigurationException {
-        if (maxDbThreads == null) {
-            Properties properties;
-            try {
-                properties = getDbProperties(getDbType());
-            } catch (IOException exc) {
-                throw new InvalidConfigurationException("Failed to load properties for " + getDbType() + ": " + exc)
-                                .setParamName("-type");
-            }
+	/**
+	 * Maximum number of threads to use when querying database metadata information.
+	 * @throws InvalidConfigurationException if unable to load properties
+	 */
+	public int getMaxDbThreads() throws InvalidConfigurationException {
+		if (maxDbThreads == null) {
+			Properties properties;
+			try {
+				properties = getDbProperties(getDbType());
+			} catch (IOException exc) {
+				throw new InvalidConfigurationException("Failed to load properties for " + getDbType() + ": " + exc)
+				.setParamName("-type");
+			}
 
-            int max = Integer.MAX_VALUE;
-            String threads = properties.getProperty("dbThreads");
-            if (threads == null)
-                threads = properties.getProperty("dbthreads");
-            if (threads != null)
-                max = Integer.parseInt(threads);
-            if(jsapConfig.contains("max-threads"))
-            	max = jsapConfig.getInt("max-threads");
-            if (max < 0) //-1 means no limit
-                max = Integer.MAX_VALUE;
-            else if (max == 0)
-                max = 1;
-            maxDbThreads = new Integer(max);
-        }
-        return maxDbThreads.intValue();
-    }
+			int max = Integer.MAX_VALUE;
+			String threads = properties.getProperty("dbThreads");
+			if (threads == null)
+				threads = properties.getProperty("dbthreads");
+			if (threads != null)
+				max = Integer.parseInt(threads);
+			if(jsapConfig.contains("max-threads"))
+				max = jsapConfig.getInt("max-threads");
+			if (max < 0) //-1 means no limit
+				max = Integer.MAX_VALUE;
+			else if (max == 0)
+				max = 1;
+			maxDbThreads = new Integer(max);
+		}
+		return maxDbThreads.intValue();
+	}
 
-    public boolean isLogoEnabled() {
-        return jsapConfig.getBoolean("no-logo");
-    }
+	public boolean isLogoEnabled() {
+		return jsapConfig.getBoolean("no-logo");
+	}
 
-    /**
-     * Don't use this unless absolutely necessary as it screws up the layout.
-     * Changes dot's rank direction rankdir to right-to-left (RL)
-     * http://www.graphviz.org/doc/info/attrs.html#d:rankdir
-     */
-    public boolean isRankDirBugEnabled() {
-        return jsapConfig.getBoolean("rankdirbug");
-    }
+	/**
+	 * Don't use this unless absolutely necessary as it screws up the layout.
+	 * Changes dot's rank direction rankdir to right-to-left (RL)
+	 * http://www.graphviz.org/doc/info/attrs.html#d:rankdir
+	 */
+	public boolean isRankDirBugEnabled() {
+		return jsapConfig.getBoolean("rankdirbug");
+	}
 
-    /**
-     * Look for Ruby on Rails-based naming conventions in
-     * relationships between logical foreign keys and primary keys.<p>
-     *
-     * Basically all tables have a primary key named <code>ID</code>.
-     * All tables are named plural names.
-     * The columns that logically reference that <code>ID</code> are the singular
-     * form of the table name suffixed with <code>_ID</code>.<p>
-     */
-    public boolean isRailsEnabled() {
-        return jsapConfig.getBoolean("rails");
-    }
+	/**
+	 * Look for Ruby on Rails-based naming conventions in
+	 * relationships between logical foreign keys and primary keys.<p>
+	 *
+	 * Basically all tables have a primary key named <code>ID</code>.
+	 * All tables are named plural names.
+	 * The columns that logically reference that <code>ID</code> are the singular
+	 * form of the table name suffixed with <code>_ID</code>.<p>
+	 */
+	public boolean isRailsEnabled() {
+		return jsapConfig.getBoolean("rails");
+	}
 
-    /**
-     * Allow Html In Comments - encode them unless otherwise specified
-     */
-    public boolean isEncodeCommentsEnabled() {
-        return !jsapConfig.getBoolean("html-comments");
-    }
+	/**
+	 * Allow Html In Comments - encode them unless otherwise specified
+	 */
+	public boolean isEncodeCommentsEnabled() {
+		return !jsapConfig.getBoolean("html-comments");
+	}
 
-    /**
-     * If enabled we'll attempt to query/render the number of rows that
-     * each table contains.<p/>
-     *
-     * Defaults to <code>true</code> (enabled).
-     */
-    public boolean isNumRowsEnabled() {
-        return !jsapConfig.getBoolean("disable-row-counts");
-    }
+	/**
+	 * If enabled we'll attempt to query/render the number of rows that
+	 * each table contains.<p/>
+	 *
+	 * Defaults to <code>true</code> (enabled).
+	 */
+	public boolean isNumRowsEnabled() {
+		return !jsapConfig.getBoolean("disable-row-counts");
+	}
 
-    /**
-     * If enabled we'll include views in the analysis.<p/>
-     */
-    public boolean isViewsEnabled() {
-        return !jsapConfig.getBoolean("disable-views");
-    }
+	/**
+	 * If enabled we'll include views in the analysis.<p/>
+	 */
+	public boolean isViewsEnabled() {
+		return !jsapConfig.getBoolean("disable-views");
+	}
 
 	public boolean isTableProcessingEnabled() {
 		return !jsapConfig.getBoolean("disable-tables");
 	}
 
 	/**
-     * Set the columns to exclude from all relationship diagrams.
-     * Regular expression of the columns to exclude.
-     */
-    public Pattern getColumnExclusions() {
-        if (columnExclusions == null) {
-            String strExclusions = jsapConfig.getString("column-exclusion-pattern");
-            columnExclusions = Pattern.compile(strExclusions);
-        }
-        return columnExclusions;
-    }
+	 * Set the columns to exclude from all relationship diagrams.
+	 * Regular expression of the columns to exclude.
+	 */
+	public Pattern getColumnExclusions() {
+		if (columnExclusions == null) {
+			String strExclusions = jsapConfig.getString("column-exclusion-pattern");
+			columnExclusions = Pattern.compile(strExclusions);
+		}
+		return columnExclusions;
+	}
 
-    /**
-     * Set the columns to exclude from relationship diagrams where the specified
-     * columns aren't directly referenced by the focal table.
-     *
-     * columnExclusions - regular expression of the columns to exclude
-     */
-    public Pattern getIndirectColumnExclusions() {
-        if (indirectColumnExclusions == null) {
-            String strExclusions = jsapConfig.getString("indirect-column-exclusion-pattern");
-            indirectColumnExclusions = Pattern.compile(strExclusions);
-        }
-        return indirectColumnExclusions;
-    }
+	/**
+	 * Set the columns to exclude from relationship diagrams where the specified
+	 * columns aren't directly referenced by the focal table.
+	 *
+	 * columnExclusions - regular expression of the columns to exclude
+	 */
+	public Pattern getIndirectColumnExclusions() {
+		if (indirectColumnExclusions == null) {
+			String strExclusions = jsapConfig.getString("indirect-column-exclusion-pattern");
+			indirectColumnExclusions = Pattern.compile(strExclusions);
+		}
+		return indirectColumnExclusions;
+	}
 
-     /**
-     * Get the regex {@link Pattern} for which tables to include in the analysis.
-     *
-     * @return
-     */
-    public Pattern getTableInclusions() {
-        if (tableInclusions == null) {
-            String strInclusions = jsapConfig.getString("table-inclusion-pattern");
-            try {
-                tableInclusions = Pattern.compile(strInclusions);
-            } catch (PatternSyntaxException badPattern) {
-                throw new InvalidConfigurationException(badPattern).setParamName("table-inclusion-pattern");
-            }
-        }
-        return tableInclusions;
-    }
+	/**
+	 * Get the regex {@link Pattern} for which tables to include in the analysis.
+	 *
+	 * @return
+	 */
+	public Pattern getTableInclusions() {
+		if (tableInclusions == null) {
+			String strInclusions = jsapConfig.getString("table-inclusion-pattern");
+			try {
+				tableInclusions = Pattern.compile(strInclusions);
+			} catch (PatternSyntaxException badPattern) {
+				throw new InvalidConfigurationException(badPattern).setParamName("table-inclusion-pattern");
+			}
+		}
+		return tableInclusions;
+	}
 
-    /**
-     * Get the regex {@link Pattern} for which tables to exclude from the analysis.
-     *
-     * @return
-     */
-    public Pattern getTableExclusions() {
-        if (tableExclusions == null) {
-            String strExclusions = jsapConfig.getString("table-exclusion-pattern");
-            try {
-                tableExclusions = Pattern.compile(strExclusions);
-            } catch (PatternSyntaxException badPattern) {
-                throw new InvalidConfigurationException(badPattern).setParamName("table-exclusion-pattern");
-            }
-        }
-        return tableExclusions;
-    }
+	/**
+	 * Get the regex {@link Pattern} for which tables to exclude from the analysis.
+	 *
+	 * @return
+	 */
+	public Pattern getTableExclusions() {
+		if (tableExclusions == null) {
+			String strExclusions = jsapConfig.getString("table-exclusion-pattern");
+			try {
+				tableExclusions = Pattern.compile(strExclusions);
+			} catch (PatternSyntaxException badPattern) {
+				throw new InvalidConfigurationException(badPattern).setParamName("table-exclusion-pattern");
+			}
+		}
+		return tableExclusions;
+	}
 
-    /**
-     * Get the regex {@link Pattern} for which procedures to include in the analysis.
-     *
-     * @return
-     */
-    public Pattern getProcedureInclusions() {
-        if (procedureInclusions == null) {
-            String strInclusions = jsapConfig.getString("procedure-inclusion-pattern");
-            try {
-                procedureInclusions = Pattern.compile(strInclusions);
-            } catch (PatternSyntaxException badPattern) {
-                throw new InvalidConfigurationException(badPattern).setParamName("procedure-inclusion-pattern");
-            }
-        }
-        return procedureInclusions;
-    }
+	/**
+	 * Get the regex {@link Pattern} for which procedures to include in the analysis.
+	 *
+	 * @return
+	 */
+	public Pattern getProcedureInclusions() {
+		if (procedureInclusions == null) {
+			String strInclusions = jsapConfig.getString("procedure-inclusion-pattern");
+			try {
+				procedureInclusions = Pattern.compile(strInclusions);
+			} catch (PatternSyntaxException badPattern) {
+				throw new InvalidConfigurationException(badPattern).setParamName("procedure-inclusion-pattern");
+			}
+		}
+		return procedureInclusions;
+	}
 
-    /**
-     * Get the regex {@link Pattern} for which procedures to exclude from the analysis.
-     *
-     * @return
-     */
-    public Pattern getProcedureExclusions() {
-        if (procedureExclusions == null) {
-            String strExclusions = jsapConfig.getString("procedure-exclusion-pattern");
-            try {
-                procedureExclusions = Pattern.compile(strExclusions);
-            } catch (PatternSyntaxException badPattern) {
-                throw new InvalidConfigurationException(badPattern).setParamName("procedure-exclusion-pattern");
-            }
-        }
-        return procedureExclusions;
-    }
+	/**
+	 * Get the regex {@link Pattern} for which procedures to exclude from the analysis.
+	 *
+	 * @return
+	 */
+	public Pattern getProcedureExclusions() {
+		if (procedureExclusions == null) {
+			String strExclusions = jsapConfig.getString("procedure-exclusion-pattern");
+			try {
+				procedureExclusions = Pattern.compile(strExclusions);
+			} catch (PatternSyntaxException badPattern) {
+				throw new InvalidConfigurationException(badPattern).setParamName("procedure-exclusion-pattern");
+			}
+		}
+		return procedureExclusions;
+	}
 
-    public List<String> getSchemas() {
-        if (schemas == null) {
-        	if (jsapConfig.userSpecified("schemas")) {
-	            String[] tmp = jsapConfig.getStringArray("schemas");
-	            schemas = Arrays.asList(tmp);
-        	}
-        }
-        return schemas;
-    }
+	public List<String> getSchemas() {
+		if (schemas == null) {
+			if (jsapConfig.userSpecified("schemas")) {
+				String[] tmp = jsapConfig.getStringArray("schemas");
+				schemas = Arrays.asList(tmp);
+			}
+		}
+		return schemas;
+	}
 
-    /**
-     * Set the name of the {@link SqlFormatter SQL formatter} class to use to
-     * format SQL into HTML.<p/>
-     * The implementation of the class must be made available to the class
-     * loader, typically by specifying the path to its jar with <em>--driver-path</em>
-     * ({@link #setDriverPath(String)}).
-     */
-    public void setSqlFormatter(String formatterClassName) {
-        sqlFormatterClass = formatterClassName;
-        sqlFormatter = null;
-    }
+	/**
+	 * Set the name of the {@link SqlFormatter SQL formatter} class to use to
+	 * format SQL into HTML.<p/>
+	 * The implementation of the class must be made available to the class
+	 * loader, typically by specifying the path to its jar with <em>--driver-path</em>
+	 * ({@link #setDriverPath(String)}).
+	 */
+	public void setSqlFormatter(String formatterClassName) {
+		sqlFormatterClass = formatterClassName;
+		sqlFormatter = null;
+	}
 
-    /**
-     * Set the {@link SqlFormatter SQL formatter} to use to format
-     * SQL into HTML.
-     */
-    public void setSqlFormatter(SqlFormatter sqlFormatter) {
-        this.sqlFormatter = sqlFormatter;
-        if (sqlFormatter != null)
-            sqlFormatterClass = sqlFormatter.getClass().getName();
-    }
+	/**
+	 * Set the {@link SqlFormatter SQL formatter} to use to format
+	 * SQL into HTML.
+	 */
+	public void setSqlFormatter(SqlFormatter sqlFormatter) {
+		this.sqlFormatter = sqlFormatter;
+		if (sqlFormatter != null)
+			sqlFormatterClass = sqlFormatter.getClass().getName();
+	}
 
-    /**
-     * Returns an implementation of {@link SqlFormatter SQL formatter} to use to format
-     * SQL into HTML.  The default implementation is {@link DefaultSqlFormatter}.
-     *
-     * @return
-     * @throws InvalidConfigurationException if unable to instantiate an instance
-     */
-    @SuppressWarnings("unchecked")
-    public SqlFormatter getSqlFormatter() throws InvalidConfigurationException {
-        if (sqlFormatter == null) {
-            if (sqlFormatterClass == null) {
-            	if (jsapConfig.userSpecified("sql-formatter"))
-            		sqlFormatterClass = jsapConfig.getString("sql-formatter");
-            	else
-                    sqlFormatterClass = DefaultSqlFormatter.class.getName();
-            }
-            try {
-                Class<SqlFormatter> clazz = (Class<SqlFormatter>)Class.forName(sqlFormatterClass);
-                sqlFormatter = clazz.newInstance();
-            } catch (Exception exc) {
-                throw new InvalidConfigurationException("Failed to initialize instance of SQL formatter: ", exc)
-                            .setParamName("sql-formatter");
-            }
-        }
-        return sqlFormatter;
-    }
+	/**
+	 * Returns an implementation of {@link SqlFormatter SQL formatter} to use to format
+	 * SQL into HTML.  The default implementation is {@link DefaultSqlFormatter}.
+	 *
+	 * @return
+	 * @throws InvalidConfigurationException if unable to instantiate an instance
+	 */
+	@SuppressWarnings("unchecked")
+	public SqlFormatter getSqlFormatter() throws InvalidConfigurationException {
+		if (sqlFormatter == null) {
+			if (sqlFormatterClass == null) {
+				if (jsapConfig.userSpecified("sql-formatter"))
+					sqlFormatterClass = jsapConfig.getString("sql-formatter");
+				else
+					sqlFormatterClass = DefaultSqlFormatter.class.getName();
+			}
+			try {
+				Class<SqlFormatter> clazz = (Class<SqlFormatter>)Class.forName(sqlFormatterClass);
+				sqlFormatter = clazz.newInstance();
+			} catch (Exception exc) {
+				throw new InvalidConfigurationException("Failed to initialize instance of SQL formatter: ", exc)
+				.setParamName("sql-formatter");
+			}
+		}
+		return sqlFormatter;
+	}
 
-    public boolean isEvaluateAllEnabled() {
-        return jsapConfig.getBoolean("all");
-    }
+	public boolean isEvaluateAllEnabled() {
+		return jsapConfig.getBoolean("all");
+	}
 
-    /**
-     * Returns true if we're evaluating a bunch of schemas in one go and
-     * at this point we're evaluating a specific schema.
-     *
-     * @return boolean
-     */
-    public boolean isOneOfMultipleSchemas() {
-        // set by MultipleSchemaAnalyzer
-        return Boolean.getBoolean("oneofmultipleschemas");
-    }
+	/**
+	 * Returns true if we're evaluating a bunch of schemas in one go and
+	 * at this point we're evaluating a specific schema.
+	 *
+	 * @return boolean
+	 */
+	public boolean isOneOfMultipleSchemas() {
+		// set by MultipleSchemaAnalyzer
+		return Boolean.getBoolean("oneofmultipleschemas");
+	}
 
-    /**
-     * When -all (evaluateAll) is specified then this is the regular
-     * expression that determines which schemas to evaluate.
-     */
-    public String getSchemaSpec() {
-        if (schemaSpec == null)
-            schemaSpec = jsapConfig.getString("schema-spec");
-        return schemaSpec;
-    }
+	/**
+	 * When -all (evaluateAll) is specified then this is the regular
+	 * expression that determines which schemas to evaluate.
+	 */
+	public String getSchemaSpec() {
+		if (schemaSpec == null)
+			schemaSpec = jsapConfig.getString("schema-spec");
+		return schemaSpec;
+	}
 
-    /**
-     * Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified
-     * at <a href='http://www.graphviz.org/doc/info/command.html'>
-     * http://www.graphviz.org/doc/info/command.html</a>.<p>
-     * Note that the leading ":" is required while :formatter is optional.<p>
-     * The default renderer is typically GD.<p>
-     * Note that using {@link #setHighQuality(boolean)} is the preferred approach
-     * over using this method.
-     */
-    public void setRenderer(String renderer) {
-        Dot.getInstance().setRenderer(renderer);
-    }
+	/**
+	 * Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified
+	 * at <a href='http://www.graphviz.org/doc/info/command.html'>
+	 * http://www.graphviz.org/doc/info/command.html</a>.<p>
+	 * Note that the leading ":" is required while :formatter is optional.<p>
+	 * The default renderer is typically GD.<p>
+	 * Note that using {@link #setHighQuality(boolean)} is the preferred approach
+	 * over using this method.
+	 */
+	public void setRenderer(String renderer) {
+		Dot.getInstance().setRenderer(renderer);
+	}
 
-    /**
-     * @see #setRenderer(String)
-     * @return
-     */
-    public String getRenderer() {
-        String renderer = jsapConfig.getString("renderer");
-        if (renderer != null)
-            setRenderer(renderer);
-        return Dot.getInstance().getRenderer();
-    }
+	/**
+	 * @see #setRenderer(String)
+	 * @return
+	 */
+	public String getRenderer() {
+		String renderer = jsapConfig.getString("renderer");
+		if (renderer != null)
+			setRenderer(renderer);
+		return Dot.getInstance().getRenderer();
+	}
 
-    /**
-     * If <code>false</code> then generate output of "lower quality"
-     * than the default.
-     * Note that the default is intended to be "higher quality",
-     * but various installations of Graphviz may have have different abilities.
-     * That is, some might not have the "lower quality" libraries and others might
-     * not have the "higher quality" libraries.<p>
-     * Higher quality output takes longer to generate and results in significantly
-     * larger image files (which take longer to download / display), but it generally
-     * looks better.
-     */
-    public void setHighQuality(boolean highQuality) {
-        this.highQuality = highQuality;
-        Dot.getInstance().setHighQuality(highQuality);
-    }
+	/**
+	 * If <code>false</code> then generate output of "lower quality"
+	 * than the default.
+	 * Note that the default is intended to be "higher quality",
+	 * but various installations of Graphviz may have have different abilities.
+	 * That is, some might not have the "lower quality" libraries and others might
+	 * not have the "higher quality" libraries.<p>
+	 * Higher quality output takes longer to generate and results in significantly
+	 * larger image files (which take longer to download / display), but it generally
+	 * looks better.
+	 */
+	public void setHighQuality(boolean highQuality) {
+		this.highQuality = highQuality;
+		Dot.getInstance().setHighQuality(highQuality);
+	}
 
-    /**
-     * @see #setHighQuality(boolean)
-     */
-    public boolean isHighQuality() {
-        if (highQuality == null) {
-            highQuality = jsapConfig.getBoolean("high-quality");
-            if (highQuality) {
-                // use whatever is the default unless explicitly specified otherwise
-                Dot.getInstance().setHighQuality(highQuality);
-            }
-        }
-        highQuality = Dot.getInstance().isHighQuality();
-        return highQuality;
-    }
+	/**
+	 * @see #setHighQuality(boolean)
+	 */
+	public boolean isHighQuality() {
+		if (highQuality == null) {
+			highQuality = jsapConfig.getBoolean("high-quality");
+			if (highQuality) {
+				// use whatever is the default unless explicitly specified otherwise
+				Dot.getInstance().setHighQuality(highQuality);
+			}
+		}
+		highQuality = Dot.getInstance().isHighQuality();
+		return highQuality;
+	}
 
-    /**
-     * Set the level of logging to perform.<p/>
-     * The levels in descending order are:
-     * <ul>
-     *  <li><code>severe</code> (highest - least detail)
-     *  <li><code>warning</code> (default)
-     *  <li><code>info</code>
-     *  <li><code>config</code>
-     *  <li><code>fine</code>
-     *  <li><code>finer</code>
-     *  <li><code>finest</code>  (lowest - most detail)
-     * </ul>
-     *
-     * @param logLevel
-     */
-    public void setLogLevel(String logLevel) {
-        if (logLevel == null) {
-            this.logLevel = Level.WARNING;
-            return;
-        }
+	/**
+	 * Set the level of logging to perform.<p/>
+	 * The levels in descending order are:
+	 * <ul>
+	 *  <li><code>severe</code> (highest - least detail)
+	 *  <li><code>warning</code> (default)
+	 *  <li><code>info</code>
+	 *  <li><code>config</code>
+	 *  <li><code>fine</code>
+	 *  <li><code>finer</code>
+	 *  <li><code>finest</code>  (lowest - most detail)
+	 * </ul>
+	 *
+	 * @param logLevel
+	 */
+	public void setLogLevel(String logLevel) {
+		if (logLevel == null) {
+			this.logLevel = Level.WARNING;
+			return;
+		}
 
-        Map<String, Level> levels = new LinkedHashMap<String, Level>();
-        levels.put("severe", Level.SEVERE);
-        levels.put("warning", Level.WARNING);
-        levels.put("info", Level.INFO);
-        levels.put("config", Level.CONFIG);
-        levels.put("fine", Level.FINE);
-        levels.put("finer", Level.FINER);
-        levels.put("finest", Level.FINEST);
+		Map<String, Level> levels = new LinkedHashMap<String, Level>();
+		levels.put("severe", Level.SEVERE);
+		levels.put("warning", Level.WARNING);
+		levels.put("info", Level.INFO);
+		levels.put("config", Level.CONFIG);
+		levels.put("fine", Level.FINE);
+		levels.put("finer", Level.FINER);
+		levels.put("finest", Level.FINEST);
 
-        this.logLevel = levels.get(logLevel.toLowerCase());
-        if (this.logLevel == null) {
-            throw new InvalidConfigurationException("Invalid logLevel: '" + logLevel +
-                    "'. Must be one of: " + levels.keySet());
-        }
-    }
+		this.logLevel = levels.get(logLevel.toLowerCase());
+		if (this.logLevel == null) {
+			throw new InvalidConfigurationException("Invalid logLevel: '" + logLevel +
+					"'. Must be one of: " + levels.keySet());
+		}
+	}
 
-    /**
-     * Returns the level of logging to perform.
-     * See {@link #setLogLevel(String)}.
-     *
-     * @return
-     */
-    public Level getLogLevel() {
-        if (logLevel == null) {
-            setLogLevel(jsapConfig.getString("log-level"));
-        }
+	/**
+	 * Returns the level of logging to perform.
+	 * See {@link #setLogLevel(String)}.
+	 *
+	 * @return
+	 */
+	public Level getLogLevel() {
+		if (logLevel == null) {
+			setLogLevel(jsapConfig.getString("log-level"));
+		}
 
-        return logLevel;
-    }
+		return logLevel;
+	}
 
-    public boolean isDbHelpRequired() {
-        return jsapConfig.getBoolean("db-help");// dbHelpRequired;
-    }
+	public boolean isDbHelpRequired() {
+		return jsapConfig.getBoolean("db-help");// dbHelpRequired;
+	}
 
-    public static String getLoadedFromJar() {
-        String classpath = System.getProperty("java.class.path");
-        return new StringTokenizer(classpath, File.pathSeparator).nextToken();
-    }
+	public static String getLoadedFromJar() {
+		String classpath = System.getProperty("java.class.path");
+		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
+	}
 
-    /**
-     * @param type
-     * @return
-     * @throws IOException
-     * @throws InvalidConfigurationException if db properties are incorrectly formed
-     */
-    public Properties getDbProperties(String type) throws IOException, InvalidConfigurationException {
-        ResourceBundle bundle = null;
+	/**
+	 * @param type
+	 * @return
+	 * @throws IOException
+	 * @throws InvalidConfigurationException if db properties are incorrectly formed
+	 */
+	public Properties getDbProperties(String type) throws IOException, InvalidConfigurationException {
+		ResourceBundle bundle = null;
 
-        try {
-            File propertiesFile = new File(type);
-            bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
-            dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
-        } catch (FileNotFoundException notFoundOnFilesystemWithoutExtension) {
-            try {
-                File propertiesFile = new File(type + ".properties");
-                bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
-                dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
-            } catch (FileNotFoundException notFoundOnFilesystemWithExtensionTackedOn) {
-                try {
-                    bundle = ResourceBundle.getBundle(type);
-                    dbPropertiesLoadedFrom = "[" + getLoadedFromJar() + "]" + File.separator + type + ".properties";
-                } catch (Exception notInJarWithoutPath) {
-                    try {
-                        String path = TableOrderer.class.getPackage().getName() + ".dbTypes." + type;
-                        path = path.replace('.', '/');
-                        bundle = ResourceBundle.getBundle(path);
-                        dbPropertiesLoadedFrom = "[" + getLoadedFromJar() + "]/" + path + ".properties";
-                    } catch (Exception notInJar) {
-                        notInJar.printStackTrace();
-                        notFoundOnFilesystemWithExtensionTackedOn.printStackTrace();
-                        throw notFoundOnFilesystemWithoutExtension;
-                    }
-                }
-            }
-        }
+		try {
+			File propertiesFile = new File(type);
+			bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
+			dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
+		} catch (FileNotFoundException notFoundOnFilesystemWithoutExtension) {
+			try {
+				File propertiesFile = new File(type + ".properties");
+				bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
+				dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
+			} catch (FileNotFoundException notFoundOnFilesystemWithExtensionTackedOn) {
+				try {
+					bundle = ResourceBundle.getBundle(type);
+					dbPropertiesLoadedFrom = "[" + getLoadedFromJar() + "]" + File.separator + type + ".properties";
+				} catch (Exception notInJarWithoutPath) {
+					try {
+						String path = TableOrderer.class.getPackage().getName() + ".dbTypes." + type;
+						path = path.replace('.', '/');
+						bundle = ResourceBundle.getBundle(path);
+						dbPropertiesLoadedFrom = "[" + getLoadedFromJar() + "]/" + path + ".properties";
+					} catch (Exception notInJar) {
+						notInJar.printStackTrace();
+						notFoundOnFilesystemWithExtensionTackedOn.printStackTrace();
+						throw notFoundOnFilesystemWithoutExtension;
+					}
+				}
+			}
+		}
 
-        Properties props = asProperties(bundle);
-        bundle = null;
-        String saveLoadedFrom = dbPropertiesLoadedFrom; // keep original thru recursion
+		Properties props = asProperties(bundle);
+		bundle = null;
+		String saveLoadedFrom = dbPropertiesLoadedFrom; // keep original thru recursion
 
-        // bring in key/values pointed to by the include directive
-        // example: include.1=mysql::selectRowCountSql
-        for (int i = 1; true; ++i) {
-            String include = (String)props.remove("include." + i);
-            if (include == null)
-                break;
+		// bring in key/values pointed to by the include directive
+		// example: include.1=mysql::selectRowCountSql
+		for (int i = 1; true; ++i) {
+			String include = (String)props.remove("include." + i);
+			if (include == null)
+				break;
 
-            int separator = include.indexOf("::");
-            if (separator == -1)
-                throw new InvalidConfigurationException("include directive in " + dbPropertiesLoadedFrom + " must have '::' between dbType and key");
+			int separator = include.indexOf("::");
+			if (separator == -1)
+				throw new InvalidConfigurationException("include directive in " + dbPropertiesLoadedFrom + " must have '::' between dbType and key");
 
-            String refdType = include.substring(0, separator).trim();
-            String refdKey = include.substring(separator + 2).trim();
+			String refdType = include.substring(0, separator).trim();
+			String refdKey = include.substring(separator + 2).trim();
 
-            // recursively resolve the ref'd properties file and the ref'd key
-            Properties refdProps = getDbProperties(refdType);
-            props.put(refdKey, refdProps.getProperty(refdKey));
-        }
+			// recursively resolve the ref'd properties file and the ref'd key
+			Properties refdProps = getDbProperties(refdType);
+			props.put(refdKey, refdProps.getProperty(refdKey));
+		}
 
-        // bring in base properties files pointed to by the extends directive
-        String baseDbType = (String)props.remove("extends");
-        if (baseDbType != null) {
-            baseDbType = baseDbType.trim();
-            Properties baseProps = getDbProperties(baseDbType);
+		// bring in base properties files pointed to by the extends directive
+		String baseDbType = (String)props.remove("extends");
+		if (baseDbType != null) {
+			baseDbType = baseDbType.trim();
+			Properties baseProps = getDbProperties(baseDbType);
 
-            // overlay our properties on top of the base's
-            baseProps.putAll(props);
-            props = baseProps;
-        }
+			// overlay our properties on top of the base's
+			baseProps.putAll(props);
+			props = baseProps;
+		}
 
-        // done with this level of recursion...restore original
-        dbPropertiesLoadedFrom = saveLoadedFrom;
+		// done with this level of recursion...restore original
+		dbPropertiesLoadedFrom = saveLoadedFrom;
 
-        return props;
-    }
+		return props;
+	}
 
-    protected String getDbPropertiesLoadedFrom() throws IOException {
-        if (dbPropertiesLoadedFrom == null)
-            getDbProperties(getDbType());
-        return dbPropertiesLoadedFrom;
-    }
+	protected String getDbPropertiesLoadedFrom() throws IOException {
+		if (dbPropertiesLoadedFrom == null)
+			getDbProperties(getDbType());
+		return dbPropertiesLoadedFrom;
+	}
 
-   public String getDatabaseInstance() {
-        if (jsapConfig.userSpecified("database-instance"))
-        	return jsapConfig.getString("database-instance");
-        return null;
-    }
+	public String getDatabaseInstance() {
+		if (jsapConfig.userSpecified("database-instance"))
+			return jsapConfig.getString("database-instance");
+		return null;
+	}
 
-    /**
-     * Returns a {@link Properties} populated with the contents of <code>bundle</code>
-     *
-     * @param bundle ResourceBundle
-     * @return Properties
-     */
-    public static Properties asProperties(ResourceBundle bundle) {
-        Properties props = new Properties();
-        Enumeration<String> iter = bundle.getKeys();
-        while (iter.hasMoreElements()) {
-            String key = iter.nextElement();
-            props.put(key, bundle.getObject(key));
-        }
+	/**
+	 * Returns a {@link Properties} populated with the contents of <code>bundle</code>
+	 *
+	 * @param bundle ResourceBundle
+	 * @return Properties
+	 */
+	public static Properties asProperties(ResourceBundle bundle) {
+		Properties props = new Properties();
+		Enumeration<String> iter = bundle.getKeys();
+		while (iter.hasMoreElements()) {
+			String key = iter.nextElement();
+			props.put(key, bundle.getObject(key));
+		}
 
-        return props;
-    }
+		return props;
+	}
 
-    /**
-     * Thrown to indicate that a required parameter is missing
-     */
-    public static class MissingRequiredParameterException extends RuntimeException {
-        private static final long serialVersionUID = 1L;
-        private final boolean dbTypeSpecific;
+	/**
+	 * Thrown to indicate that a required parameter is missing
+	 */
+	public static class MissingRequiredParameterException extends RuntimeException {
+		private static final long serialVersionUID = 1L;
+		private final boolean dbTypeSpecific;
 
-        public MissingRequiredParameterException(String paramId, boolean dbTypeSpecific) {
-            this(paramId, null, dbTypeSpecific);
-        }
+		public MissingRequiredParameterException(String paramId, boolean dbTypeSpecific) {
+			this(paramId, null, dbTypeSpecific);
+		}
 
-        public MissingRequiredParameterException(String paramId, String description, boolean dbTypeSpecific) {
-            super("Required parameter '" + paramId + "' " +
-                    (description == null ? "" : "(" + description + ") ") +
-                    "was not specified." +
-                    (dbTypeSpecific ? "  It is required for this database type." : ""));
-            this.dbTypeSpecific = dbTypeSpecific;
-        }
+		public MissingRequiredParameterException(String paramId, String description, boolean dbTypeSpecific) {
+			super("Required parameter '" + paramId + "' " +
+					(description == null ? "" : "(" + description + ") ") +
+					"was not specified." +
+					(dbTypeSpecific ? "  It is required for this database type." : ""));
+			this.dbTypeSpecific = dbTypeSpecific;
+		}
 
-        public boolean isDbTypeSpecific() {
-            return dbTypeSpecific;
-        }
-    }
+		public boolean isDbTypeSpecific() {
+			return dbTypeSpecific;
+		}
+	}
 
-    public static Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
-        Set<String> databaseTypes = new TreeSet<String>();
-        JarInputStream jar = null;
+	public static Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
+		Set<String> databaseTypes = new TreeSet<String>();
+		JarInputStream jar = null;
 
-        try {
-            jar = new JarInputStream(new FileInputStream(loadedFromJar));
-            JarEntry entry;
+		try {
+			jar = new JarInputStream(new FileInputStream(loadedFromJar));
+			JarEntry entry;
 
-            while ((entry = jar.getNextJarEntry()) != null) {
-                String entryName = entry.getName();
-                int dotPropsIndex = entryName.indexOf(".properties");
-                if (dotPropsIndex != -1)
-                    databaseTypes.add(entryName.substring(0, dotPropsIndex));
-            }
-        } catch (IOException exc) {
-        } finally {
-            if (jar != null) {
-                try {
-                    jar.close();
-                } catch (IOException ignore) {}
-            }
-        }
+			while ((entry = jar.getNextJarEntry()) != null) {
+				String entryName = entry.getName();
+				int dotPropsIndex = entryName.indexOf(".properties");
+				if (dotPropsIndex != -1)
+					databaseTypes.add(entryName.substring(0, dotPropsIndex));
+			}
+		} catch (IOException exc) {
+		} finally {
+			if (jar != null) {
+				try {
+					jar.close();
+				} catch (IOException ignore) {}
+			}
+		}
 
-        return databaseTypes;
-    }
+		return databaseTypes;
+	}
 
-    protected void dumpDbUsage() {
-        System.out.println("Built-in database types and their required connection parameters:");
-        for (String type : getBuiltInDatabaseTypes(getLoadedFromJar())) {
-            new DbSpecificConfig(type).dumpUsage();
-        }
-        System.out.println();
-        System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
-        System.out.println("Grab one out of " + getLoadedFromJar() + " and modify it to suit your needs.");
-        System.out.println();
-    }
+	protected void dumpDbUsage() {
+		System.out.println("Built-in database types and their required connection parameters:");
+		for (String type : getBuiltInDatabaseTypes(getLoadedFromJar())) {
+			new DbSpecificConfig(type).dumpUsage();
+		}
+		System.out.println();
+		System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
+		System.out.println("Grab one out of " + getLoadedFromJar() + " and modify it to suit your needs.");
+		System.out.println();
+	}
 
-    public boolean isShowDetailedTablesEnabled() {
+	public boolean isShowDetailedTablesEnabled() {
 		return !jsapConfig.getBoolean("compact-relationship-diagram");
 	}
 

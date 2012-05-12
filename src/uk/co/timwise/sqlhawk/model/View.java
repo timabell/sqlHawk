@@ -20,23 +20,23 @@ package uk.co.timwise.sqlhawk.model;
  * defined them.
  */
 public class View extends Table {
-    private String viewSql;
+	private String viewSql;
 
 	public View(String schema, String name, String comments, String viewSql) {
 		super(schema, name, comments);
 		super.setNumRows(0); // no rows in views. probably should be null but leaving as zero for now to not break calling code.
 		this.viewSql = viewSql;
-    }
+	}
 
-    @Override
-    public boolean isView() {
-        return true;
-    }
+	@Override
+	public boolean isView() {
+		return true;
+	}
 
-    public String getViewSql() {
-        return viewSql;
-    }
-    public void setViewSql(String viewSql) {
-        this.viewSql = viewSql;
-    }
+	public String getViewSql() {
+		return viewSql;
+	}
+	public void setViewSql(String viewSql) {
+		this.viewSql = viewSql;
+	}
 }

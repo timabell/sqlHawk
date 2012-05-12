@@ -23,13 +23,13 @@ import uk.co.timwise.sqlhawk.model.TableIndex;
 
 public class TableIndexReader {
 
-    /**
-     * @param rs
-     * @throws java.sql.SQLException
-     */
-    public static TableIndex ReadTableIndex(ResultSet rs) throws SQLException {
-        String name = rs.getString("INDEX_NAME");
-        boolean isUnique = !rs.getBoolean("NON_UNIQUE");
-    	return new TableIndex(name, isUnique);
-    }
+	/**
+	 * @param rs
+	 * @throws java.sql.SQLException
+	 */
+	public static TableIndex ReadTableIndex(ResultSet rs) throws SQLException {
+		String name = rs.getString("INDEX_NAME");
+		boolean isUnique = !rs.getBoolean("NON_UNIQUE");
+		return new TableIndex(name, isUnique);
+	}
 }

@@ -25,24 +25,24 @@ import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
 
 
 public class Database {
-    private final String databaseName;
-    private String schema;
-    private String description;
-    public String Dbms;
+	private final String databaseName;
+	private String schema;
+	private String description;
+	public String Dbms;
 	private Map<String, Table> tables = new CaseInsensitiveMap<Table>();
-    private final Map<String, View> views = new CaseInsensitiveMap<View>();
-    private final Map<String, Table> remoteTables = new CaseInsensitiveMap<Table>(); // key: schema.tableName value: RemoteTable
-    private Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
-    private Map<String, Function> functions = new CaseInsensitiveMap<Function>();
-    private Date generatedDate = null;
-    /**
-     * used for syntax highlighting and identifier quoting.
-     * dbms specific list of keywords.
-     */
-    private Set<String> keywords;
-    
+	private final Map<String, View> views = new CaseInsensitiveMap<View>();
+	private final Map<String, Table> remoteTables = new CaseInsensitiveMap<Table>(); // key: schema.tableName value: RemoteTable
+	private Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
+	private Map<String, Function> functions = new CaseInsensitiveMap<Function>();
+	private Date generatedDate = null;
+	/**
+	 * used for syntax highlighting and identifier quoting.
+	 * dbms specific list of keywords.
+	 */
+	private Set<String> keywords;
 
-    public Set<String> getKeywords() {
+
+	public Set<String> getKeywords() {
 		return keywords;
 	}
 
@@ -59,24 +59,24 @@ public class Database {
 	}
 
 	public Database(String name, String schema) {
-        databaseName = name;
-        this.schema = schema;
-    }
+		databaseName = name;
+		this.schema = schema;
+	}
 
 	public String getName() {
-        return databaseName;
-    }
+		return databaseName;
+	}
 
-    public String getSchema() {
-        return schema;
-    }
+	public String getSchema() {
+		return schema;
+	}
 
-    /**
-     * "DataBase Management System"
-     * i.e. what product and version this schema was retrieved from if any. 
-     * @return
-     */
-    public String getDbms() {
+	/**
+	 * "DataBase Management System"
+	 * i.e. what product and version this schema was retrieved from if any. 
+	 * @return
+	 */
+	public String getDbms() {
 		return Dbms;
 	}
 
@@ -85,53 +85,53 @@ public class Database {
 	}
 
 
-    /**
-     * Details of the database type that's running under the covers.
-     *
-     * @return null if a description wasn't specified.
-     */
-    public String getDescription() {
-        return description;
-    }
+	/**
+	 * Details of the database type that's running under the covers.
+	 *
+	 * @return null if a description wasn't specified.
+	 */
+	public String getDescription() {
+		return description;
+	}
 
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
-    public Collection<Table> getTables() {
-        return tables.values();
-    }
+	public Collection<Table> getTables() {
+		return tables.values();
+	}
 
-    /**
-     * Return a {@link Map} of all {@link Table}s keyed by their name.
-     *
-     * @return
-     */
-    public Map<String, Table> getTablesByName() {
-    	return tables;
-    }
+	/**
+	 * Return a {@link Map} of all {@link Table}s keyed by their name.
+	 *
+	 * @return
+	 */
+	public Map<String, Table> getTablesByName() {
+		return tables;
+	}
 
-    public Collection<View> getViews() {
-        return views.values();
-    }
+	public Collection<View> getViews() {
+		return views.values();
+	}
 
-    public Map<String, View> getViewMap() {
-    	return views;
-    }
+	public Map<String, View> getViewMap() {
+		return views;
+	}
 
-    public Collection<Table> getRemoteTables() {
-        return remoteTables.values();
-    }
+	public Collection<Table> getRemoteTables() {
+		return remoteTables.values();
+	}
 
-    public Map<String, Table> getRemoteTableMap() {
-        return remoteTables;
-    }
+	public Map<String, Table> getRemoteTableMap() {
+		return remoteTables;
+	}
 
 
 	public Collection<Procedure> getProcs() {
 		return procs.values();
 	}
-	
+
 	public void putProc(String name, Procedure proc) {
 		procs.put(name, proc);
 	}
@@ -150,7 +150,7 @@ public class Database {
 
 	public Collection<Table> getTablesAndViews() {
 		Collection<Table> tablesAndViews = new ArrayList<Table>(getTables());
-        tablesAndViews.addAll(getViews());
+		tablesAndViews.addAll(getViews());
 		return tablesAndViews;
 	}
 

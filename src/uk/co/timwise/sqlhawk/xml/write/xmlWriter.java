@@ -49,7 +49,7 @@ public class xmlWriter {
 		document.appendChild(rootNode);
 		DOMUtil.appendAttribute(rootNode, "name", db.getName());
 		if (db.getSchema() != null)
-		    DOMUtil.appendAttribute(rootNode, "schema", db.getSchema());
+			DOMUtil.appendAttribute(rootNode, "schema", db.getSchema());
 		DOMUtil.appendAttribute(rootNode, "type", db.getDbms());
 
 		Collection<Table> tablesAndViews = db.getTablesAndViews();
@@ -61,7 +61,7 @@ public class xmlWriter {
 		xmlName = new File(xmlName).getName();
 
 		if (db.getSchema() != null)
-		    xmlName += '.' + db.getSchema();
+			xmlName += '.' + db.getSchema();
 
 		out = new LineWriter(new File(outputDir, xmlName + ".xml"), Config.DOT_CHARSET);
 		document.getDocumentElement().normalize();

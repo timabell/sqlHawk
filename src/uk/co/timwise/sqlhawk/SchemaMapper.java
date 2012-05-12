@@ -71,151 +71,151 @@ import uk.co.timwise.sqlhawk.xml.write.xmlWriter;
 
 
 public class SchemaMapper {
-    private final Logger logger = Logger.getLogger(getClass().getName());
-    private boolean fineEnabled;
+	private final Logger logger = Logger.getLogger(getClass().getName());
+	private boolean fineEnabled;
 
-    /**
-     * Performs whatever mappings are requested by the config.
-     * @param config
-     * @return true if ran without issue. Use to set exit code.
-     * @throws Exception
-     */
-    public boolean RunMapping(Config config) throws Exception {
-        long start = System.currentTimeMillis(); //log start time to be able to write out timing information
-        setupLogger(config);
-        //========= schema reading code ============
-        //TODO: check for any conflict in request options (read vs write?)
-        File targetDir = config.getTargetDir();
-        if (config.isSourceControlOutputEnabled()
-        		|| config.isXmlOutputEnabled()
-        		|| config.isOrderingOutputEnabled()
-        		|| config.isHtmlGenerationEnabled()) { //one or more output type enabled so need a target directory
-        	targetDir = setupOuputDir(targetDir);
-        }
-        //if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
-        //	return false; //probably checking and tidying up.
-        Database db = null;
-        if (config.isDatabaseInputEnabled())
-        	db = analyze(config);
-        if (config.isScmInputEnabled())
-        	db = ScmDbReader.Load(config, targetDir);
-        if (db==null)
-        	throw new Exception("No database information has been read. Make sure you set a read flag.");
-        //========= schema writing code ============
-        long startDiagrammingDetails = start; //set a value so that initialised if html not run
-        if (config.isHtmlGenerationEnabled()) {
-            startDiagrammingDetails = writeHtml(config, start, targetDir,
+	/**
+	 * Performs whatever mappings are requested by the config.
+	 * @param config
+	 * @return true if ran without issue. Use to set exit code.
+	 * @throws Exception
+	 */
+	public boolean RunMapping(Config config) throws Exception {
+		long start = System.currentTimeMillis(); //log start time to be able to write out timing information
+		setupLogger(config);
+		//========= schema reading code ============
+		//TODO: check for any conflict in request options (read vs write?)
+		File targetDir = config.getTargetDir();
+		if (config.isSourceControlOutputEnabled()
+				|| config.isXmlOutputEnabled()
+				|| config.isOrderingOutputEnabled()
+				|| config.isHtmlGenerationEnabled()) { //one or more output type enabled so need a target directory
+			targetDir = setupOuputDir(targetDir);
+		}
+		//if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
+		//	return false; //probably checking and tidying up.
+		Database db = null;
+		if (config.isDatabaseInputEnabled())
+			db = analyze(config);
+		if (config.isScmInputEnabled())
+			db = ScmDbReader.Load(config, targetDir);
+		if (db==null)
+			throw new Exception("No database information has been read. Make sure you set a read flag.");
+		//========= schema writing code ============
+		long startDiagrammingDetails = start; //set a value so that initialised if html not run
+		if (config.isHtmlGenerationEnabled()) {
+			startDiagrammingDetails = writeHtml(config, start, targetDir,
 					db);
-        }
-        if (config.isSourceControlOutputEnabled())
-        	new ScmDbWriter().writeForSourceControl(targetDir, db);
-        if (config.isXmlOutputEnabled())
-        	xmlWriter.writeXml(targetDir, db);
-        if (config.isOrderingOutputEnabled())
-        	writeOrderingFiles(targetDir, db);
-        if (config.isHtmlGenerationEnabled()) {
-            int tableCount = db.getTables().size() + db.getViews().size();
-            long end = System.currentTimeMillis();
-            showTimingInformation(config, start, startDiagrammingDetails,
-            		tableCount, end);
-        }
-        if (config.isDatabaseOutputEnabled()) {
-        	db.setSchema(config.getSchema());
-        	writeDb(config, db);
-        }
-        System.out.println();
-        System.out.println("Done.");
-        return true; //success
-    }
-    
-    /**
-     * Connect to a database, load schema information into memory,
-     * return an in-memory representation of the database.
-     * @param config
-     * @return
-     * @throws Exception
-     */
-    private Database analyze(Config config) throws Exception {
-        return readDb(config, config.getDb(), config.getSchema());
-    }
+		}
+		if (config.isSourceControlOutputEnabled())
+			new ScmDbWriter().writeForSourceControl(targetDir, db);
+		if (config.isXmlOutputEnabled())
+			xmlWriter.writeXml(targetDir, db);
+		if (config.isOrderingOutputEnabled())
+			writeOrderingFiles(targetDir, db);
+		if (config.isHtmlGenerationEnabled()) {
+			int tableCount = db.getTables().size() + db.getViews().size();
+			long end = System.currentTimeMillis();
+			showTimingInformation(config, start, startDiagrammingDetails,
+					tableCount, end);
+		}
+		if (config.isDatabaseOutputEnabled()) {
+			db.setSchema(config.getSchema());
+			writeDb(config, db);
+		}
+		System.out.println();
+		System.out.println("Done.");
+		return true; //success
+	}
+
+	/**
+	 * Connect to a database, load schema information into memory,
+	 * return an in-memory representation of the database.
+	 * @param config
+	 * @return
+	 * @throws Exception
+	 */
+	private Database analyze(Config config) throws Exception {
+		return readDb(config, config.getDb(), config.getSchema());
+	}
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
 			throws Exception {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
-		    Properties properties = config.getDbProperties(config.getDbType());
-		    String dbName = config.getDb();
+			Properties properties = config.getDbProperties(config.getDbType());
+			String dbName = config.getDb();
 
-		    if (schemas != null){
-		    	//MultipleSchemaAnalyzer.getInstance().analyze(dbName, schemas, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
-		    	throw new UnsupportedOperationException("Multi schema support awaiting re-write");
-		    } else { //EvaluateAllEnabled
-		        String schemaSpec = config.getSchemaSpec();
-		        if (schemaSpec == null)
-		            schemaSpec = properties.getProperty("schemaSpec", ".*");
-		        Connection connection = getConnection(config, properties);
-		        DatabaseMetaData meta = connection.getMetaData();
-		        //MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
-		    	throw new UnsupportedOperationException("Multi schema support awaiting re-write");
-		    }
-		    //return true;
+			if (schemas != null){
+				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, schemas, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
+			} else { //EvaluateAllEnabled
+				String schemaSpec = config.getSchemaSpec();
+				if (schemaSpec == null)
+					schemaSpec = properties.getProperty("schemaSpec", ".*");
+				Connection connection = getConnection(config, properties);
+				DatabaseMetaData meta = connection.getMetaData();
+				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
+			}
+			//return true;
 		}
 		return false;
 	}
 
-    private Database readDb(Config config, String dbName, String schema)
-    		throws Exception {
-        Properties properties = config.getDbProperties(config.getDbType());
-        Connection connection = getConnection(config, properties);
-        DatabaseMetaData meta = connection.getMetaData();
+	private Database readDb(Config config, String dbName, String schema)
+			throws Exception {
+		Properties properties = config.getDbProperties(config.getDbType());
+		Connection connection = getConnection(config, properties);
+		DatabaseMetaData meta = connection.getMetaData();
 
-        if (schema == null && meta.supportsSchemasInTableDefinitions() &&
-                !config.isSchemaDisabled()) {
-            schema = config.getUser();
-            if (schema == null)
-                throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
-            config.setSchema(schema);
-        }
+		if (schema == null && meta.supportsSchemasInTableDefinitions() &&
+				!config.isSchemaDisabled()) {
+			schema = config.getUser();
+			if (schema == null)
+				throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
+			config.setSchema(schema);
+		}
 
-        SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), dbName, schema);
+		SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), dbName, schema);
 
-        logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
-        if (schemaMeta != null && schemaMeta.getFile() != null) {
-            logger.info("Using additional metadata from " + schemaMeta.getFile());
-        }
-        //
-        // create our representation of the database
-        //
-        logger.info("Gathering schema details");
-        if (!fineEnabled)
-            System.out.println("Gathering schema details...");
-        DbReader reader = new DbReader();
-        Database db = reader.Read(config, connection, meta, dbName, schema, properties, schemaMeta);
-        schemaMeta = null; // done with it so let GC reclaim it
-    	return db;
-    }
+		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
+		if (schemaMeta != null && schemaMeta.getFile() != null) {
+			logger.info("Using additional metadata from " + schemaMeta.getFile());
+		}
+		//
+		// create our representation of the database
+		//
+		logger.info("Gathering schema details");
+		if (!fineEnabled)
+			System.out.println("Gathering schema details...");
+		DbReader reader = new DbReader();
+		Database db = reader.Read(config, connection, meta, dbName, schema, properties, schemaMeta);
+		schemaMeta = null; // done with it so let GC reclaim it
+		return db;
+	}
 
-    private void writeDb(Config config, Database db)
-    		throws Exception {
+	private void writeDb(Config config, Database db)
+			throws Exception {
 		Properties properties = config.getDbProperties(config.getDbType());
 		Connection connection = getConnection(config, properties);
 		DatabaseMetaData meta = connection.getMetaData();
 		String schema = db.getSchema();
 		String dbName = db.getName();
 		if (schema == null && meta.supportsSchemasInTableDefinitions() &&
-		        !config.isSchemaDisabled()) {
-		    schema = config.getUser();
-		    if (schema == null)
-		        throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
-		    config.setSchema(schema);
+				!config.isSchemaDisabled()) {
+			schema = config.getUser();
+			if (schema == null)
+				throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
+			config.setSchema(schema);
 		}
 		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		logger.info("Gathering existing schema details");
 		if (!fineEnabled)
-		    System.out.println("Gathering existing schema details...");
-        DbReader reader = new DbReader();
-        Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
-	    System.out.println();
+			System.out.println("Gathering existing schema details...");
+		DbReader reader = new DbReader();
+		Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
+		System.out.println();
 		DbWriter writer = new DbWriter(); 
 		writer.write(config, connection, meta, dbName, schema, properties, db, existingDb);
 	}
@@ -224,25 +224,25 @@ public class SchemaMapper {
 			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config, properties);
-        if (config.getDb() == null)
-            config.setDb(connectionUrl);
+		if (config.getDb() == null)
+			config.setDb(connectionUrl);
 
-        String driverClass = properties.getProperty("driver");
-        String driverPath = properties.getProperty("driverPath");
-        if (driverPath == null)
-            driverPath = "";
-        if (config.getDriverPath() != null)
-            driverPath = config.getDriverPath() + File.pathSeparator + driverPath;
+		String driverClass = properties.getProperty("driver");
+		String driverPath = properties.getProperty("driverPath");
+		if (driverPath == null)
+			driverPath = "";
+		if (config.getDriverPath() != null)
+			driverPath = config.getDriverPath() + File.pathSeparator + driverPath;
 
-        connection = getConnection(config, connectionUrl, driverClass, driverPath);
+		connection = getConnection(config, connectionUrl, driverClass, driverPath);
 		return connection;
 	}
 
 	private File setupOuputDir(File outputDir) throws IOException {
 		if (!outputDir.isDirectory()) {
-		    if (!outputDir.mkdirs()) {
-		        throw new IOException("Failed to create directory '" + outputDir + "'");
-		    }
+			if (!outputDir.mkdirs()) {
+				throw new IOException("Failed to create directory '" + outputDir + "'");
+			}
 		}
 		return outputDir;
 	}
@@ -253,10 +253,10 @@ public class SchemaMapper {
 
 		// clean-up console output a bit
 		for (Handler handler : Logger.getLogger("").getHandlers()) {
-		    if (handler instanceof ConsoleHandler) {
-		        ((ConsoleHandler)handler).setFormatter(new LogFormatter());
-		        handler.setLevel(config.getLogLevel());
-		    }
+			if (handler instanceof ConsoleHandler) {
+				((ConsoleHandler)handler).setFormatter(new LogFormatter());
+				handler.setLevel(config.getLogLevel());
+			}
 		}
 
 		fineEnabled = logger.isLoggable(Level.FINE);
@@ -302,21 +302,21 @@ public class SchemaMapper {
 		    writeRestoreRecursiveConstraintsSql(recursiveConstraints, schema, out);
 		    out.close();
 		}
-		*/
+		 */
 	}
 
 	private void showTimingInformation(Config config, long start,
 			long startDiagrammingDetails, int tableCount, long end) {
 		if (!fineEnabled)
-		    System.out.println("(" + (end - startDiagrammingDetails) / 1000 + "sec)");
+			System.out.println("(" + (end - startDiagrammingDetails) / 1000 + "sec)");
 		logger.info("Wrote table details in " + (end - startDiagrammingDetails) / 1000 + " seconds");
 
 		if (logger.isLoggable(Level.INFO)) {
-		    logger.info("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
-		    logger.info("View the results by opening " + new File(config.getTargetDir(), "index.html"));
+			logger.info("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
+			logger.info("View the results by opening " + new File(config.getTargetDir(), "index.html"));
 		} else {
-		    System.out.println("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
-		    System.out.println("View the results by opening " + new File(config.getTargetDir(), "index.html"));
+			System.out.println("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
+			System.out.println("View the results by opening " + new File(config.getTargetDir(), "index.html"));
 		}
 	}
 
@@ -329,7 +329,7 @@ public class SchemaMapper {
 		new File(outputDir, "diagrams/summary").mkdirs();
 		startSummarizing = System.currentTimeMillis();
 		if (!fineEnabled) {
-		    System.out.println("(" + (startSummarizing - start) / 1000 + "sec)");
+			System.out.println("(" + (startSummarizing - start) / 1000 + "sec)");
 		}
 
 		logger.info("Gathered schema details in " + (startSummarizing - start) / 1000 + " seconds");
@@ -337,14 +337,14 @@ public class SchemaMapper {
 		System.err.flush();
 		System.out.flush();
 		if (!fineEnabled) {
-		    System.out.print("Writing/graphing summary");
-		    System.out.print(".");
+			System.out.print("Writing/graphing summary");
+			System.out.print(".");
 		}
 		ImageWriter.getInstance().writeImages(outputDir);
 		ResourceWriter.getInstance().writeResource("/jquery.js", new File(outputDir, "/jquery.js"));
 		ResourceWriter.getInstance().writeResource("/sqlHawk.js", new File(outputDir, "/sqlHawk.js"));
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 		Collection<Table> tablesAndViews = db.getTablesAndViews();
 		boolean showDetailedTables = config.isShowDetailedTablesEnabled();
 		final boolean includeImpliedConstraints = config.isImpliedConstraintsEnabled();
@@ -354,7 +354,7 @@ public class SchemaMapper {
 		// note that this is done before 'hasRealRelationships' gets evaluated so
 		// we get a relationships ER diagram
 		if (config.isRailsEnabled())
-		    DbAnalyzer.getRailsConstraints(db.getTablesByName());
+			DbAnalyzer.getRailsConstraints(db.getTablesByName());
 
 		File diagramsDir = new File(outputDir, "diagrams/summary");
 
@@ -367,27 +367,27 @@ public class SchemaMapper {
 		out.close();
 
 		if (hasRealRelationships) {
-		    // real relationships exist so generate the 'big' form of the relationships .dot file
-		    if (!fineEnabled)
-		        System.out.print(".");
-		    out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.large.dot"), Config.DOT_CHARSET);
-		    DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, false, showDetailedTables, stats, out);
-		    out.close();
+			// real relationships exist so generate the 'big' form of the relationships .dot file
+			if (!fineEnabled)
+				System.out.print(".");
+			out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.large.dot"), Config.DOT_CHARSET);
+			DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, false, showDetailedTables, stats, out);
+			out.close();
 		}
 
 		// getting implied constraints has a side-effect of associating the parent/child tables, so don't do it
 		// here unless they want that behavior
 		List<ImpliedForeignKeyConstraint> impliedConstraints = null;
 		if (includeImpliedConstraints)
-		    impliedConstraints = DbAnalyzer.getImpliedConstraints(tablesAndViews);
+			impliedConstraints = DbAnalyzer.getImpliedConstraints(tablesAndViews);
 		else
-		    impliedConstraints = new ArrayList<ImpliedForeignKeyConstraint>();
+			impliedConstraints = new ArrayList<ImpliedForeignKeyConstraint>();
 
 		List<Table> orphans = DbAnalyzer.getOrphans(tablesAndViews);
 		boolean hasOrphans = !orphans.isEmpty() && Dot.getInstance().isValid();
 
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
 		out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
@@ -396,12 +396,12 @@ public class SchemaMapper {
 		Set<TableColumn> excludedColumns = stats.getExcludedColumns();
 		out.close();
 		if (hasImplied) {
-		    impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.large.dot");
-		    out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
-		    DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, false, showDetailedTables, stats, out);
-		    out.close();
+			impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.large.dot");
+			out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
+			DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, false, showDetailedTables, stats, out);
+			out.close();
 		} else {
-		    impliedDotFile.delete();
+			impliedDotFile.delete();
 		}
 
 		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), config.getCharset());
@@ -409,7 +409,7 @@ public class SchemaMapper {
 		out.close();
 
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 
 		dotBaseFilespec = "utilities";
 		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), config.getCharset());
@@ -417,14 +417,14 @@ public class SchemaMapper {
 		out.close();
 
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 
 		out = new LineWriter(new File(outputDir, "index.html"), 64 * 1024, config.getCharset());
 		HtmlMainIndexPage.getInstance().write(db, tablesAndViews, hasOrphans, out);
 		out.close();
 
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 
 		List<ForeignKeyConstraint> constraints = DbAnalyzer.getForeignKeyConstraints(tablesAndViews);
 		out = new LineWriter(new File(outputDir, "constraints.html"), 256 * 1024, config.getCharset());
@@ -433,42 +433,42 @@ public class SchemaMapper {
 		out.close();
 
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 
 		out = new LineWriter(new File(outputDir, "anomalies.html"), 16 * 1024, config.getCharset());
 		HtmlAnomaliesPage.getInstance().write(db, tablesAndViews, impliedConstraints, hasOrphans, out);
 		out.close();
 
 		if (!fineEnabled)
-		    System.out.print(".");
+			System.out.print(".");
 
 		for (HtmlColumnsPage.ColumnInfo columnInfo : HtmlColumnsPage.getInstance().getColumnInfos()) {
-		    out = new LineWriter(new File(outputDir, columnInfo.getLocation()), 16 * 1024, config.getCharset());
-		    HtmlColumnsPage.getInstance().write(db, tablesAndViews, columnInfo, hasOrphans, out);
-		    out.close();
+			out = new LineWriter(new File(outputDir, columnInfo.getLocation()), 16 * 1024, config.getCharset());
+			HtmlColumnsPage.getInstance().write(db, tablesAndViews, columnInfo, hasOrphans, out);
+			out.close();
 		}
 
 		// create detailed diagrams
 
 		long startDiagrammingDetails = System.currentTimeMillis();
 		if (!fineEnabled)
-		    System.out.println("(" + (startDiagrammingDetails - startSummarizing) / 1000 + "sec)");
+			System.out.println("(" + (startDiagrammingDetails - startSummarizing) / 1000 + "sec)");
 		logger.info("Completed summary in " + (startDiagrammingDetails - startSummarizing) / 1000 + " seconds");
 		logger.info("Writing/diagramming details");
 		if (!fineEnabled) {
-		    System.out.print("Writing/diagramming details");
+			System.out.print("Writing/diagramming details");
 		}
 
 		HtmlTablePage tableFormatter = HtmlTablePage.getInstance();
 		for (Table table : tablesAndViews) {
-		    if (!fineEnabled)
-		        System.out.print('.');
-		    else
-		        logger.fine("Writing details of " + table.getName());
+			if (!fineEnabled)
+				System.out.print('.');
+			else
+				logger.fine("Writing details of " + table.getName());
 
-		    out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
-		    tableFormatter.write(db, table, hasOrphans, outputDir, stats, out);
-		    out.close();
+			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
+			tableFormatter.write(db, table, hasOrphans, outputDir, stats, out);
+			out.close();
 		}
 
 		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
@@ -477,190 +477,190 @@ public class SchemaMapper {
 		return startDiagrammingDetails;
 	}
 
-    /**
-     * dumpNoDataMessage
-     *
-     * @param schema String
-     * @param user String
-     * @param meta DatabaseMetaData
-     */
-    private static void dumpNoTablesMessage(String schema, String user, DatabaseMetaData meta, boolean specifiedInclusions) throws SQLException {
-        System.out.println();
-        System.out.println();
-        System.out.println("No tables or views were found in schema '" + schema + "'.");
-        List<String> schemas = null;
-        Exception failure = null;
-        try {
-            schemas = DbAnalyzer.getSchemas(meta);
-        } catch (SQLException exc) {
-            failure = exc;
-        } catch (RuntimeException exc) {
-            failure = exc;
-        }
+	/**
+	 * dumpNoDataMessage
+	 *
+	 * @param schema String
+	 * @param user String
+	 * @param meta DatabaseMetaData
+	 */
+	private static void dumpNoTablesMessage(String schema, String user, DatabaseMetaData meta, boolean specifiedInclusions) throws SQLException {
+		System.out.println();
+		System.out.println();
+		System.out.println("No tables or views were found in schema '" + schema + "'.");
+		List<String> schemas = null;
+		Exception failure = null;
+		try {
+			schemas = DbAnalyzer.getSchemas(meta);
+		} catch (SQLException exc) {
+			failure = exc;
+		} catch (RuntimeException exc) {
+			failure = exc;
+		}
 
-        if (schemas == null) {
-            System.out.println("The user you specified (" + user + ')');
-            System.out.println("  might not have rights to read the database metadata.");
-            System.out.flush();
-            if (failure != null)    // to appease the compiler
-                failure.printStackTrace();
-            return;
-        } else if (schema == null || schemas.contains(schema)) {
-            System.out.println("The schema exists in the database, but the user you specified (" + user + ')');
-            System.out.println("  might not have rights to read its contents.");
-            if (specifiedInclusions) {
-                System.out.println("Another possibility is that the regular expression that you specified");
-                System.out.println("  for what to include (via -i) didn't match any tables.");
-            }
-        } else {
-            System.out.println("The schema does not exist in the database.");
-            System.out.println("Make sure that you specify a valid schema with the -s option and that");
-            System.out.println("  the user specified (" + user + ") can read from the schema.");
-            System.out.println("Note that schema names are usually case sensitive.");
-        }
-        System.out.println();
-        boolean plural = schemas.size() != 1;
-        System.out.println(schemas.size() + " schema" + (plural ? "s" : "") + " exist" + (plural ? "" : "s") + " in this database.");
-        System.out.println("Some of these \"schemas\" may be users or system schemas.");
-        System.out.println();
-        for (String unknown : schemas) {
-            System.out.print(unknown + " ");
-        }
+		if (schemas == null) {
+			System.out.println("The user you specified (" + user + ')');
+			System.out.println("  might not have rights to read the database metadata.");
+			System.out.flush();
+			if (failure != null)    // to appease the compiler
+				failure.printStackTrace();
+			return;
+		} else if (schema == null || schemas.contains(schema)) {
+			System.out.println("The schema exists in the database, but the user you specified (" + user + ')');
+			System.out.println("  might not have rights to read its contents.");
+			if (specifiedInclusions) {
+				System.out.println("Another possibility is that the regular expression that you specified");
+				System.out.println("  for what to include (via -i) didn't match any tables.");
+			}
+		} else {
+			System.out.println("The schema does not exist in the database.");
+			System.out.println("Make sure that you specify a valid schema with the -s option and that");
+			System.out.println("  the user specified (" + user + ") can read from the schema.");
+			System.out.println("Note that schema names are usually case sensitive.");
+		}
+		System.out.println();
+		boolean plural = schemas.size() != 1;
+		System.out.println(schemas.size() + " schema" + (plural ? "s" : "") + " exist" + (plural ? "" : "s") + " in this database.");
+		System.out.println("Some of these \"schemas\" may be users or system schemas.");
+		System.out.println();
+		for (String unknown : schemas) {
+			System.out.print(unknown + " ");
+		}
 
-        System.out.println();
-        List<String> populatedSchemas = DbAnalyzer.getPopulatedSchemas(meta);
-        if (populatedSchemas.isEmpty()) {
-            System.out.println("Unable to determine if any of the schemas contain tables/views");
-        } else {
-            System.out.println("These schemas contain tables/views that user '" + user + "' can see:");
-            System.out.println();
-            for (String populated : populatedSchemas) {
-                System.out.print(" " + populated);
-            }
-        }
-    }
+		System.out.println();
+		List<String> populatedSchemas = DbAnalyzer.getPopulatedSchemas(meta);
+		if (populatedSchemas.isEmpty()) {
+			System.out.println("Unable to determine if any of the schemas contain tables/views");
+		} else {
+			System.out.println("These schemas contain tables/views that user '" + user + "' can see:");
+			System.out.println();
+			for (String populated : populatedSchemas) {
+				System.out.print(" " + populated);
+			}
+		}
+	}
 
-    private Connection getConnection(Config config, String connectionURL,
-                      String driverClass, String driverPath) throws FileNotFoundException, IOException {
-        if (logger.isLoggable(Level.INFO)) {
-            logger.info("Using database properties:");
-            logger.info("  " + config.getDbPropertiesLoadedFrom());
-        } else {
-            System.out.println("Using database properties:");
-            System.out.println("  " + config.getDbPropertiesLoadedFrom());
-        }
+	private Connection getConnection(Config config, String connectionURL,
+			String driverClass, String driverPath) throws FileNotFoundException, IOException {
+		if (logger.isLoggable(Level.INFO)) {
+			logger.info("Using database properties:");
+			logger.info("  " + config.getDbPropertiesLoadedFrom());
+		} else {
+			System.out.println("Using database properties:");
+			System.out.println("  " + config.getDbPropertiesLoadedFrom());
+		}
 
-        List<URL> classpath = new ArrayList<URL>();
-        List<File> invalidClasspathEntries = new ArrayList<File>();
-        StringTokenizer tokenizer = new StringTokenizer(driverPath, File.pathSeparator);
-        while (tokenizer.hasMoreTokens()) {
-            File pathElement = new File(tokenizer.nextToken());
-            if (pathElement.exists())
-                classpath.add(pathElement.toURI().toURL());
-            else
-                invalidClasspathEntries.add(pathElement);
-        }
+		List<URL> classpath = new ArrayList<URL>();
+		List<File> invalidClasspathEntries = new ArrayList<File>();
+		StringTokenizer tokenizer = new StringTokenizer(driverPath, File.pathSeparator);
+		while (tokenizer.hasMoreTokens()) {
+			File pathElement = new File(tokenizer.nextToken());
+			if (pathElement.exists())
+				classpath.add(pathElement.toURI().toURL());
+			else
+				invalidClasspathEntries.add(pathElement);
+		}
 
-        URLClassLoader loader = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
-        Driver driver = null;
-        try {
-            driver = (Driver)Class.forName(driverClass, true, loader).newInstance();
+		URLClassLoader loader = new URLClassLoader(classpath.toArray(new URL[classpath.size()]));
+		Driver driver = null;
+		try {
+			driver = (Driver)Class.forName(driverClass, true, loader).newInstance();
 
-            // have to use deprecated method or we won't see messages generated by older drivers
-            //java.sql.DriverManager.setLogStream(System.err);
-        } catch (Exception exc) {
-            System.err.println(exc); // people don't want to see a stack trace...
-            System.err.println();
-            System.err.print("Failed to load driver '" + driverClass + "'");
-            if (classpath.isEmpty())
-                System.err.println();
-            else
-                System.err.println("from: " + classpath);
-            if (!invalidClasspathEntries.isEmpty()) {
-                if (invalidClasspathEntries.size() == 1)
-                    System.err.print("This entry doesn't point to a valid file/directory: ");
-                else
-                    System.err.print("These entries don't point to valid files/directories: ");
-                System.err.println(invalidClasspathEntries);
-            }
-            System.err.println();
-            System.err.println("Use the --driver-path option to specify the location of the database");
-            System.err.println("drivers for your database (usually in a .jar or .zip/.Z).");
-            System.err.println();
-            throw new ConnectionFailure(exc);
-        }
+			// have to use deprecated method or we won't see messages generated by older drivers
+			//java.sql.DriverManager.setLogStream(System.err);
+		} catch (Exception exc) {
+			System.err.println(exc); // people don't want to see a stack trace...
+			System.err.println();
+			System.err.print("Failed to load driver '" + driverClass + "'");
+			if (classpath.isEmpty())
+				System.err.println();
+			else
+				System.err.println("from: " + classpath);
+			if (!invalidClasspathEntries.isEmpty()) {
+				if (invalidClasspathEntries.size() == 1)
+					System.err.print("This entry doesn't point to a valid file/directory: ");
+				else
+					System.err.print("These entries don't point to valid files/directories: ");
+				System.err.println(invalidClasspathEntries);
+			}
+			System.err.println();
+			System.err.println("Use the --driver-path option to specify the location of the database");
+			System.err.println("drivers for your database (usually in a .jar or .zip/.Z).");
+			System.err.println();
+			throw new ConnectionFailure(exc);
+		}
 
-        Properties connectionProperties = config.getConnectionProperties();
-        if (config.getUser() != null) {
-            connectionProperties.put("user", config.getUser());
-        }
-        if (config.getPassword() != null) {
-            connectionProperties.put("password", config.getPassword());
-        } else if (config.isPromptForPasswordEnabled()) {
-            connectionProperties.put("password",
-                    new String(PasswordReader.getInstance().readPassword("Password: ")));
-        }
+		Properties connectionProperties = config.getConnectionProperties();
+		if (config.getUser() != null) {
+			connectionProperties.put("user", config.getUser());
+		}
+		if (config.getPassword() != null) {
+			connectionProperties.put("password", config.getPassword());
+		} else if (config.isPromptForPasswordEnabled()) {
+			connectionProperties.put("password",
+					new String(PasswordReader.getInstance().readPassword("Password: ")));
+		}
 
-        Connection connection = null;
-        try {
-            connection = driver.connect(connectionURL, connectionProperties);
-            if (connection == null) {
-                System.err.println();
-                System.err.println("Cannot connect to this database URL:");
-                System.err.println("  " + connectionURL);
-                System.err.println("with this driver:");
-                System.err.println("  " + driverClass);
-                System.err.println();
-                System.err.println("Additional connection information may be available in ");
-                System.err.println("  " + config.getDbPropertiesLoadedFrom());
-                throw new ConnectionFailure("Cannot connect to '" + connectionURL +"' with driver '" + driverClass + "'");
-            }
-        } catch (UnsatisfiedLinkError badPath) {
-            System.err.println();
-            System.err.println("Failed to load driver [" + driverClass + "] from classpath " + classpath);
-            System.err.println();
-            System.err.println("Make sure the reported library (.dll/.lib/.so) from the following line can be");
-            System.err.println("found by your PATH (or LIB*PATH) environment variable");
-            System.err.println();
-            badPath.printStackTrace();
-            throw new ConnectionFailure(badPath);
-        } catch (Exception exc) {
-            System.err.println();
-            System.err.println("Failed to connect to database URL [" + connectionURL + "]");
-            System.err.println();
-            exc.printStackTrace();
-            throw new ConnectionFailure(exc);
-        }
+		Connection connection = null;
+		try {
+			connection = driver.connect(connectionURL, connectionProperties);
+			if (connection == null) {
+				System.err.println();
+				System.err.println("Cannot connect to this database URL:");
+				System.err.println("  " + connectionURL);
+				System.err.println("with this driver:");
+				System.err.println("  " + driverClass);
+				System.err.println();
+				System.err.println("Additional connection information may be available in ");
+				System.err.println("  " + config.getDbPropertiesLoadedFrom());
+				throw new ConnectionFailure("Cannot connect to '" + connectionURL +"' with driver '" + driverClass + "'");
+			}
+		} catch (UnsatisfiedLinkError badPath) {
+			System.err.println();
+			System.err.println("Failed to load driver [" + driverClass + "] from classpath " + classpath);
+			System.err.println();
+			System.err.println("Make sure the reported library (.dll/.lib/.so) from the following line can be");
+			System.err.println("found by your PATH (or LIB*PATH) environment variable");
+			System.err.println();
+			badPath.printStackTrace();
+			throw new ConnectionFailure(badPath);
+		} catch (Exception exc) {
+			System.err.println();
+			System.err.println("Failed to connect to database URL [" + connectionURL + "]");
+			System.err.println();
+			exc.printStackTrace();
+			throw new ConnectionFailure(exc);
+		}
 
-        return connection;
-    }
+		return connection;
+	}
 
-    /**
-     * Currently very DB2-specific
-     * @param recursiveConstraints List
-     * @param schema String
-     * @param out LineWriter
-     * @throws IOException
-     */
-    /* we'll eventually want to put this functionality back in with a
-     * database independent implementation
+	/**
+	 * Currently very DB2-specific
+	 * @param recursiveConstraints List
+	 * @param schema String
+	 * @param out LineWriter
+	 * @throws IOException
+	 */
+	/* we'll eventually want to put this functionality back in with a
+	 * database independent implementation
     private static void writeRemoveRecursiveConstraintsSql(List recursiveConstraints, String schema, LineWriter out) throws IOException {
         for (Iterator iter = recursiveConstraints.iterator(); iter.hasNext(); ) {
             ForeignKeyConstraint constraint = (ForeignKeyConstraint)iter.next();
             out.writeln("ALTER TABLE " + schema + "." + constraint.getChildTable() + " DROP CONSTRAINT " + constraint.getName() + ";");
         }
     }
-    */
+	 */
 
-    /**
-     * Currently very DB2-specific
-     * @param recursiveConstraints List
-     * @param schema String
-     * @param out LineWriter
-     * @throws IOException
-     */
-    /* we'll eventually want to put this functionality back in with a
-     * database independent implementation
+	/**
+	 * Currently very DB2-specific
+	 * @param recursiveConstraints List
+	 * @param schema String
+	 * @param out LineWriter
+	 * @throws IOException
+	 */
+	/* we'll eventually want to put this functionality back in with a
+	 * database independent implementation
     private static void writeRestoreRecursiveConstraintsSql(List recursiveConstraints, String schema, LineWriter out) throws IOException {
         Map ruleTextMapping = new HashMap();
         ruleTextMapping.put(new Character('C'), "CASCADE");
@@ -698,5 +698,5 @@ public class SchemaMapper {
             out.writeln(";");
         }
     }
-    */
+	 */
 }

@@ -26,42 +26,42 @@ import uk.co.timwise.sqlhawk.model.TableColumn;
  * Simple ugly hack that provides details of what was written.
  */
 public class WriteStats {
-    private int numTables;
-    private int numViews;
-    private final Set<TableColumn> excludedColumns;
+	private int numTables;
+	private int numViews;
+	private final Set<TableColumn> excludedColumns;
 
-    public WriteStats(Collection<Table> tables) {
-        excludedColumns = new HashSet<TableColumn>();
+	public WriteStats(Collection<Table> tables) {
+		excludedColumns = new HashSet<TableColumn>();
 
-        for (Table table : tables) {
-            for (TableColumn column : table.getColumns()) {
-                if (column.isExcluded()) {
-                    excludedColumns.add(column);
-                }
-            }
-        }
-    }
+		for (Table table : tables) {
+			for (TableColumn column : table.getColumns()) {
+				if (column.isExcluded()) {
+					excludedColumns.add(column);
+				}
+			}
+		}
+	}
 
-    public WriteStats(WriteStats stats) {
-        excludedColumns = stats.excludedColumns;
-    }
+	public WriteStats(WriteStats stats) {
+		excludedColumns = stats.excludedColumns;
+	}
 
-    public void wroteTable(Table table) {
-        if (table.isView())
-            ++numViews;
-        else
-            ++numTables;
-    }
+	public void wroteTable(Table table) {
+		if (table.isView())
+			++numViews;
+		else
+			++numTables;
+	}
 
-    public int getNumTablesWritten() {
-        return numTables;
-    }
+	public int getNumTablesWritten() {
+		return numTables;
+	}
 
-    public int getNumViewsWritten() {
-        return numViews;
-    }
+	public int getNumViewsWritten() {
+		return numViews;
+	}
 
-    public Set<TableColumn> getExcludedColumns() {
-        return excludedColumns;
-    }
+	public Set<TableColumn> getExcludedColumns() {
+		return excludedColumns;
+	}
 }

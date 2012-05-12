@@ -34,7 +34,7 @@ public class ScmDbWriter {
 		writeFunctions(outputDir, db.getFunctions());
 		writeViews(outputDir, db.getViews());
 	}
-	
+
 	private void writeProcs(File outputDir, Collection<Procedure> procs) throws IOException {		
 		File procFolder = new File(outputDir, "Procedures");
 		ensureFolder(procFolder);
@@ -44,7 +44,7 @@ public class ScmDbWriter {
 			out.close();		
 		}
 	}
-	
+
 	private void writeFunctions(File outputDir, Collection<Function> functions) throws IOException {		
 		File functionFolder = new File(outputDir, "Functions");
 		ensureFolder(functionFolder);
@@ -54,7 +54,7 @@ public class ScmDbWriter {
 			out.close();		
 		}
 	}
-	
+
 	private void writeViews(File outputDir, Collection<View> views) throws IOException {		
 		File viewFolder = new File(outputDir, "Views");
 		ensureFolder(viewFolder);
@@ -69,12 +69,12 @@ public class ScmDbWriter {
 			out.close();		
 		}
 	}
-	
+
 	private void ensureFolder(File target) throws IOException {
 		if (!target.isDirectory()) {
-		    if (!target.mkdirs()) {
-		        throw new IOException("Failed to create directory '" + target + "'");
-		    }
+			if (!target.mkdirs()) {
+				throw new IOException("Failed to create directory '" + target + "'");
+			}
 		}		
 	}
 

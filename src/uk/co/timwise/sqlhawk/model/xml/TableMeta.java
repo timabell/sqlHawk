@@ -28,57 +28,57 @@ import org.w3c.dom.NodeList;
  * the database.
  */
 public class TableMeta {
-    private final String name;
-    private final String comments;
-    private final List<TableColumnMeta> columns = new ArrayList<TableColumnMeta>();
-    private final String remoteSchema;
-    private static final Logger logger = Logger.getLogger(TableMeta.class.getName());
+	private final String name;
+	private final String comments;
+	private final List<TableColumnMeta> columns = new ArrayList<TableColumnMeta>();
+	private final String remoteSchema;
+	private static final Logger logger = Logger.getLogger(TableMeta.class.getName());
 
-    TableMeta(Node tableNode) {
-        NamedNodeMap attribs = tableNode.getAttributes();
+	TableMeta(Node tableNode) {
+		NamedNodeMap attribs = tableNode.getAttributes();
 
-        name = attribs.getNamedItem("name").getNodeValue();
+		name = attribs.getNamedItem("name").getNodeValue();
 
-        Node commentNode = attribs.getNamedItem("comments");
-        if (commentNode != null) {
-            String tmp = commentNode.getNodeValue().trim();
-            comments = tmp.length() == 0 ? null : tmp;
-        } else {
-            comments = null;
-        }
+		Node commentNode = attribs.getNamedItem("comments");
+		if (commentNode != null) {
+			String tmp = commentNode.getNodeValue().trim();
+			comments = tmp.length() == 0 ? null : tmp;
+		} else {
+			comments = null;
+		}
 
-        Node remoteSchemaNode = attribs.getNamedItem("remoteSchema");
-        if (remoteSchemaNode != null) {
-            remoteSchema = remoteSchemaNode.getNodeValue().trim();
-        } else {
-            remoteSchema = null;
-        }
+		Node remoteSchemaNode = attribs.getNamedItem("remoteSchema");
+		if (remoteSchemaNode != null) {
+			remoteSchema = remoteSchemaNode.getNodeValue().trim();
+		} else {
+			remoteSchema = null;
+		}
 
-        logger.fine("Found XML table metadata for " + name +
-                    " remoteSchema: " + remoteSchema +
-                    " comments: " + comments);
+		logger.fine("Found XML table metadata for " + name +
+				" remoteSchema: " + remoteSchema +
+				" comments: " + comments);
 
-        NodeList columnNodes = ((Element)tableNode.getChildNodes()).getElementsByTagName("column");
+		NodeList columnNodes = ((Element)tableNode.getChildNodes()).getElementsByTagName("column");
 
-        for (int i = 0; i < columnNodes.getLength(); ++i) {
-            Node colNode = columnNodes.item(i);
-            columns.add(new TableColumnMeta(colNode));
-        }
-    }
+		for (int i = 0; i < columnNodes.getLength(); ++i) {
+			Node colNode = columnNodes.item(i);
+			columns.add(new TableColumnMeta(colNode));
+		}
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public String getComments() {
-        return comments;
-    }
+	public String getComments() {
+		return comments;
+	}
 
-    public List<TableColumnMeta> getColumns() {
-        return columns;
-    }
+	public List<TableColumnMeta> getColumns() {
+		return columns;
+	}
 
-    public String getRemoteSchema() {
-        return remoteSchema;
-    }
+	public String getRemoteSchema() {
+		return remoteSchema;
+	}
 }

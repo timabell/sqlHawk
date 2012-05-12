@@ -24,43 +24,43 @@ import uk.co.timwise.sqlhawk.Config;
 
 
 public class ConnectionURLBuilder {
-    private final Logger logger = Logger.getLogger(getClass().getName());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
-    /**
-     * 
-     * @param config
-     * @param properties
-     * @throws Exception 
-     */
-    public String buildUrl(Config config, Properties properties) throws Exception {
-        DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
-        List<DbSpecificOption> driverOptions = dbConfig.getOptions();
-        String connectionURL = buildUrlFromArgs(properties, config, driverOptions);
-        logger.config("connectionURL: " + connectionURL);
-        return connectionURL;
-    }
+	/**
+	 * 
+	 * @param config
+	 * @param properties
+	 * @throws Exception 
+	 */
+	public String buildUrl(Config config, Properties properties) throws Exception {
+		DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
+		List<DbSpecificOption> driverOptions = dbConfig.getOptions();
+		String connectionURL = buildUrlFromArgs(properties, config, driverOptions);
+		logger.config("connectionURL: " + connectionURL);
+		return connectionURL;
+	}
 
-    private String buildUrlFromArgs(Properties properties, Config config, List<DbSpecificOption> driverOptions) throws Exception {
-        String connectionSpec = properties.getProperty("connectionSpec");
-        Map<String, String> extraConnectionOptions = config.getExtraConnectionOptions();
-        for (DbSpecificOption option : driverOptions) {
-        	//options available directly in hard coded command line arguments of sqlHawk
-        	if (option.getName().equalsIgnoreCase("host") && config.getHost() != null)
-        		option.setValue(config.getHost());
-        	else if (option.getName().equalsIgnoreCase("port") && config.getPort() != null)
-        		option.setValue(config.getPort());
-        	else if (option.getName().equalsIgnoreCase("database") && config.getDb() != null)
-        		option.setValue(config.getDb());
-        	else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null)
-        		option.setValue(config.getDatabaseInstance());
-        	//options available through the "connection-options" multi-part command line argument of sqlHawk
-        	else if (extraConnectionOptions.containsKey(option.getName()))
-        		option.setValue(extraConnectionOptions.get(option.getName()));
-        	else
-        		throw new Exception("The specified database driver requires option '" + option.getName() + "' which has not been supplied. You can supply extra options with --connection-options (see --help for more information)");
-            //perform actual replacement in driver string e.g. <host> with <myDbHost>
-            connectionSpec = connectionSpec.replaceAll("\\<" + option.getName() + "\\>", option.getValue().toString());
-        }
-        return connectionSpec;
-    }
+	private String buildUrlFromArgs(Properties properties, Config config, List<DbSpecificOption> driverOptions) throws Exception {
+		String connectionSpec = properties.getProperty("connectionSpec");
+		Map<String, String> extraConnectionOptions = config.getExtraConnectionOptions();
+		for (DbSpecificOption option : driverOptions) {
+			//options available directly in hard coded command line arguments of sqlHawk
+			if (option.getName().equalsIgnoreCase("host") && config.getHost() != null)
+				option.setValue(config.getHost());
+			else if (option.getName().equalsIgnoreCase("port") && config.getPort() != null)
+				option.setValue(config.getPort());
+			else if (option.getName().equalsIgnoreCase("database") && config.getDb() != null)
+				option.setValue(config.getDb());
+			else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null)
+				option.setValue(config.getDatabaseInstance());
+			//options available through the "connection-options" multi-part command line argument of sqlHawk
+			else if (extraConnectionOptions.containsKey(option.getName()))
+				option.setValue(extraConnectionOptions.get(option.getName()));
+			else
+				throw new Exception("The specified database driver requires option '" + option.getName() + "' which has not been supplied. You can supply extra options with --connection-options (see --help for more information)");
+			//perform actual replacement in driver string e.g. <host> with <myDbHost>
+			connectionSpec = connectionSpec.replaceAll("\\<" + option.getName() + "\\>", option.getValue().toString());
+		}
+		return connectionSpec;
+	}
 }

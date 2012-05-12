@@ -21,20 +21,20 @@ import java.io.IOException;
 import uk.co.timwise.sqlhawk.util.ResourceWriter;
 
 public class ImageWriter extends ResourceWriter {
-    private static ImageWriter instance = new ImageWriter();
+	private static ImageWriter instance = new ImageWriter();
 
-    private ImageWriter() {
-    }
+	private ImageWriter() {
+	}
 
-    public static ImageWriter getInstance() {
-        return instance;
-    }
+	public static ImageWriter getInstance() {
+		return instance;
+	}
 
-    public void writeImages(File outputDir) throws IOException {
-        new File(outputDir, "images").mkdir();
+	public void writeImages(File outputDir) throws IOException {
+		new File(outputDir, "images").mkdir();
 
-        writeResource("/images/tabLeft.gif", new File(outputDir, "/images/tabLeft.gif"));
-        writeResource("/images/tabRight.gif", new File(outputDir, "/images/tabRight.gif"));
-        writeResource("/images/background.gif", new File(outputDir, "/images/background.gif"));
-    }
+		writeResource("/images/tabLeft.gif", new File(outputDir, "/images/tabLeft.gif"));
+		writeResource("/images/tabRight.gif", new File(outputDir, "/images/tabRight.gif"));
+		writeResource("/images/background.gif", new File(outputDir, "/images/background.gif"));
+	}
 }

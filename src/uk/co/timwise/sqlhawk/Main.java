@@ -21,60 +21,60 @@ import uk.co.timwise.sqlhawk.db.read.ProcessExecutionException;
 import uk.co.timwise.sqlhawk.ui.MainFrame;
 
 public class Main {
-    public static void main(String[] argv) throws Exception {
-        if (argv.length == 1 && argv[0].equals("-gui")) { // warning: serious temp hack
-            new MainFrame().setVisible(true);
-            return;
-        }
-        
-        //print welcome message to console
-        String version = Main.class.getPackage().getImplementationVersion();
-        if (version!=null) //will be null if run outside package, i.e. in eclipse.
-        	System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
-        System.out.println("More information at http://github.com/timabell/sqlHawk");
-        System.out.println();
+	public static void main(String[] argv) throws Exception {
+		if (argv.length == 1 && argv[0].equals("-gui")) { // warning: serious temp hack
+			new MainFrame().setVisible(true);
+			return;
+		}
 
-        //load config
-        Config config = new Config(argv);
+		//print welcome message to console
+		String version = Main.class.getPackage().getImplementationVersion();
+		if (version!=null) //will be null if run outside package, i.e. in eclipse.
+			System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
+		System.out.println("More information at http://github.com/timabell/sqlHawk");
+		System.out.println();
 
-        if (showHelp(config))
-        	System.exit(0);
+		//load config
+		Config config = new Config(argv);
 
-        int exitCode = 1;
+		if (showHelp(config))
+			System.exit(0);
 
-        try {
-	        //begin analysis
-	        SchemaMapper mapper = new SchemaMapper();
-            exitCode = mapper.RunMapping(config) ? 0 : 1;
-        } catch (ConnectionFailure couldntConnect) {
-            // failure already logged
-            exitCode = 3;
-        } catch (EmptySchemaException noData) {
-            // failure already logged
-            exitCode = 2;
-        } catch (Config.MissingRequiredParameterException missingParam) {
-            System.err.println(missingParam.getMessage());
-            System.exit(1);
-        } catch (InvalidConfigurationException badConfig) {
-            System.err.println();
-            if (badConfig.getParamName() != null)
-                System.err.println("Bad parameter specified for " + badConfig.getParamName());
-            System.err.println(badConfig.getMessage());
-            if (badConfig.getCause() != null && !badConfig.getMessage().endsWith(badConfig.getMessage()))
-                System.err.println(" caused by " + badConfig.getCause().getMessage());
-        } catch (ProcessExecutionException badLaunch) {
-            System.err.println(badLaunch.getMessage());
-        } catch (Exception exc) {
-            exc.printStackTrace();
-        }
+		int exitCode = 1;
 
-        System.exit(exitCode);
-    }
+		try {
+			//begin analysis
+			SchemaMapper mapper = new SchemaMapper();
+			exitCode = mapper.RunMapping(config) ? 0 : 1;
+		} catch (ConnectionFailure couldntConnect) {
+			// failure already logged
+			exitCode = 3;
+		} catch (EmptySchemaException noData) {
+			// failure already logged
+			exitCode = 2;
+		} catch (Config.MissingRequiredParameterException missingParam) {
+			System.err.println(missingParam.getMessage());
+			System.exit(1);
+		} catch (InvalidConfigurationException badConfig) {
+			System.err.println();
+			if (badConfig.getParamName() != null)
+				System.err.println("Bad parameter specified for " + badConfig.getParamName());
+			System.err.println(badConfig.getMessage());
+			if (badConfig.getCause() != null && !badConfig.getMessage().endsWith(badConfig.getMessage()))
+				System.err.println(" caused by " + badConfig.getCause().getMessage());
+		} catch (ProcessExecutionException badLaunch) {
+			System.err.println(badLaunch.getMessage());
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
 
-    private static boolean showHelp(Config config) {
+		System.exit(exitCode);
+	}
+
+	private static boolean showHelp(Config config) {
 		if (config.isDbHelpRequired()) {
-		    config.dumpDbUsage();
-		    return true;
+			config.dumpDbUsage();
+			return true;
 		}
 		return false;
 	}
