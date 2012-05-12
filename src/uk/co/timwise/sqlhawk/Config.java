@@ -237,6 +237,9 @@ public class Config
 	}
 
 	public void setTargetDir(String targetDirName) {
+		if (targetDirName == null) {
+			throw new IllegalArgumentException("targetDirName is required");
+		}
 		if (targetDirName.endsWith("\""))
 			targetDirName = targetDirName.substring(0, targetDirName.length() - 1);
 
@@ -248,8 +251,13 @@ public class Config
 	}
 
 	public File getTargetDir() {
-		if (targetDir == null)
-			setTargetDir(jsapConfig.getString("target-path"));
+		if (targetDir == null) {
+			String targetPath = jsapConfig.getString("target-path");
+			if (targetPath == null) {
+				throw new MissingRequiredParameterException("target-path", false);
+			}
+			setTargetDir(targetPath);
+		}
 		return targetDir;
 	}
 
@@ -952,9 +960,9 @@ public class Config
 		}
 
 		public MissingRequiredParameterException(String paramId, String description, boolean dbTypeSpecific) {
-			super("Required parameter '" + paramId + "' " +
+			super("Command line argument '" + paramId + "' " +
 					(description == null ? "" : "(" + description + ") ") +
-					"was not specified." +
+					"is required for the requested operation." +
 					(dbTypeSpecific ? "  It is required for this database type." : ""));
 			this.dbTypeSpecific = dbTypeSpecific;
 		}

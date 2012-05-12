@@ -85,12 +85,11 @@ public class SchemaMapper {
 		setupLogger(config);
 		//========= schema reading code ============
 		//TODO: check for any conflict in request options (read vs write?)
-		File targetDir = config.getTargetDir();
 		if (config.isSourceControlOutputEnabled()
 				|| config.isXmlOutputEnabled()
 				|| config.isOrderingOutputEnabled()
 				|| config.isHtmlGenerationEnabled()) { //one or more output type enabled so need a target directory
-			targetDir = setupOuputDir(targetDir);
+			setupOuputDir(config.getTargetDir());
 		}
 		//if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
 		//	return false; //probably checking and tidying up.
@@ -101,21 +100,20 @@ public class SchemaMapper {
 		if (config.isDatabaseInputEnabled())
 			db = analyze(config);
 		if (config.isScmInputEnabled())
-			db = ScmDbReader.Load(config, targetDir);
+			db = ScmDbReader.Load(config, config.getTargetDir());
 		if (db==null)
 			throw new Exception("No database information has been read. Make sure you set a read flag.");
 		//========= schema writing code ============
 		long startDiagrammingDetails = start; //set a value so that initialised if html not run
 		if (config.isHtmlGenerationEnabled()) {
-			startDiagrammingDetails = writeHtml(config, start, targetDir,
-					db);
+			startDiagrammingDetails = writeHtml(config, start, db);
 		}
 		if (config.isSourceControlOutputEnabled())
-			new ScmDbWriter().writeForSourceControl(targetDir, db);
+			new ScmDbWriter().writeForSourceControl(config.getTargetDir(), db);
 		if (config.isXmlOutputEnabled())
-			xmlWriter.writeXml(targetDir, db);
+			xmlWriter.writeXml(config.getTargetDir(), db);
 		if (config.isOrderingOutputEnabled())
-			writeOrderingFiles(targetDir, db);
+			writeOrderingFiles(config.getTargetDir(), db);
 		if (config.isHtmlGenerationEnabled()) {
 			int tableCount = db.getTables().size() + db.getViews().size();
 			long end = System.currentTimeMillis();
@@ -321,9 +319,10 @@ public class SchemaMapper {
 		}
 	}
 
-	private long writeHtml(Config config, long start, File outputDir,
+	private long writeHtml(Config config, long start,
 			Database db) throws IOException,
 			UnsupportedEncodingException, FileNotFoundException {
+		File outputDir = config.getTargetDir();
 		long startSummarizing;
 		LineWriter out;
 		new File(outputDir, "tables").mkdirs();
