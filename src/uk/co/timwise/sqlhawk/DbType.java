@@ -31,6 +31,7 @@ import java.util.jar.JarInputStream;
 public class DbType {
 	private String dbPropertiesLoadedFrom;
 	private Properties props;
+	private String name;
 
 	protected String getDbPropertiesLoadedFrom() throws IOException {
 		return dbPropertiesLoadedFrom;
@@ -144,6 +145,7 @@ public class DbType {
 		DbType dbType = new DbType();
 		dbType.dbPropertiesLoadedFrom = dbPropertiesLoadedFrom;
 		dbType.props = props;
+		dbType.name = type;
 		return dbType;
 }
 
@@ -167,4 +169,10 @@ public class DbType {
 	public Properties getProps() {
 		return props;
 	}
+
+
+	private String getName() {
+		return name;
+	}
+
 }
