@@ -60,7 +60,7 @@ public class Config
 	private static Config instance;
 	private File targetDir;
 	private File graphvizDir;
-	private String dbType;
+	private String dbTypeName;
 	private String schema;
 	private List<String> schemas;
 	private String user;
@@ -68,7 +68,6 @@ public class Config
 	private String db;
 	private String host;
 	private Integer port;
-	private String server;
 	private Pattern tableInclusions;
 	private Pattern tableExclusions;
 	private Pattern procedureInclusions;
@@ -83,7 +82,6 @@ public class Config
 	private String font;
 	private Integer fontSize;
 	private String description;
-	private String dbPropertiesLoadedFrom;
 	private Level logLevel;
 	private SqlFormatter sqlFormatter;
 	private String sqlFormatterClass;
@@ -92,6 +90,7 @@ public class Config
 	public static final String DOT_CHARSET = "UTF-8";
 	private static final String ESCAPED_EQUALS = "\\=";
 	private JSAPResult jsapConfig;
+	private DbType dbType;
 
 	/**
 	 * Default constructor. Intended for when you want to inject properties
@@ -307,16 +306,16 @@ public class Config
 		return jsapConfig.getString("metadata-path");
 	}
 
-	public void setDbType(String dbType) {
-		this.dbType = dbType;
+	public void setDbTypeName(String dbTypeName) {
+		this.dbTypeName = dbTypeName;
 	}
 
-	public String getDbType() {
-		if (dbType == null)
-			dbType = jsapConfig.getString("db-type");
-		if (dbType==null)
+	public String getDbTypeName() {
+		if (dbTypeName == null)
+			dbTypeName = jsapConfig.getString("db-type");
+		if (dbTypeName==null)
 			throw new MissingRequiredParameterException("db-type", false);
-		return dbType;
+		return dbTypeName;
 	}
 
 	public void setDb(String db) {
@@ -559,9 +558,9 @@ public class Config
 		if (maxDbThreads == null) {
 			Properties properties;
 			try {
-				properties = getDbProperties(getDbType());
+				properties = getDbProperties(getDbTypeName());
 			} catch (IOException exc) {
-				throw new InvalidConfigurationException("Failed to load properties for " + getDbType() + ": " + exc)
+				throw new InvalidConfigurationException("Failed to load properties for " + getDbTypeName() + ": " + exc)
 				.setParamName("-type");
 			}
 
@@ -937,13 +936,12 @@ public class Config
 	 * @throws InvalidConfigurationException if db properties are incorrectly formed
 	 */
 	public Properties getDbProperties(String type) throws IOException, InvalidConfigurationException {
-		DbType dbType = DbType.getDbType(type);
-		dbPropertiesLoadedFrom = dbType.getDbPropertiesLoadedFrom();
-		return dbType.getProps();
+		setDbType(DbType.getDbType(type));
+		return getDbType().getProps();
 	}
 
 	protected String getDbPropertiesLoadedFrom() {
-		return dbPropertiesLoadedFrom;
+		return getDbType().getDbPropertiesLoadedFrom();
 	}
 
 	public String getDatabaseInstance() {
@@ -1031,5 +1029,13 @@ public class Config
 
 	public boolean isDryRun() {
 		return jsapConfig.getBoolean("dry-run");
+	}
+
+	public DbType getDbType() {
+		return dbType;
+	}
+
+	public void setDbType(DbType dbType) {
+		this.dbType = dbType;
 	}
 }

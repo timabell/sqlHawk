@@ -33,7 +33,7 @@ public class DbType {
 	private Properties props;
 	private String name;
 
-	protected String getDbPropertiesLoadedFrom() throws IOException {
+	protected String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
 	}
 

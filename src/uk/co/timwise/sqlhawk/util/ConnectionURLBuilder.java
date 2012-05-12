@@ -32,15 +32,16 @@ public class ConnectionURLBuilder {
 	 * @param properties
 	 * @throws Exception 
 	 */
-	public String buildUrl(Config config, Properties properties) throws Exception {
-		DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
+	public String buildUrl(Config config) throws Exception {
+		DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbTypeName());
 		List<DbSpecificOption> driverOptions = dbConfig.getOptions();
-		String connectionURL = buildUrlFromArgs(properties, config, driverOptions);
+		String connectionURL = buildUrlFromArgs(config, driverOptions);
 		logger.config("connectionURL: " + connectionURL);
 		return connectionURL;
 	}
 
-	private String buildUrlFromArgs(Properties properties, Config config, List<DbSpecificOption> driverOptions) throws Exception {
+	private String buildUrlFromArgs(Config config, List<DbSpecificOption> driverOptions) throws Exception {
+		Properties properties = config.getDbType().getProps();
 		String connectionSpec = properties.getProperty("connectionSpec");
 		Map<String, String> extraConnectionOptions = config.getExtraConnectionOptions();
 		for (DbSpecificOption option : driverOptions) {

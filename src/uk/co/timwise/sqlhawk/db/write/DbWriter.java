@@ -37,7 +37,7 @@ public class DbWriter {
 
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, String dbName, String schema,
-			Properties properties, Database db, Database existingDb) throws Exception {
+			Database db, Database existingDb) throws Exception {
 		System.out.println();
 		System.out.println("Updating existing database...");
 		//add/update stored procs.

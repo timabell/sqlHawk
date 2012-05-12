@@ -143,7 +143,6 @@ public class SchemaMapper {
 			throws Exception {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
-			Properties properties = config.getDbProperties(config.getDbType());
 			String dbName = config.getDb();
 
 			if (schemas != null){
@@ -152,8 +151,8 @@ public class SchemaMapper {
 			} else { //EvaluateAllEnabled
 				String schemaSpec = config.getSchemaSpec();
 				if (schemaSpec == null)
-					schemaSpec = properties.getProperty("schemaSpec", ".*");
-				Connection connection = getConnection(config, properties);
+					schemaSpec = config.getDbType().getProps().getProperty("schemaSpec", ".*");
+				Connection connection = getConnection(config);
 				DatabaseMetaData meta = connection.getMetaData();
 				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
@@ -165,8 +164,7 @@ public class SchemaMapper {
 
 	private Database readDb(Config config, String dbName, String schema)
 			throws Exception {
-		Properties properties = config.getDbProperties(config.getDbType());
-		Connection connection = getConnection(config, properties);
+		Connection connection = getConnection(config);
 		DatabaseMetaData meta = connection.getMetaData();
 
 		if (schema == null && meta.supportsSchemasInTableDefinitions() &&
@@ -190,15 +188,14 @@ public class SchemaMapper {
 		if (!fineEnabled)
 			System.out.println("Gathering schema details...");
 		DbReader reader = new DbReader();
-		Database db = reader.Read(config, connection, meta, dbName, schema, properties, schemaMeta);
+		Database db = reader.Read(config, connection, meta, dbName, schema, schemaMeta);
 		schemaMeta = null; // done with it so let GC reclaim it
 		return db;
 	}
 
 	private void writeDb(Config config, Database db)
 			throws Exception {
-		Properties properties = config.getDbProperties(config.getDbType());
-		Connection connection = getConnection(config, properties);
+		Connection connection = getConnection(config);
 		DatabaseMetaData meta = connection.getMetaData();
 		String schema = db.getSchema();
 		String dbName = db.getName();
@@ -214,19 +211,20 @@ public class SchemaMapper {
 		if (!fineEnabled)
 			System.out.println("Gathering existing schema details...");
 		DbReader reader = new DbReader();
-		Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
+		Database existingDb = reader.Read(config, connection, meta, dbName, schema, null);
 		System.out.println();
 		DbWriter writer = new DbWriter(); 
-		writer.write(config, connection, meta, dbName, schema, properties, db, existingDb);
+		writer.write(config, connection, meta, dbName, schema, db, existingDb);
 	}
 
-	private Connection getConnection(Config config, Properties properties)
+	private Connection getConnection(Config config)
 			throws Exception {
 		Connection connection;
-		String connectionUrl = new ConnectionURLBuilder().buildUrl(config, properties);
+		String connectionUrl = new ConnectionURLBuilder().buildUrl(config);
 		if (config.getDb() == null)
 			config.setDb(connectionUrl);
 
+		Properties properties = config.getDbType().getProps();
 		String driverClass = properties.getProperty("driver");
 		String driverPath = properties.getProperty("driverPath");
 		if (driverPath == null)
