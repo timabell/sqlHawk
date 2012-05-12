@@ -74,7 +74,7 @@ public class DbReader {
         database.setKeywords(getKeywords(meta));
         if (config.isTableProcessingEnabled())
         {
-	        System.out.println("Reading tables from db...");
+	        System.out.print("Reading tables from db...");
 	        initTables(meta, properties, config);
 	        System.out.println("Reading constraints from db...");
 	        initCheckConstraints(properties);
@@ -90,7 +90,7 @@ public class DbReader {
 	        connectTables();
         }
         if (config.isViewsEnabled()) {
-            System.out.println("Reading views from db...");
+            System.out.print("Reading views from db...");
             initViews(meta, properties, config);
 	        System.out.println("Reading view comments from db...");
 	        initViewComments(properties);
@@ -273,6 +273,7 @@ public class DbReader {
 
         // wait for everyone to finish
         creator.join();
+        System.out.println(); // complete the dotted line from table processing
         
         database.setTables(creator.getTables());
     }
@@ -304,6 +305,7 @@ public class DbReader {
                 }
             }
         }
+        System.out.println();
     }
 
     /**

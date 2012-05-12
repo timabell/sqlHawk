@@ -188,7 +188,7 @@ public class SchemaMapper {
         //
         logger.info("Gathering schema details");
         if (!fineEnabled)
-            System.out.print("Gathering schema details...");
+            System.out.println("Gathering schema details...");
         DbReader reader = new DbReader();
         Database db = reader.Read(config, connection, meta, dbName, schema, properties, schemaMeta);
         schemaMeta = null; // done with it so let GC reclaim it
@@ -212,7 +212,7 @@ public class SchemaMapper {
 		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		logger.info("Gathering existing schema details");
 		if (!fineEnabled)
-		    System.out.print("Gathering existing schema details...");
+		    System.out.println("Gathering existing schema details...");
         DbReader reader = new DbReader();
         Database existingDb = reader.Read(config, connection, meta, dbName, schema, properties, null);
 	    System.out.println();
