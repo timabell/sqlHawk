@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.ui;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +26,7 @@ import javax.swing.ComboBoxModel;
 
 import uk.co.timwise.sqlhawk.Config;
 import uk.co.timwise.sqlhawk.DbType;
+import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.util.DbSpecificConfig;
 
 public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxModel {
@@ -35,11 +37,22 @@ public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxMo
 	public DbTypeSelectorModel(String defaultType) {
 		Pattern pattern = Pattern.compile(".*/" + defaultType);
 		Set<String> dbTypes = new TreeSet<String>(DbType.getBuiltInDatabaseTypes(Config.getJarName()));
-		for (String dbType : dbTypes) {
-			DbSpecificConfig config = new DbSpecificConfig(dbType);
+		for (String typeName : dbTypes) {
+			DbSpecificConfig config = null;
+			try {
+				config = new DbSpecificConfig(DbType.getDbType(typeName));
+			} catch (InvalidConfigurationException e) {
+				System.err.println("Error loading properties for db type '" + typeName + "'");
+				e.printStackTrace();
+				System.exit(1);
+			} catch (IOException e) {
+				System.err.println("Error loading properties for db type '" + typeName + "'");
+				e.printStackTrace();
+				System.exit(1);
+			}
 			dbConfigs.add(config);
 
-			if (pattern.matcher(dbType).matches()) {
+			if (pattern.matcher(typeName).matches()) {
 				setSelectedItem(config);
 			}
 		}

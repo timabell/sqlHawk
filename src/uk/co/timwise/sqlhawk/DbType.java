@@ -171,8 +171,7 @@ public class DbType {
 	}
 
 
-	private String getName() {
+	public String getName() {
 		return name;
 	}
-
 }

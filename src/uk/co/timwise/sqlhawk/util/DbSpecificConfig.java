@@ -23,31 +23,23 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import uk.co.timwise.sqlhawk.Config;
+import uk.co.timwise.sqlhawk.DbType;
 
 /**
- * Configuration of a specific type of database (as specified by -t)
+ * Configuration of a specific type of database (as specified by --db-type)
  */
 public class DbSpecificConfig {
-	private final String type;
-	private       String description;
+	private final DbType dbType;
 	private final List<DbSpecificOption> options = new ArrayList<DbSpecificOption>();
-	private final Config config = new Config();
 
 	/**
 	 * Construct an instance with configuration options of the specified database type
 	 *
 	 * @param dbType
 	 */
-	public DbSpecificConfig(final String dbType) {
-		type = dbType;
-		Properties props;
-		try {
-			props = config.getDbProperties(dbType);
-			description = props.getProperty("description");
-			loadOptions(props);
-		} catch (IOException exc) {
-			description = exc.toString();
-		}
+	public DbSpecificConfig(DbType dbType) {
+		this.dbType = dbType;
+		loadOptions();
 	}
 
 	/**
@@ -55,7 +47,8 @@ public class DbSpecificConfig {
 	 *
 	 * @param properties
 	 */
-	private void loadOptions(Properties properties) {
+	private void loadOptions() {
+		Properties properties = dbType.getProps();
 		boolean inParam = false;
 
 		StringTokenizer tokenizer = new StringTokenizer(properties.getProperty("connectionSpec"), "<>", true);
@@ -85,23 +78,14 @@ public class DbSpecificConfig {
 	}
 
 	/**
-	 * Return the generic configuration associated with this DbSpecificCofig
-	 *
-	 * @return
-	 */
-	public Config getConfig() {
-		return config;
-	}
-
-	/**
 	 * Dump usage details associated with the associated type of database
 	 */
 	public void dumpUsage() {
-		System.out.println(" " + new File(type).getName() + ":");
-		System.out.println("  " + description);
+		System.out.println(" " + new File(dbType.getName()).getName() + ":");
+		System.out.println("  " + toString());
 
 		for (DbSpecificOption option : getOptions()) {
-			System.out.println("   -" + option.getName() + " " + (option.getDescription() != null ? "  \t" + option.getDescription() : ""));
+			System.out.println("   " + option.getName() + ": " + (option.getDescription() != null ? "  \t" + option.getDescription() : ""));
 		}
 	}
 
@@ -110,6 +94,6 @@ public class DbSpecificConfig {
 	 */
 	@Override
 	public String toString() {
-		return description;
+		return dbType.getProps().getProperty("description");
 	}
 }

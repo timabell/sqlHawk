@@ -46,8 +46,6 @@ public class DbConfigTableModel extends AbstractTableModel {
 	}
 
 	public void setDbSpecificConfig(DbSpecificConfig dbConfig) {
-		config  = dbConfig.getConfig();
-		Config.setInstance(config);
 		PropertyDescriptor[] props = getConfigProps();
 		removeDbSpecificOptions();
 

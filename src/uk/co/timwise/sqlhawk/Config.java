@@ -556,14 +556,7 @@ public class Config
 	 */
 	public int getMaxDbThreads() throws InvalidConfigurationException {
 		if (maxDbThreads == null) {
-			Properties properties;
-			try {
-				properties = getDbProperties(getDbTypeName());
-			} catch (IOException exc) {
-				throw new InvalidConfigurationException("Failed to load properties for " + getDbTypeName() + ": " + exc)
-				.setParamName("-type");
-			}
-
+			Properties properties = getDbProperties();
 			int max = Integer.MAX_VALUE;
 			String threads = properties.getProperty("dbThreads");
 			if (threads == null)
@@ -929,16 +922,13 @@ public class Config
 		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
 	}
 
-	/**
-	 * @param type
-	 * @return
-	 * @throws IOException
-	 * @throws InvalidConfigurationException if db properties are incorrectly formed
-	 */
-	public Properties getDbProperties(String type) throws IOException, InvalidConfigurationException {
-		setDbType(DbType.getDbType(type));
+	public Properties getDbProperties() {
+		if (dbType == null) {
+			return null;
+		}
 		return getDbType().getProps();
 	}
+	
 
 	protected String getDbPropertiesLoadedFrom() {
 		return getDbType().getDbPropertiesLoadedFrom();
@@ -976,8 +966,18 @@ public class Config
 
 	protected void dumpDbUsage() {
 		System.out.println("Built-in database types and their required connection parameters:");
-		for (String type : DbType.getBuiltInDatabaseTypes()) {
-			new DbSpecificConfig(type).dumpUsage();
+		for (String typeName : DbType.getBuiltInDatabaseTypes()) {
+			try {
+				new DbSpecificConfig(DbType.getDbType(typeName)).dumpUsage();
+			} catch (InvalidConfigurationException e) {
+				System.err.println("Error loading properties for db type '" + typeName + "'");
+				e.printStackTrace();
+				System.exit(1);
+			} catch (IOException e) {
+				System.err.println("Error loading properties for db type '" + typeName + "'");
+				e.printStackTrace();
+				System.exit(1);
+			}
 		}
 		System.out.println();
 		System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
@@ -1037,5 +1037,23 @@ public class Config
 
 	public void setDbType(DbType dbType) {
 		this.dbType = dbType;
+	}
+
+	/**
+	 * @param type database type for which to load configuration
+	 * @throws IOException
+	 * @throws InvalidConfigurationException if db properties are incorrectly formed
+	 */
+	public void loadDbType() throws InvalidConfigurationException, IOException {
+		setDbType(DbType.getDbType(getDbTypeName()));
+	}
+
+	/**
+	 * @param type database type to load configuration for
+	 * @throws IOException
+	 * @throws InvalidConfigurationException if db properties are incorrectly formed
+	 */
+	public void loadDbType(String type) throws InvalidConfigurationException, IOException {
+		setDbType(DbType.getDbType(type));
 	}
 }

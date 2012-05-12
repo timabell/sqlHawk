@@ -94,6 +94,9 @@ public class SchemaMapper {
 		}
 		//if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
 		//	return false; //probably checking and tidying up.
+		if (config.isDatabaseInputEnabled() || config.isDatabaseOutputEnabled()){
+			config.loadDbType();
+		}
 		Database db = null;
 		if (config.isDatabaseInputEnabled())
 			db = analyze(config);

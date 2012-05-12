@@ -33,7 +33,7 @@ public class ConnectionURLBuilder {
 	 * @throws Exception 
 	 */
 	public String buildUrl(Config config) throws Exception {
-		DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbTypeName());
+		DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
 		List<DbSpecificOption> driverOptions = dbConfig.getOptions();
 		String connectionURL = buildUrlFromArgs(config, driverOptions);
 		logger.config("connectionURL: " + connectionURL);
