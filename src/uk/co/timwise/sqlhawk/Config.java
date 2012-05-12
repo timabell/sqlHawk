@@ -154,7 +154,7 @@ public class Config
 				new FlaggedOption("table-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "table-exclusion-pattern", "Set the tables to exclude from analysis. Regular expression for matching table names."), // default value matches nothing, i.e. everything included
 				new FlaggedOption("procedure-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "procedure-inclusion-pattern", "Set the procedures to include in analysis. Regular expression for matching procedure names. By default everything is included."), // default value matches anything, i.e. everything included
 				new FlaggedOption("procedure-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "procedure-exclusion-pattern", "Set the procedures to exclude from analysis. Regular expression for matching procedure names."), // default value matches nothing, i.e. everything included
-				new Switch("no-implied", JSAP.NO_SHORTFLAG, "no-implied", "Don't add implied relationships."),
+				new Switch("guess-relationships", JSAP.NO_SHORTFLAG, "guess-relationships", "Guess the relationships between tables based on matches of column name & type. Use if you database has names like CustomerId for the PK of one table (Customer) and the matching field in a child table (Order.CustomerId) but doesn't have foreign keys constraints defined."),
 				new Switch("no-schema", JSAP.NO_SHORTFLAG, "no-schema", "Some databases types (e.g. older versions of Informix) don't really have the concept of a schema but still return true from 'supportsSchemasInTableDefinitions()'. This option lets you ignore that and treat all the tables as if they were in one flat namespace."),
 				new Switch("all", JSAP.NO_SHORTFLAG, "all", "Output all the available schemas"),
 				new FlaggedOption("schema-spec", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-spec", "When -all is specified then this is the regular expression that determines which schemas to evaluate."),
@@ -237,7 +237,7 @@ public class Config
 	}
 
     public boolean isImpliedConstraintsEnabled() {
-        return jsapConfig.getBoolean("no-implied");
+        return jsapConfig.getBoolean("guess-relationships");
     }
 
     public void setTargetDir(String targetDirName) {
