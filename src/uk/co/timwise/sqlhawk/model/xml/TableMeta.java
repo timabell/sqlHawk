@@ -26,8 +26,6 @@ import org.w3c.dom.NodeList;
 /**
  * Additional metadata about a table as expressed in XML instead of from
  * the database.
- *
- * @author John Currier
  */
 public class TableMeta {
     private final String name;

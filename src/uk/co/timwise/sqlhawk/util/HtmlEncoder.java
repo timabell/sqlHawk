@@ -21,8 +21,6 @@ import java.util.Map;
 /**
  * Simple (i.e. 'stupid') class that does a simple mapping between
  * HTML characters and their 'encoded' equivalents.
- *
- * @author John Currier
  */
 public class HtmlEncoder {
     private static final Map<String, String> map = new HashMap<String, String>();

@@ -54,8 +54,6 @@ import com.martiansoftware.jsap.Switch;
 
 /**
  * Configuration of a sqlHawk run
- *
- * @author John Currier
  */
 public class Config
 {

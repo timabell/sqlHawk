@@ -43,8 +43,6 @@ import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 /**
  * Additional metadata about a schema as expressed in XML instead of from
  * the database.
- *
- * @author John Currier
  */
 public class SchemaMeta {
     private final List<TableMeta> tables = new ArrayList<TableMeta>();

@@ -34,8 +34,6 @@ import uk.co.timwise.sqlhawk.util.DOMUtil;
 
 /**
  * Formats {@link Table}s into an XML DOM tree.
- *
- * @author John Currier
  */
 public class XmlTableFormatter {
     private static final XmlTableFormatter instance = new XmlTableFormatter();

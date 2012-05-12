@@ -30,9 +30,6 @@ import uk.co.timwise.sqlhawk.Config.MissingRequiredParameterException;
 import uk.co.timwise.sqlhawk.util.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.util.DbSpecificOption;
 
-/**
- * @author John Currier
- */
 public class DbConfigTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
     private final List<PropertyDescriptor> options = new ArrayList<PropertyDescriptor>();

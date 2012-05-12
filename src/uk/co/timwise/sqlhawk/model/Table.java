@@ -32,8 +32,6 @@ import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
 /**
  * A <code>Table</code> is one of the basic building blocks.
  * It holds everything about the database table's metadata.
- *
- * @author John Currier
  */
 public class Table implements Comparable<Table> {
     private final String schema;

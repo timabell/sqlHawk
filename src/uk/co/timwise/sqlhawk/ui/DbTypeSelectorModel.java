@@ -26,9 +26,6 @@ import javax.swing.ComboBoxModel;
 import uk.co.timwise.sqlhawk.Config;
 import uk.co.timwise.sqlhawk.util.DbSpecificConfig;
 
-/**
- * @author John Currier
- */
 public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxModel {
     private static final long serialVersionUID = 1L;
     private final List<DbSpecificConfig> dbConfigs = new ArrayList<DbSpecificConfig>();

@@ -23,8 +23,6 @@ import java.util.StringTokenizer;
  * Simple class that allows logical comparisons between "dotted" versions of products.
  *
  * e.g. version 2.1.4 should be less than version 2.1.10.
- *
- * @author John Currier
  * @version 1.0
  */
 public class Version implements Comparable<Version> {

@@ -27,9 +27,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-/**
- * @author John Currier
- */
 public class MainFrame extends JFrame {
     private static final long serialVersionUID = 1L;
     private JPanel jContentPane = null;

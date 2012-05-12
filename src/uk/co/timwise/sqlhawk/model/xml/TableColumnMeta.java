@@ -26,8 +26,6 @@ import org.w3c.dom.NodeList;
 /**
  * Additional metadata about a column as expressed in XML instead of from
  * the database.
- *
- * @author John Currier
  */
 public class TableColumnMeta {
     private final String name;

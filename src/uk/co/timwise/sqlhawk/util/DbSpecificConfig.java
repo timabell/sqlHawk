@@ -26,8 +26,6 @@ import uk.co.timwise.sqlhawk.Config;
 
 /**
  * Configuration of a specific type of database (as specified by -t)
- *
- * @author John Currier
  */
 public class DbSpecificConfig {
     private final String type;

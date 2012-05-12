@@ -30,8 +30,6 @@ import uk.co.timwise.sqlhawk.model.Table;
  * Sorts {@link Table}s by their referential integrity constraints.
  * The intent is to have a list of tables in an order that can be used
  * to insert or delete them from a database.
- *
- * @author John Currier
  */
 public class TableOrderer {
     /**

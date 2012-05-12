@@ -32,9 +32,6 @@ import javax.swing.table.TableColumn;
 
 import uk.co.timwise.sqlhawk.util.DbSpecificConfig;
 
-/**
- * @author John Currier
- */
 public class DbConfigPanel extends JPanel {
     private static final long serialVersionUID = 1L;
     private JComboBox databaseTypeSelector;

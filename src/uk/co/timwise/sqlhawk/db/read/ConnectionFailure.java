@@ -17,8 +17,6 @@ package uk.co.timwise.sqlhawk.db.read;
 
 /**
  * Indicates that we couldn't connect to the database
- *
- * @author John Currier
  */
 public class ConnectionFailure extends RuntimeException {
     private static final long serialVersionUID = 1L;

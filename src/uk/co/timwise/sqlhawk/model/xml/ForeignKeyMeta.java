@@ -22,8 +22,6 @@ import org.w3c.dom.Node;
 /**
  * Additional metadata about a foreign key relationship as expressed in XML
  * instead of from the database.
- *
- * @author John Currier
  */
 public class ForeignKeyMeta {
     private final String tableName;

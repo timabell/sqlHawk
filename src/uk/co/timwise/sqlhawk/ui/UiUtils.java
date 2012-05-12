@@ -20,9 +20,6 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-/**
- * @author John Currier
- */
 public class UiUtils {
     public static int getPreferredColumnWidth(JTable table, TableColumn col) {
         return Math.max(getPreferredColumnHeaderWidth(table, col), getWidestCellInColumn(table, col));

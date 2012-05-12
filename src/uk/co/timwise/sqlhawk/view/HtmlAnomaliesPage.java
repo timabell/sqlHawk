@@ -31,8 +31,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 /**
  * This page lists all of the 'things that might not be quite right'
  * about the schema.
- *
- * @author John Currier
  */
 public class HtmlAnomaliesPage extends HtmlFormatter {
     private static HtmlAnomaliesPage instance = new HtmlAnomaliesPage();

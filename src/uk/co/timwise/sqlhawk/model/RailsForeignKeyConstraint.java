@@ -20,8 +20,6 @@ import uk.co.timwise.sqlhawk.DbAnalyzer;
 /**
  * See {@link DbAnalyzer#getRailsConstraints(java.util.Map)} for
  * details on Rails naming conventions.
- *
- * @author John Currier
  */
 public class RailsForeignKeyConstraint extends ForeignKeyConstraint {
     /**

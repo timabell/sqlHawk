@@ -29,8 +29,6 @@ import uk.co.timwise.sqlhawk.util.HtmlEncoder;
 
 /**
  * Default implementation of {@link SqlFormatter}
- *
- * @author John Currier
  */
 public class DefaultSqlFormatter implements SqlFormatter {
     private Map<String, Table> tablesByPossibleNames;

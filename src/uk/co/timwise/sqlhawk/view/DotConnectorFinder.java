@@ -24,8 +24,6 @@ import uk.co.timwise.sqlhawk.model.TableColumn;
 
 /**
  * Format table data into .dot format to feed to Graphvis' dot program.
- *
- * @author John Currier
  */
 public class DotConnectorFinder {
     private static DotConnectorFinder instance = new DotConnectorFinder();

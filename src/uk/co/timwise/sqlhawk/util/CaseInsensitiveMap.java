@@ -23,8 +23,6 @@ import java.util.Map;
  * A {@link HashMap} implementation that uses {@link String}s as its keys
  * where the keys are treated without regard to case.  That is, <code>get("MyTableName")</code>
  * will return the same object as <code>get("MYTABLENAME")</code>.
- *
- * @author John Currier
  */
 public class CaseInsensitiveMap<V> extends HashMap<String, V>
 {

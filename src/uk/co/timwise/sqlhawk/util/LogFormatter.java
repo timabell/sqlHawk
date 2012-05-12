@@ -25,8 +25,6 @@ import java.util.logging.LogRecord;
 
 /**
  * Format a LogRecord into a single concise line.
- *
- * @author John Currier
  */
 public class LogFormatter extends Formatter {
     private final String lineSeparator = System.getProperty("line.separator");

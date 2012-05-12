@@ -20,9 +20,6 @@ import uk.co.timwise.sqlhawk.db.read.EmptySchemaException;
 import uk.co.timwise.sqlhawk.db.read.ProcessExecutionException;
 import uk.co.timwise.sqlhawk.ui.MainFrame;
 
-/**
- * @author John Currier
- */
 public class Main {
     public static void main(String[] argv) throws Exception {
         if (argv.length == 1 && argv[0].equals("-gui")) { // warning: serious temp hack

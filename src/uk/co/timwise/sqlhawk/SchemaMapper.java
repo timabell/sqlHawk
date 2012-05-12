@@ -70,9 +70,6 @@ import uk.co.timwise.sqlhawk.view.WriteStats;
 import uk.co.timwise.sqlhawk.xml.write.xmlWriter;
 
 
-/**
- * @author John Currier
- */
 public class SchemaMapper {
     private final Logger logger = Logger.getLogger(getClass().getName());
     private boolean fineEnabled;

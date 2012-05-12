@@ -38,8 +38,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
  * The page that contains the details of a specific table or view
- *
- * @author John Currier
  */
 public class HtmlTablePage extends HtmlFormatter {
     private static final HtmlTablePage instance = new HtmlTablePage();

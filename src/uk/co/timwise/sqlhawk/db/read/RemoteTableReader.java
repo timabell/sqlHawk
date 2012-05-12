@@ -30,8 +30,6 @@ import uk.co.timwise.sqlhawk.model.Table;
 /**
  * A table that's outside of the default schema but is referenced
  * by or references a table in the default schema.
- *
- * @author John Currier
  */
 public class RemoteTableReader extends TableReader {
 

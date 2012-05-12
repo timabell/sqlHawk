@@ -34,8 +34,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
  * The page that lists all of the constraints in the schema
- *
- * @author John Currier
  */
 public class HtmlConstraintsPage extends HtmlFormatter {
     private static HtmlConstraintsPage instance = new HtmlConstraintsPage();

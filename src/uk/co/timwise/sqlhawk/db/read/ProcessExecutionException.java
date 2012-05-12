@@ -17,8 +17,6 @@ package uk.co.timwise.sqlhawk.db.read;
 
 /**
  * Indicates that we had an issue launching a process
- *
- * @author John Currier
  */
 public class ProcessExecutionException extends RuntimeException {
     private static final long serialVersionUID = 1L;

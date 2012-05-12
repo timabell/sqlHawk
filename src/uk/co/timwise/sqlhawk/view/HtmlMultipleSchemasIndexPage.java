@@ -27,8 +27,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
  * The page that contains links to the various schemas that were analyzed
- *
- * @author John Currier
  */
 public class HtmlMultipleSchemasIndexPage extends HtmlFormatter {
     private static HtmlMultipleSchemasIndexPage instance = new HtmlMultipleSchemasIndexPage();

@@ -28,8 +28,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
  * The page that contains the overview entity relationship diagrams.
- *
- * @author John Currier
  */
 public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
     private static final HtmlRelationshipsPage instance = new HtmlRelationshipsPage();

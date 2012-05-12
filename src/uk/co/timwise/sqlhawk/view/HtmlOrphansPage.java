@@ -29,8 +29,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
  * The page that contains the all tables that aren't related to others (orphans)
- *
- * @author John Currier
  */
 public class HtmlOrphansPage extends HtmlDiagramFormatter {
     private static HtmlOrphansPage instance = new HtmlOrphansPage();

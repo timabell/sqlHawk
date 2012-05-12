@@ -37,8 +37,6 @@ import uk.co.timwise.sqlhawk.view.DotNode.DotNodeConfig;
 
 /**
  * Format table data into .dot format to feed to Graphvis' dot program.
- *
- * @author John Currier
  */
 public class DotFormatter {
     private static DotFormatter instance;

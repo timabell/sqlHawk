@@ -34,8 +34,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 /**
  * The page that lists all of the columns in the schema,
  * allowing the end user to sort by column's attributes.
- *
- * @author John Currier
  */
 public class HtmlColumnsPage extends HtmlFormatter {
     private static HtmlColumnsPage instance = new HtmlColumnsPage();

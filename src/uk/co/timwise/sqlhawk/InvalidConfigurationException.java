@@ -17,8 +17,6 @@ package uk.co.timwise.sqlhawk;
 
 /**
  * Base class to indicate that there was problem with how sqlHawk was configured / used.
- *
- * @author John Currier
  */
 public class InvalidConfigurationException extends RuntimeException {
     private static final long serialVersionUID = 1L;

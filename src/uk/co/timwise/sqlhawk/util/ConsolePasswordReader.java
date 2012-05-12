@@ -25,8 +25,6 @@ import java.lang.reflect.Method;
  * Use {@link PasswordReader#getInstance()} to get an instance of
  * PasswordReader that's appropriate for your JVM
  * (this one requires a Java6 or higher JVM).
- *
- * @author John Currier
  */
 public class ConsolePasswordReader extends PasswordReader {
     private final Object console;

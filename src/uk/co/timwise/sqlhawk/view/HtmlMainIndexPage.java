@@ -31,8 +31,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
  * The main index that contains all tables and views that were evaluated
- *
- * @author John Currier
  */
 public class HtmlMainIndexPage extends HtmlFormatter {
     private static HtmlMainIndexPage instance = new HtmlMainIndexPage();

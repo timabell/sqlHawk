@@ -21,8 +21,6 @@ import uk.co.timwise.sqlhawk.util.Dot;
 
 /**
  * Represents Graphvis dot's concept of an edge.  That is, a connector between two nodes.
- *
- * @author John Currier
  */
 public class DotConnector implements Comparable<DotConnector> {
     private final TableColumn parentColumn;

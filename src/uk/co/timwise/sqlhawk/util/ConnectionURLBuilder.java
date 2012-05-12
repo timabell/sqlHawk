@@ -23,9 +23,6 @@ import java.util.logging.Logger;
 import uk.co.timwise.sqlhawk.Config;
 
 
-/**
- * @author John Currier
- */
 public class ConnectionURLBuilder {
     private final Logger logger = Logger.getLogger(getClass().getName());
 

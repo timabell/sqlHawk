@@ -19,8 +19,6 @@ import java.util.regex.Pattern;
 
 /**
  * A remote table (exists in another schema) that was explicitly created via XML metadata.
- *
- * @author John Currier
  */
 public class ExplicitRemoteTable extends RemoteTable {
     private static final Pattern excludeNone = Pattern.compile("[^.]");

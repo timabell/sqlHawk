@@ -23,8 +23,6 @@ import uk.co.timwise.sqlhawk.model.Table;
 /**
  * Implementations of this interface know how to take SQL and format it
  * into (hopefully) readable HTML.
- *
- * @author John Currier
  */
 public interface SqlFormatter {
     /**

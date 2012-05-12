@@ -38,8 +38,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
  * data from that style sheet.
  * The idea is that the CSS that will be used to render the HTML pages
  * also determines the colors used in the generated ER diagrams.
- *
- * @author John Currier
  */
 public class StyleSheet {
     private static StyleSheet instance;
