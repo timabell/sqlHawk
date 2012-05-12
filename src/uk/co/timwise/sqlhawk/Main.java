@@ -37,8 +37,10 @@ public class Main {
 		//load config
 		Config config = new Config(argv);
 
-		if (showHelp(config))
+		if (config.isDbHelpRequired()) {
+			config.dumpDbUsage();
 			System.exit(0);
+		}
 
 		int exitCode = 1;
 
@@ -69,13 +71,5 @@ public class Main {
 		}
 
 		System.exit(exitCode);
-	}
-
-	private static boolean showHelp(Config config) {
-		if (config.isDbHelpRequired()) {
-			config.dumpDbUsage();
-			return true;
-		}
-		return false;
 	}
 }
