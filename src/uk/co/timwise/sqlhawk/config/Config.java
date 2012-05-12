@@ -21,18 +21,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -43,7 +36,6 @@ import uk.co.timwise.sqlhawk.html.DefaultSqlFormatter;
 import uk.co.timwise.sqlhawk.html.Dot;
 import uk.co.timwise.sqlhawk.html.SqlFormatter;
 import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
-
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;

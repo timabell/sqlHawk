@@ -314,7 +314,6 @@ public class DbReader {
 	 */
 	private class BasicTableMeta
 	{
-		@SuppressWarnings("hiding")
 		final String schema;
 		final String name;
 		final String type;
@@ -858,7 +857,6 @@ public class DbReader {
 	 */
 	private List<String> getSqlParams(StringBuilder sql, String tableName) {
 		Map<String, String> namedParams = new HashMap<String, String>();
-		@SuppressWarnings("hiding")
 		String schema = database.getSchema();
 		if (schema == null)
 			schema = database.getName(); // some 'schema-less' db's treat the db name like a schema (unusual case)

@@ -435,7 +435,6 @@ public class Table implements Comparable<Table> {
 	 * @return
 	 */
 	public ForeignKeyConstraint removeAForeignKeyConstraint() {
-		@SuppressWarnings("hiding")
 		final List<TableColumn> columns = getColumns();
 		int numParents = 0;
 		int numChildren = 0;

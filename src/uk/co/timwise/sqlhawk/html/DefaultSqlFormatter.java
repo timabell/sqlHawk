@@ -64,7 +64,6 @@ public class DefaultSqlFormatter implements SqlFormatter {
 		else
 		{
 			formatted.append("  <div class='viewDefinition'>");
-			@SuppressWarnings("hiding")
 			Set<String> keywords = db.getKeywords();
 			StringTokenizer tokenizer = new StringTokenizer(sql, TOKENS, true);
 			while (tokenizer.hasMoreTokens()) {
@@ -98,7 +97,6 @@ public class DefaultSqlFormatter implements SqlFormatter {
 		Set<Table> referenced = new HashSet<Table>();
 
 		Map<String, Table> tables = getTableMap(db);
-		@SuppressWarnings("hiding")
 		Set<String> keywords = db.getKeywords();
 
 		StringTokenizer tokenizer = new StringTokenizer(sql, TOKENS, true);
