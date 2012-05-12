@@ -937,79 +937,12 @@ public class Config
 	 * @throws InvalidConfigurationException if db properties are incorrectly formed
 	 */
 	public Properties getDbProperties(String type) throws IOException, InvalidConfigurationException {
-		ResourceBundle bundle = null;
-
-		try {
-			File propertiesFile = new File(type);
-			bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
-			dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
-		} catch (FileNotFoundException notFoundOnFilesystemWithoutExtension) {
-			try {
-				File propertiesFile = new File(type + ".properties");
-				bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
-				dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
-			} catch (FileNotFoundException notFoundOnFilesystemWithExtensionTackedOn) {
-				try {
-					bundle = ResourceBundle.getBundle(type);
-					dbPropertiesLoadedFrom = "[" + getLoadedFromJar() + "]" + File.separator + type + ".properties";
-				} catch (Exception notInJarWithoutPath) {
-					try {
-						String path = TableOrderer.class.getPackage().getName() + ".dbTypes." + type;
-						path = path.replace('.', '/');
-						bundle = ResourceBundle.getBundle(path);
-						dbPropertiesLoadedFrom = "[" + getLoadedFromJar() + "]/" + path + ".properties";
-					} catch (Exception notInJar) {
-						notInJar.printStackTrace();
-						notFoundOnFilesystemWithExtensionTackedOn.printStackTrace();
-						throw notFoundOnFilesystemWithoutExtension;
-					}
-				}
-			}
-		}
-
-		Properties props = asProperties(bundle);
-		bundle = null;
-		String saveLoadedFrom = dbPropertiesLoadedFrom; // keep original thru recursion
-
-		// bring in key/values pointed to by the include directive
-		// example: include.1=mysql::selectRowCountSql
-		for (int i = 1; true; ++i) {
-			String include = (String)props.remove("include." + i);
-			if (include == null)
-				break;
-
-			int separator = include.indexOf("::");
-			if (separator == -1)
-				throw new InvalidConfigurationException("include directive in " + dbPropertiesLoadedFrom + " must have '::' between dbType and key");
-
-			String refdType = include.substring(0, separator).trim();
-			String refdKey = include.substring(separator + 2).trim();
-
-			// recursively resolve the ref'd properties file and the ref'd key
-			Properties refdProps = getDbProperties(refdType);
-			props.put(refdKey, refdProps.getProperty(refdKey));
-		}
-
-		// bring in base properties files pointed to by the extends directive
-		String baseDbType = (String)props.remove("extends");
-		if (baseDbType != null) {
-			baseDbType = baseDbType.trim();
-			Properties baseProps = getDbProperties(baseDbType);
-
-			// overlay our properties on top of the base's
-			baseProps.putAll(props);
-			props = baseProps;
-		}
-
-		// done with this level of recursion...restore original
-		dbPropertiesLoadedFrom = saveLoadedFrom;
-
-		return props;
+		DbType dbType = DbType.getDbType(type);
+		dbPropertiesLoadedFrom = dbType.getDbPropertiesLoadedFrom();
+		return dbType.getProps();
 	}
 
-	protected String getDbPropertiesLoadedFrom() throws IOException {
-		if (dbPropertiesLoadedFrom == null)
-			getDbProperties(getDbType());
+	protected String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
 	}
 
@@ -1017,23 +950,6 @@ public class Config
 		if (jsapConfig.userSpecified("database-instance"))
 			return jsapConfig.getString("database-instance");
 		return null;
-	}
-
-	/**
-	 * Returns a {@link Properties} populated with the contents of <code>bundle</code>
-	 *
-	 * @param bundle ResourceBundle
-	 * @return Properties
-	 */
-	public static Properties asProperties(ResourceBundle bundle) {
-		Properties props = new Properties();
-		Enumeration<String> iter = bundle.getKeys();
-		while (iter.hasMoreElements()) {
-			String key = iter.nextElement();
-			props.put(key, bundle.getObject(key));
-		}
-
-		return props;
 	}
 
 	/**
@@ -1061,35 +977,16 @@ public class Config
 	}
 
 	public static Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
-		Set<String> databaseTypes = new TreeSet<String>();
-		JarInputStream jar = null;
+		return DbType.getBuiltInDatabaseTypes(loadedFromJar);
+	}
 
-		try {
-			jar = new JarInputStream(new FileInputStream(loadedFromJar));
-			JarEntry entry;
-
-			while ((entry = jar.getNextJarEntry()) != null) {
-				String entryName = entry.getName();
-				int dotPropsIndex = entryName.indexOf(".properties");
-				if (dotPropsIndex != -1)
-					databaseTypes.add(entryName.substring(0, dotPropsIndex));
-			}
-		} catch (IOException exc) {
-			System.out.println("Failed to open jar to read properties files:\n" + exc);
-		} finally {
-			if (jar != null) {
-				try {
-					jar.close();
-				} catch (IOException ignore) {}
-			}
-		}
-
-		return databaseTypes;
+	public static Set<String> getBuiltInDatabaseTypes() {
+		return DbType.getBuiltInDatabaseTypes(getLoadedFromJar());
 	}
 
 	protected void dumpDbUsage() {
 		System.out.println("Built-in database types and their required connection parameters:");
-		for (String type : getBuiltInDatabaseTypes(getLoadedFromJar())) {
+		for (String type : getBuiltInDatabaseTypes()) {
 			new DbSpecificConfig(type).dumpUsage();
 		}
 		System.out.println();
