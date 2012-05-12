@@ -366,8 +366,9 @@ public class Config
 	}
 
 	public Integer getPort() {
-		if (port == null)
+		if (port == null && jsapConfig.contains("port")) {
 			port = jsapConfig.getInt("port");
+		}
 		return port;
 	}
 
