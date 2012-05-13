@@ -66,7 +66,7 @@ public class HtmlTablePage extends HtmlFormatter {
 		return instance;
 	}
 
-	public WriteStats write(Database db, Table table, boolean hasOrphans, File outputDir, WriteStats stats, LineWriter out) throws IOException {
+	public EvilStatsStore write(Database db, Table table, boolean hasOrphans, File outputDir, EvilStatsStore stats, LineWriter out) throws IOException {
 		File diagramsDir = new File(outputDir, "diagrams");
 		boolean hasImplied = generateDots(table, diagramsDir, stats);
 
@@ -459,7 +459,7 @@ public class HtmlTablePage extends HtmlFormatter {
 	 * @return boolean <code>true</code> if the table has implied relatives within two
 	 *                 degrees of separation.
 	 */
-	private boolean generateDots(Table table, File diagramDir, WriteStats stats) throws IOException {
+	private boolean generateDots(Table table, File diagramDir, EvilStatsStore stats) throws IOException {
 		File oneDegreeDotFile = new File(diagramDir, table.getName() + ".1degree.dot");
 		File oneDegreeDiagramFile = new File(diagramDir, table.getName() + ".1degree.png");
 		File twoDegreesDotFile = new File(diagramDir, table.getName() + ".2degrees.dot");
@@ -481,12 +481,12 @@ public class HtmlTablePage extends HtmlFormatter {
 
 			DotFormatter formatter = DotFormatter.getInstance();
 			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
-			WriteStats oneStats = new WriteStats(stats);
+			EvilStatsStore oneStats = new EvilStatsStore(stats);
 			formatter.writeRealRelationships(table, false, oneStats, dotOut);
 			dotOut.close();
 
 			dotOut = new LineWriter(twoDegreesDotFile, Config.DOT_CHARSET);
-			WriteStats twoStats = new WriteStats(stats);
+			EvilStatsStore twoStats = new EvilStatsStore(stats);
 			impliedConstraints = formatter.writeRealRelationships(table, true, twoStats, dotOut);
 			dotOut.close();
 
@@ -505,7 +505,7 @@ public class HtmlTablePage extends HtmlFormatter {
 		return false;
 	}
 
-	private void writeDiagram(Table table, WriteStats stats, File diagramsDir, LineWriter html) throws IOException {
+	private void writeDiagram(Table table, EvilStatsStore stats, File diagramsDir, LineWriter html) throws IOException {
 		if (table.getMaxChildren() + table.getMaxParents() > 0) {
 			html.writeln("<table width='100%' border='0'><tr><td class='container'>");
 			if (HtmlTableDiagrammer.getInstance().write(table, diagramsDir, html)) {

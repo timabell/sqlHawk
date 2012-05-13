@@ -23,14 +23,20 @@ import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 
 /**
- * Simple ugly hack that provides details of what was written.
+ * Ugly hack that provides details of what was written.
+ * Also stores data to be used around processing,
+ *  - number of items processed to see if two degree was different
+ *  - whether there are implied relationships
+ * This class must die. Terrible stuff.
+ * Set aside several hours for disentangling it!
  */
-public class WriteStats {
+@Deprecated
+public class EvilStatsStore {
 	private int numTables;
 	private int numViews;
 	private final Set<TableColumn> excludedColumns;
 
-	public WriteStats(Collection<Table> tables) {
+	public EvilStatsStore(Collection<Table> tables) {
 		excludedColumns = new HashSet<TableColumn>();
 
 		for (Table table : tables) {
@@ -42,7 +48,7 @@ public class WriteStats {
 		}
 	}
 
-	public WriteStats(WriteStats stats) {
+	public EvilStatsStore(EvilStatsStore stats) {
 		excludedColumns = stats.excludedColumns;
 	}
 

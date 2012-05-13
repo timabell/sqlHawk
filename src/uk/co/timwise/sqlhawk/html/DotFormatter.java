@@ -57,14 +57,14 @@ public class DotFormatter {
 	 * Write real relationships (excluding implied) associated with the given table.<p>
 	 * Returns a set of the implied constraints that could have been included but weren't.
 	 */
-	public Set<ForeignKeyConstraint> writeRealRelationships(Table table, boolean twoDegreesOfSeparation, WriteStats stats, LineWriter dot) throws IOException {
+	public Set<ForeignKeyConstraint> writeRealRelationships(Table table, boolean twoDegreesOfSeparation, EvilStatsStore stats, LineWriter dot) throws IOException {
 		return writeRelationships(table, twoDegreesOfSeparation, stats, false, dot);
 	}
 
 	/**
 	 * Write implied relationships associated with the given table
 	 */
-	public void writeAllRelationships(Table table, boolean twoDegreesOfSeparation, WriteStats stats, LineWriter dot) throws IOException {
+	public void writeAllRelationships(Table table, boolean twoDegreesOfSeparation, EvilStatsStore stats, LineWriter dot) throws IOException {
 		writeRelationships(table, twoDegreesOfSeparation, stats, true, dot);
 	}
 
@@ -72,7 +72,7 @@ public class DotFormatter {
 	 * Write relationships associated with the given table.<p>
 	 * Returns a set of the implied constraints that could have been included but weren't.
 	 */
-	private Set<ForeignKeyConstraint> writeRelationships(Table table, boolean twoDegreesOfSeparation, WriteStats stats, boolean includeImplied, LineWriter dot) throws IOException {
+	private Set<ForeignKeyConstraint> writeRelationships(Table table, boolean twoDegreesOfSeparation, EvilStatsStore stats, boolean includeImplied, LineWriter dot) throws IOException {
 		Set<Table> tablesWritten = new HashSet<Table>();
 		Set<ForeignKeyConstraint> skippedImpliedConstraints = new HashSet<ForeignKeyConstraint>();
 
@@ -253,18 +253,18 @@ public class DotFormatter {
 		dot.writeln("  ];");
 	}
 
-	public void writeRealRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, WriteStats stats, LineWriter dot) throws IOException {
+	public void writeRealRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, EvilStatsStore stats, LineWriter dot) throws IOException {
 		writeRelationships(db, tables, compact, showColumns, false, stats, dot);
 	}
 
 	/**
 	 * Returns <code>true</code> if it wrote any implied relationships
 	 */
-	public boolean writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, WriteStats stats, LineWriter dot) throws IOException {
+	public boolean writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, EvilStatsStore stats, LineWriter dot) throws IOException {
 		return writeRelationships(db, tables, compact, showColumns, true, stats, dot);
 	}
 
-	private boolean writeRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, boolean includeImplied, WriteStats stats, LineWriter dot) throws IOException {
+	private boolean writeRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, boolean includeImplied, EvilStatsStore stats, LineWriter dot) throws IOException {
 		DotConnectorFinder finder = DotConnectorFinder.getInstance();
 		DotNodeConfig nodeConfig = showColumns ? new DotNodeConfig(!compact, false) : new DotNodeConfig();
 		boolean wroteImplied = false;
