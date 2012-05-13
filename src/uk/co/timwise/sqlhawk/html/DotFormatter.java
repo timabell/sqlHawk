@@ -57,8 +57,8 @@ public class DotFormatter {
 	 * Write real relationships (excluding implied) associated with the given table.<p>
 	 * Returns a set of the implied constraints that could have been included but weren't.
 	 */
-	public Set<ForeignKeyConstraint> writeRealRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
-		return writeRelationships(table, twoDegreesOfSeparation, excludedColumns, false, dot);
+	public void writeRealRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+		writeRelationships(table, twoDegreesOfSeparation, excludedColumns, false, dot);
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class DotFormatter {
 	 * Write relationships associated with the given table.<p>
 	 * Returns a set of the implied constraints that could have been included but weren't.
 	 */
-	private Set<ForeignKeyConstraint> writeRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, boolean includeImplied, LineWriter dot) throws IOException {
+	private void writeRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, boolean includeImplied, LineWriter dot) throws IOException {
 		Set<Table> tablesWritten = new HashSet<Table>();
 		Set<ForeignKeyConstraint> skippedImpliedConstraints = new HashSet<ForeignKeyConstraint>();
 
@@ -172,12 +172,9 @@ public class DotFormatter {
 
 		for (DotNode node : nodes.values()) {
 			dot.writeln(node.toString());
-			stats.wroteTable(node.getTable());
 		}
 
 		dot.writeln("}");
-
-		return skippedImpliedConstraints;
 }
 
 	private Set<Table> getImmediateRelatives(Table table, boolean includeExcluded, boolean includeImplied, Set<ForeignKeyConstraint> skippedImpliedConstraints) {
@@ -259,16 +256,14 @@ public class DotFormatter {
 
 	/**
 	 * Returns <code>true</code> if it wrote any implied relationships
-	 * TODO: kill evil return value, seriously the diagram tool should not be providing this info. horribly complicates things. argh.
 	 */
-	public boolean writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
-		return writeRelationships(db, tables, compact, showColumns, true, excludedColumns, dot);
+	public void writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+		writeRelationships(db, tables, compact, showColumns, true, excludedColumns, dot);
 	}
 
-	private boolean writeRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, boolean includeImplied, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+	private void writeRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, boolean includeImplied, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
 		DotConnectorFinder finder = DotConnectorFinder.getInstance();
 		DotNodeConfig nodeConfig = showColumns ? new DotNodeConfig(!compact, false) : new DotNodeConfig();
-		boolean wroteImplied = false;
 
 		String diagramName;
 		if (includeImplied) {
@@ -305,11 +300,7 @@ public class DotFormatter {
 		markExcludedColumns(nodes, excludedColumns);
 
 		for (DotNode node : nodes.values()) {
-			Table table = node.getTable();
-
 			dot.writeln(node.toString());
-			stats.wroteTable(table); // TODO: kill this line if possible wrong place for counting tables
-			wroteImplied = wroteImplied || (includeImplied && table.isOrphan(false));
 		}
 
 		for (DotConnector connector : connectors) {
@@ -317,8 +308,6 @@ public class DotFormatter {
 		}
 
 		dot.writeln("}");
-
-		return wroteImplied; // TODO: killllllllll
 }
 
 	private void markExcludedColumns(Map<Table, DotNode> nodes, Set<TableColumn> excludedColumns) {

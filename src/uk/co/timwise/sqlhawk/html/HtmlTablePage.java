@@ -66,9 +66,9 @@ public class HtmlTablePage extends HtmlFormatter {
 		return instance;
 	}
 
-	public void write(Database db, Table table, boolean hasOrphans, File outputDir, Set<TableColumn> excludedColumns, LineWriter out) throws IOException {
+	public void write(Database db, Table table, boolean hasOrphans, boolean hasImplied, File outputDir, Set<TableColumn> excludedColumns, LineWriter out) throws IOException {
 		File diagramsDir = new File(outputDir, "diagrams");
-		boolean hasImplied = generateDots(table, diagramsDir, excludedColumns);
+		generateDots(table, diagramsDir, excludedColumns);
 
 		writeHeader(db, table, null, hasOrphans, out);
 		out.writeln("<table width='100%' border='0'>");
@@ -457,7 +457,7 @@ public class HtmlTablePage extends HtmlFormatter {
 	 * @return boolean <code>true</code> if the table has implied relatives within two
 	 *                 degrees of separation.
 	 */
-	private boolean generateDots(Table table, File diagramDir, Set<TableColumn> excludedColumns) throws IOException {
+	private void generateDots(Table table, File diagramDir, Set<TableColumn> excludedColumns) throws IOException {
 		File oneDegreeDotFile = new File(diagramDir, table.getName() + ".1degree.dot");
 		File oneDegreeDiagramFile = new File(diagramDir, table.getName() + ".1degree.png");
 		File twoDegreesDotFile = new File(diagramDir, table.getName() + ".2degrees.dot");
@@ -475,7 +475,7 @@ public class HtmlTablePage extends HtmlFormatter {
 		impliedDiagramFile.delete();
 
 		if (table.getMaxChildren() + table.getMaxParents() > 0) {
-			Set<ForeignKeyConstraint> impliedConstraints;
+			Set<ForeignKeyConstraint> impliedConstraints = fixme; // TODO: get impliedConstraints from somewhere sensible
 
 			DotFormatter formatter = DotFormatter.getInstance();
 			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
@@ -485,7 +485,7 @@ public class HtmlTablePage extends HtmlFormatter {
 
 			dotOut = new LineWriter(twoDegreesDotFile, Config.DOT_CHARSET);
 			EvilStatsStore twoStats = new EvilStatsStore(); // copy the excluded column lists
-			impliedConstraints = formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
+			formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
 			dotOut.close();
 
 			if (oneStats.getNumTablesWritten() + oneStats.getNumViewsWritten() == twoStats.getNumTablesWritten() + twoStats.getNumViewsWritten()) {
@@ -496,11 +496,8 @@ public class HtmlTablePage extends HtmlFormatter {
 				dotOut = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
 				formatter.writeAllRelationships(table, true, excludedColumns, dotOut);
 				dotOut.close();
-				return true;
 			}
 		}
-
-		return false;
 	}
 
 	private void writeDiagram(Table table, Set<TableColumn> excludedColumns, File diagramsDir, LineWriter html) throws IOException {

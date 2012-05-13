@@ -65,7 +65,8 @@ public class HtmlWriter {
 
 		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		// TODO: get this from the metadata, not from the diagram tool output (facepalm):
-		boolean hasRealRelationships = stats.getNumTablesWritten() > 0 || stats.getNumViewsWritten() > 0;
+		boolean hasRealRelationships = fixme;
+		boolean hasImplied = fixme;
 		out.close();
 
 		if (hasRealRelationships) {
@@ -93,8 +94,7 @@ public class HtmlWriter {
 
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
 		out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
-		// TODO: figure out implied from metadata, not from previous operations:
-		boolean hasImplied = DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
+		DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		out.close();
 
 		if (hasImplied) {
@@ -166,7 +166,7 @@ public class HtmlWriter {
 				logger.fine("Writing details of " + table.getName());
 
 			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
-			tableFormatter.write(db, table, hasOrphans, outputDir, excludedColumns, out);
+			tableFormatter.write(db, table, hasOrphans, hasImplied, outputDir, excludedColumns, out);
 			out.close();
 		}
 
