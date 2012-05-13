@@ -41,7 +41,7 @@ public class EvilStatsStore {
 
 		for (Table table : tables) {
 			for (TableColumn column : table.getColumns()) {
-				if (column.isExcluded()) {
+				if (column.isExcluded()) { // supplied extra xml meta data says ignore this column
 					excludedColumns.add(column);
 				}
 			}

@@ -259,6 +259,7 @@ public class DotFormatter {
 
 	/**
 	 * Returns <code>true</code> if it wrote any implied relationships
+	 * TODO: kill evil return value, seriously the diagram tool should not be providing this info. horribly complicates things. argh.
 	 */
 	public boolean writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, EvilStatsStore stats, LineWriter dot) throws IOException {
 		return writeRelationships(db, tables, compact, showColumns, true, stats, dot);
@@ -301,13 +302,13 @@ public class DotFormatter {
 			connectors.addAll(finder.getRelatedConnectors(node.getTable(), includeImplied));
 		}
 
-		markExcludedColumns(nodes, stats.getExcludedColumns());
+		markExcludedColumns(nodes, stats.getExcludedColumns()); // fixme: nothing to do with stats ffs
 
 		for (DotNode node : nodes.values()) {
 			Table table = node.getTable();
 
 			dot.writeln(node.toString());
-			stats.wroteTable(table);
+			stats.wroteTable(table); // TODO: kill this line if possible wrong place for counting tables
 			wroteImplied = wroteImplied || (includeImplied && table.isOrphan(false));
 		}
 
@@ -317,7 +318,7 @@ public class DotFormatter {
 
 		dot.writeln("}");
 
-		return wroteImplied;
+		return wroteImplied; // TODO: killllllllll
 }
 
 	private void markExcludedColumns(Map<Table, DotNode> nodes, Set<TableColumn> excludedColumns) {

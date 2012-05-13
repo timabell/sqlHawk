@@ -60,8 +60,9 @@ public class HtmlWriter {
 		// generate the compact form of the relationships .dot file
 		String dotBaseFilespec = "relationships";
 		out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.compact.dot"), Config.DOT_CHARSET);
-		EvilStatsStore stats = new EvilStatsStore(tablesAndViews);
+		EvilStatsStore stats = new EvilStatsStore(tablesAndViews); // set up column exclude list
 		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, stats, out);
+		// TODO: get this from the metadata, not from the diagram tool output (facepalm):
 		boolean hasRealRelationships = stats.getNumTablesWritten() > 0 || stats.getNumViewsWritten() > 0;
 		out.close();
 
@@ -90,6 +91,7 @@ public class HtmlWriter {
 
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
 		out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
+		// TODO: figure out implied from metadata, not from previous operations:
 		boolean hasImplied = DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, true, showDetailedTables, stats, out);
 
 		Set<TableColumn> excludedColumns = stats.getExcludedColumns();

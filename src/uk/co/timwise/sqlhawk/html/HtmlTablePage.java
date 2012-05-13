@@ -84,10 +84,10 @@ public class HtmlTablePage extends HtmlFormatter {
 		writeIndexes(table, out);
 		if (table.isView())
 			writeView((View)table, db, out);
-		writeDiagram(table, stats, diagramsDir, out);
+		writeDiagram(table, stats, diagramsDir, out); //TODO: stats is really just the excluded column list. -1 for misdirection, naughty programmer.
 		writeFooter(out);
 
-		return stats;
+		return stats; // TODO: kill return
 	}
 
 	private void writeHeader(Table table, boolean hasImplied, LineWriter html) throws IOException {
@@ -481,12 +481,12 @@ public class HtmlTablePage extends HtmlFormatter {
 
 			DotFormatter formatter = DotFormatter.getInstance();
 			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
-			EvilStatsStore oneStats = new EvilStatsStore(stats);
+			EvilStatsStore oneStats = new EvilStatsStore(stats); // copy the excluded column lists
 			formatter.writeRealRelationships(table, false, oneStats, dotOut);
 			dotOut.close();
 
 			dotOut = new LineWriter(twoDegreesDotFile, Config.DOT_CHARSET);
-			EvilStatsStore twoStats = new EvilStatsStore(stats);
+			EvilStatsStore twoStats = new EvilStatsStore(stats); // copy the excluded column lists
 			impliedConstraints = formatter.writeRealRelationships(table, true, twoStats, dotOut);
 			dotOut.close();
 
