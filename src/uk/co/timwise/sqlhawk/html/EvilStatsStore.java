@@ -34,10 +34,10 @@ import uk.co.timwise.sqlhawk.model.TableColumn;
 public class EvilStatsStore {
 	private int numTables;
 	private int numViews;
-	private final Set<TableColumn> excludedColumns;
 
-	public EvilStatsStore(Collection<Table> tables) {
-		excludedColumns = new HashSet<TableColumn>();
+	// TODO: move getExcludedColumns to right place
+	public static Set<TableColumn> getExcludedColumns(Collection<Table> tables) {
+		Set<TableColumn> excludedColumns = new HashSet<TableColumn>();
 
 		for (Table table : tables) {
 			for (TableColumn column : table.getColumns()) {
@@ -46,10 +46,7 @@ public class EvilStatsStore {
 				}
 			}
 		}
-	}
-
-	public EvilStatsStore(EvilStatsStore stats) {
-		excludedColumns = stats.excludedColumns;
+		return excludedColumns;
 	}
 
 	public void wroteTable(Table table) {
@@ -65,9 +62,5 @@ public class EvilStatsStore {
 
 	public int getNumViewsWritten() {
 		return numViews;
-	}
-
-	public Set<TableColumn> getExcludedColumns() {
-		return excludedColumns;
 	}
 }

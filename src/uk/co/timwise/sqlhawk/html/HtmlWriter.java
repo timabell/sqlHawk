@@ -60,8 +60,10 @@ public class HtmlWriter {
 		// generate the compact form of the relationships .dot file
 		String dotBaseFilespec = "relationships";
 		out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.compact.dot"), Config.DOT_CHARSET);
-		EvilStatsStore stats = new EvilStatsStore(tablesAndViews); // set up column exclude list
-		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, stats, out);
+		// set up column exclude list
+		Set<TableColumn> excludedColumns = EvilStatsStore.getExcludedColumns(tablesAndViews);
+
+		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		// TODO: get this from the metadata, not from the diagram tool output (facepalm):
 		boolean hasRealRelationships = stats.getNumTablesWritten() > 0 || stats.getNumViewsWritten() > 0;
 		out.close();
@@ -71,7 +73,7 @@ public class HtmlWriter {
 			if (!fineEnabled)
 				System.out.print(".");
 			out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.large.dot"), Config.DOT_CHARSET);
-			DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, false, showDetailedTables, stats, out);
+			DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, false, showDetailedTables, excludedColumns, out);
 			out.close();
 		}
 
@@ -92,14 +94,13 @@ public class HtmlWriter {
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
 		out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
 		// TODO: figure out implied from metadata, not from previous operations:
-		boolean hasImplied = DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, true, showDetailedTables, stats, out);
-
-		Set<TableColumn> excludedColumns = stats.getExcludedColumns();
+		boolean hasImplied = DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		out.close();
+
 		if (hasImplied) {
 			impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.large.dot");
 			out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
-			DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, false, showDetailedTables, stats, out);
+			DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, false, showDetailedTables, excludedColumns, out);
 			out.close();
 		} else {
 			impliedDotFile.delete();
@@ -165,7 +166,7 @@ public class HtmlWriter {
 				logger.fine("Writing details of " + table.getName());
 
 			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
-			tableFormatter.write(db, table, hasOrphans, outputDir, stats, out);
+			tableFormatter.write(db, table, hasOrphans, outputDir, excludedColumns, out);
 			out.close();
 		}
 

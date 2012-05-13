@@ -66,9 +66,9 @@ public class HtmlTablePage extends HtmlFormatter {
 		return instance;
 	}
 
-	public EvilStatsStore write(Database db, Table table, boolean hasOrphans, File outputDir, EvilStatsStore stats, LineWriter out) throws IOException {
+	public void write(Database db, Table table, boolean hasOrphans, File outputDir, Set<TableColumn> excludedColumns, LineWriter out) throws IOException {
 		File diagramsDir = new File(outputDir, "diagrams");
-		boolean hasImplied = generateDots(table, diagramsDir, stats);
+		boolean hasImplied = generateDots(table, diagramsDir, excludedColumns);
 
 		writeHeader(db, table, null, hasOrphans, out);
 		out.writeln("<table width='100%' border='0'>");
@@ -84,10 +84,8 @@ public class HtmlTablePage extends HtmlFormatter {
 		writeIndexes(table, out);
 		if (table.isView())
 			writeView((View)table, db, out);
-		writeDiagram(table, stats, diagramsDir, out); //TODO: stats is really just the excluded column list. -1 for misdirection, naughty programmer.
+		writeDiagram(table, excludedColumns, diagramsDir, out);
 		writeFooter(out);
-
-		return stats; // TODO: kill return
 	}
 
 	private void writeHeader(Table table, boolean hasImplied, LineWriter html) throws IOException {
@@ -459,7 +457,7 @@ public class HtmlTablePage extends HtmlFormatter {
 	 * @return boolean <code>true</code> if the table has implied relatives within two
 	 *                 degrees of separation.
 	 */
-	private boolean generateDots(Table table, File diagramDir, EvilStatsStore stats) throws IOException {
+	private boolean generateDots(Table table, File diagramDir, Set<TableColumn> excludedColumns) throws IOException {
 		File oneDegreeDotFile = new File(diagramDir, table.getName() + ".1degree.dot");
 		File oneDegreeDiagramFile = new File(diagramDir, table.getName() + ".1degree.png");
 		File twoDegreesDotFile = new File(diagramDir, table.getName() + ".2degrees.dot");
@@ -481,13 +479,13 @@ public class HtmlTablePage extends HtmlFormatter {
 
 			DotFormatter formatter = DotFormatter.getInstance();
 			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
-			EvilStatsStore oneStats = new EvilStatsStore(stats); // copy the excluded column lists
-			formatter.writeRealRelationships(table, false, oneStats, dotOut);
+			EvilStatsStore oneStats = new EvilStatsStore(); // copy the excluded column lists
+			formatter.writeRealRelationships(table, false, excludedColumns, dotOut);
 			dotOut.close();
 
 			dotOut = new LineWriter(twoDegreesDotFile, Config.DOT_CHARSET);
-			EvilStatsStore twoStats = new EvilStatsStore(stats); // copy the excluded column lists
-			impliedConstraints = formatter.writeRealRelationships(table, true, twoStats, dotOut);
+			EvilStatsStore twoStats = new EvilStatsStore(); // copy the excluded column lists
+			impliedConstraints = formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
 			dotOut.close();
 
 			if (oneStats.getNumTablesWritten() + oneStats.getNumViewsWritten() == twoStats.getNumTablesWritten() + twoStats.getNumViewsWritten()) {
@@ -496,7 +494,7 @@ public class HtmlTablePage extends HtmlFormatter {
 
 			if (!impliedConstraints.isEmpty()) {
 				dotOut = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
-				formatter.writeAllRelationships(table, true, stats, dotOut);
+				formatter.writeAllRelationships(table, true, excludedColumns, dotOut);
 				dotOut.close();
 				return true;
 			}
@@ -505,12 +503,12 @@ public class HtmlTablePage extends HtmlFormatter {
 		return false;
 	}
 
-	private void writeDiagram(Table table, EvilStatsStore stats, File diagramsDir, LineWriter html) throws IOException {
+	private void writeDiagram(Table table, Set<TableColumn> excludedColumns, File diagramsDir, LineWriter html) throws IOException {
 		if (table.getMaxChildren() + table.getMaxParents() > 0) {
 			html.writeln("<table width='100%' border='0'><tr><td class='container'>");
 			if (HtmlTableDiagrammer.getInstance().write(table, diagramsDir, html)) {
 				html.writeln("</td></tr></table>");
-				writeExcludedColumns(stats.getExcludedColumns(), table, html);
+				writeExcludedColumns(excludedColumns, table, html);
 			} else {
 				html.writeln("</td></tr></table><p>");
 				writeInvalidGraphvizInstallation(html);

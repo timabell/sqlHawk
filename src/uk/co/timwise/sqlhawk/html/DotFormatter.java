@@ -57,22 +57,22 @@ public class DotFormatter {
 	 * Write real relationships (excluding implied) associated with the given table.<p>
 	 * Returns a set of the implied constraints that could have been included but weren't.
 	 */
-	public Set<ForeignKeyConstraint> writeRealRelationships(Table table, boolean twoDegreesOfSeparation, EvilStatsStore stats, LineWriter dot) throws IOException {
-		return writeRelationships(table, twoDegreesOfSeparation, stats, false, dot);
+	public Set<ForeignKeyConstraint> writeRealRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+		return writeRelationships(table, twoDegreesOfSeparation, excludedColumns, false, dot);
 	}
 
 	/**
 	 * Write implied relationships associated with the given table
 	 */
-	public void writeAllRelationships(Table table, boolean twoDegreesOfSeparation, EvilStatsStore stats, LineWriter dot) throws IOException {
-		writeRelationships(table, twoDegreesOfSeparation, stats, true, dot);
+	public void writeAllRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+		writeRelationships(table, twoDegreesOfSeparation, excludedColumns, true, dot);
 	}
 
 	/**
 	 * Write relationships associated with the given table.<p>
 	 * Returns a set of the implied constraints that could have been included but weren't.
 	 */
-	private Set<ForeignKeyConstraint> writeRelationships(Table table, boolean twoDegreesOfSeparation, EvilStatsStore stats, boolean includeImplied, LineWriter dot) throws IOException {
+	private Set<ForeignKeyConstraint> writeRelationships(Table table, boolean twoDegreesOfSeparation, Set<TableColumn> excludedColumns, boolean includeImplied, LineWriter dot) throws IOException {
 		Set<Table> tablesWritten = new HashSet<Table>();
 		Set<ForeignKeyConstraint> skippedImpliedConstraints = new HashSet<ForeignKeyConstraint>();
 
@@ -143,7 +143,7 @@ public class DotFormatter {
 			}
 		}
 
-		markExcludedColumns(nodes, stats.getExcludedColumns());
+		markExcludedColumns(nodes, excludedColumns);
 
 		// now directly connect the loose ends to the title of the
 		// 2nd degree of separation tables
@@ -253,19 +253,19 @@ public class DotFormatter {
 		dot.writeln("  ];");
 	}
 
-	public void writeRealRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, EvilStatsStore stats, LineWriter dot) throws IOException {
-		writeRelationships(db, tables, compact, showColumns, false, stats, dot);
+	public void writeRealRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+		writeRelationships(db, tables, compact, showColumns, false, excludedColumns, dot);
 	}
 
 	/**
 	 * Returns <code>true</code> if it wrote any implied relationships
 	 * TODO: kill evil return value, seriously the diagram tool should not be providing this info. horribly complicates things. argh.
 	 */
-	public boolean writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, EvilStatsStore stats, LineWriter dot) throws IOException {
-		return writeRelationships(db, tables, compact, showColumns, true, stats, dot);
+	public boolean writeAllRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
+		return writeRelationships(db, tables, compact, showColumns, true, excludedColumns, dot);
 	}
 
-	private boolean writeRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, boolean includeImplied, EvilStatsStore stats, LineWriter dot) throws IOException {
+	private boolean writeRelationships(Database db, Collection<Table> tables, boolean compact, boolean showColumns, boolean includeImplied, Set<TableColumn> excludedColumns, LineWriter dot) throws IOException {
 		DotConnectorFinder finder = DotConnectorFinder.getInstance();
 		DotNodeConfig nodeConfig = showColumns ? new DotNodeConfig(!compact, false) : new DotNodeConfig();
 		boolean wroteImplied = false;
@@ -302,7 +302,7 @@ public class DotFormatter {
 			connectors.addAll(finder.getRelatedConnectors(node.getTable(), includeImplied));
 		}
 
-		markExcludedColumns(nodes, stats.getExcludedColumns()); // fixme: nothing to do with stats ffs
+		markExcludedColumns(nodes, excludedColumns);
 
 		for (DotNode node : nodes.values()) {
 			Table table = node.getTable();
