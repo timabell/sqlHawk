@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.implied.ImpliedConstraintFinder;
 import uk.co.timwise.sqlhawk.implied.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
@@ -83,7 +84,7 @@ public class HtmlWriter {
 		// here unless they want that behavior
 		List<ImpliedForeignKeyConstraint> impliedConstraints = null;
 		if (includeImpliedConstraints)
-			impliedConstraints = DbAnalyzer.getImpliedConstraints(tablesAndViews);
+			impliedConstraints = ImpliedConstraintFinder.getImpliedConstraints(tablesAndViews);
 		else
 			impliedConstraints = new ArrayList<ImpliedForeignKeyConstraint>();
 
