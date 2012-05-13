@@ -13,9 +13,10 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk.model;
+package uk.co.timwise.sqlhawk.rails;
 
-import uk.co.timwise.sqlhawk.rails.RailsConstraints;
+import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
+import uk.co.timwise.sqlhawk.model.TableColumn;
 
 /**
  * See {@link RailsConstraints#getRailsConstraints(java.util.Map)} for
