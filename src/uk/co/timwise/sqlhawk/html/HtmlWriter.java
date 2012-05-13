@@ -17,6 +17,7 @@ import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
+import uk.co.timwise.sqlhawk.rails.RailsConstraints;
 import uk.co.timwise.sqlhawk.util.LineWriter;
 
 public class HtmlWriter {
@@ -57,7 +58,7 @@ public class HtmlWriter {
 		// note that this is done before 'hasRealRelationships' gets evaluated so
 		// we get a relationships ER diagram
 		if (config.isRailsEnabled())
-			DbAnalyzer.getRailsConstraints(db.getTablesByName());
+			RailsConstraints.getRailsConstraints(db.getTablesByName());
 
 		File diagramsDir = new File(outputDir, "diagrams/summary");
 

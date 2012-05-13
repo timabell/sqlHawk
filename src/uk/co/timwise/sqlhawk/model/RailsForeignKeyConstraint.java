@@ -15,10 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.model;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
+import uk.co.timwise.sqlhawk.rails.RailsConstraints;
 
 /**
- * See {@link DbAnalyzer#getRailsConstraints(java.util.Map)} for
+ * See {@link RailsConstraints#getRailsConstraints(java.util.Map)} for
  * details on Rails naming conventions.
  */
 public class RailsForeignKeyConstraint extends ForeignKeyConstraint {
