@@ -54,7 +54,6 @@ public final class MultipleSchemaAnalyzer {
 	}
 
 	public void analyze(String dbName, DatabaseMetaData meta, String schemaSpec, List<String> schemas, List<String> args, String user, File outputDir, String charset, String loadedFrom) throws SQLException, IOException {
-		long start = System.currentTimeMillis();
 		List<String> genericCommand = new ArrayList<String>();
 		genericCommand.add("java");
 		genericCommand.add("-Doneofmultipleschemas=true");
@@ -120,9 +119,8 @@ public final class MultipleSchemaAnalyzer {
 			}
 		}
 
-		long end = System.currentTimeMillis();
 		System.out.println();
-		System.out.println("Wrote relationship details of " + populatedSchemas.size() + " schema" + (populatedSchemas.size() == 1 ? "" : "s") + " in " + (end - start) / 1000 + " seconds.");
+		System.out.println("Wrote relationship details of " + populatedSchemas.size() + " schema" + (populatedSchemas.size() == 1 ? "" : "s") + ".");
 		System.out.println("Start with " + new File(outputDir, "index.html"));
 	}
 

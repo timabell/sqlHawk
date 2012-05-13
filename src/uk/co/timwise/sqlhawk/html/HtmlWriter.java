@@ -24,21 +24,15 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 public class HtmlWriter {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public long writeHtml(Config config, long start,
-			Database db, boolean fineEnabled) throws IOException,
+	public void writeHtml(Config config, Database db, boolean fineEnabled) throws IOException,
 			UnsupportedEncodingException, FileNotFoundException {
 		File outputDir = config.getTargetDir();
-		long startSummarizing;
 		LineWriter out;
 		new File(outputDir, "tables").mkdirs();
 		new File(outputDir, "diagrams/summary").mkdirs();
-		startSummarizing = System.currentTimeMillis();
-		if (!fineEnabled) {
-			System.out.println("(" + (startSummarizing - start) / 1000 + "sec)");
-		}
 
-		logger.info("Gathered schema details in " + (startSummarizing - start) / 1000 + " seconds");
-		logger.info("Writing/graphing summary");
+		logger.info("Gathered schema details");
+		logger.info("Writing/graphing summary...");
 		System.err.flush();
 		System.out.flush();
 		if (!fineEnabled) {
@@ -155,11 +149,8 @@ public class HtmlWriter {
 
 		// create detailed diagrams
 
-		long startDiagrammingDetails = System.currentTimeMillis();
-		if (!fineEnabled)
-			System.out.println("(" + (startDiagrammingDetails - startSummarizing) / 1000 + "sec)");
-		logger.info("Completed summary in " + (startDiagrammingDetails - startSummarizing) / 1000 + " seconds");
-		logger.info("Writing/diagramming details");
+		logger.info("Completed summary");
+		logger.info("Writing/diagramming details...");
 		if (!fineEnabled) {
 			System.out.print("Writing/diagramming details");
 		}
@@ -179,6 +170,5 @@ public class HtmlWriter {
 		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
 		StyleSheet.getInstance().write(out);
 		out.close();
-		return startDiagrammingDetails;
 	}
 }

@@ -66,7 +66,6 @@ public class SchemaMapper {
 	 * @throws Exception
 	 */
 	public boolean RunMapping(Config config) throws Exception {
-		long start = System.currentTimeMillis(); //log start time to be able to write out timing information
 		setupLogger(config);
 		//========= schema reading code ============
 		//TODO: check for any conflict in request options (read vs write?)
@@ -89,9 +88,8 @@ public class SchemaMapper {
 		if (db==null)
 			throw new Exception("No database information has been read. Make sure you set a read flag.");
 		//========= schema writing code ============
-		long startDiagrammingDetails = start; //set a value so that initialised if html not run
 		if (config.isHtmlGenerationEnabled()) {
-			startDiagrammingDetails = new HtmlWriter().writeHtml(config, start, db, fineEnabled);
+			new HtmlWriter().writeHtml(config, db, fineEnabled);
 		}
 		if (config.isSourceControlOutputEnabled())
 			new ScmDbWriter().writeForSourceControl(config.getTargetDir(), db);
@@ -99,12 +97,6 @@ public class SchemaMapper {
 			xmlWriter.writeXml(config.getTargetDir(), db);
 		if (config.isOrderingOutputEnabled())
 			writeOrderingFiles(config.getTargetDir(), db);
-		if (config.isHtmlGenerationEnabled()) {
-			int tableCount = db.getTables().size() + db.getViews().size();
-			long end = System.currentTimeMillis();
-			showTimingInformation(config, start, startDiagrammingDetails,
-					tableCount, end);
-		}
 		if (config.isDatabaseOutputEnabled()) {
 			db.setSchema(config.getSchema());
 			writeDb(config, db);
@@ -287,21 +279,6 @@ public class SchemaMapper {
 		    out.close();
 		}
 		 */
-	}
-
-	private void showTimingInformation(Config config, long start,
-			long startDiagrammingDetails, int tableCount, long end) {
-		if (!fineEnabled)
-			System.out.println("(" + (end - startDiagrammingDetails) / 1000 + "sec)");
-		logger.info("Wrote table details in " + (end - startDiagrammingDetails) / 1000 + " seconds");
-
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
-			logger.info("View the results by opening " + new File(config.getTargetDir(), "index.html"));
-		} else {
-			System.out.println("Wrote relationship details of " + tableCount + " tables/views to directory '" + config.getTargetDir() + "' in " + (end - start) / 1000 + " seconds.");
-			System.out.println("View the results by opening " + new File(config.getTargetDir(), "index.html"));
-		}
 	}
 
 	/**
