@@ -34,8 +34,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import uk.co.timwise.sqlhawk.implied.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
-import uk.co.timwise.sqlhawk.model.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 import uk.co.timwise.sqlhawk.model.TableIndex;

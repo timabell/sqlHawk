@@ -12,9 +12,9 @@ import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.implied.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
-import uk.co.timwise.sqlhawk.model.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 import uk.co.timwise.sqlhawk.rails.RailsConstraints;
