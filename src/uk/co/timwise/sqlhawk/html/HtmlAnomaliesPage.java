@@ -21,11 +21,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
+import uk.co.timwise.sqlhawk.sanity.SanityChecker;
 import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**
@@ -53,11 +53,11 @@ public class HtmlAnomaliesPage extends HtmlFormatter {
 	public void write(Database database, Collection<Table> tables, List<? extends ForeignKeyConstraint> impliedConstraints, boolean hasOrphans, LineWriter out) throws IOException {
 		writeHeader(database, hasOrphans, out);
 		writeImpliedConstraints(impliedConstraints, out);
-		writeTablesWithoutIndexes(DbAnalyzer.getTablesWithoutIndexes(new HashSet<Table>(tables)), out);
-		writeUniqueNullables(DbAnalyzer.getMustBeUniqueNullableColumns(new HashSet<Table>(tables)), out);
-		writeTablesWithOneColumn(DbAnalyzer.getTablesWithOneColumn(tables), out);
-		writeTablesWithIncrementingColumnNames(DbAnalyzer.getTablesWithIncrementingColumnNames(tables), out);
-		writeDefaultNullStrings(DbAnalyzer.getDefaultNullStringColumns(new HashSet<Table>(tables)), out);
+		writeTablesWithoutIndexes(SanityChecker.getTablesWithoutIndexes(new HashSet<Table>(tables)), out);
+		writeUniqueNullables(SanityChecker.getMustBeUniqueNullableColumns(new HashSet<Table>(tables)), out);
+		writeTablesWithOneColumn(SanityChecker.getTablesWithOneColumn(tables), out);
+		writeTablesWithIncrementingColumnNames(SanityChecker.getTablesWithIncrementingColumnNames(tables), out);
+		writeDefaultNullStrings(SanityChecker.getDefaultNullStringColumns(new HashSet<Table>(tables)), out);
 		writeFooter(out);
 	}
 
