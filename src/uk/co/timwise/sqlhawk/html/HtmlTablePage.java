@@ -479,16 +479,15 @@ public class HtmlTablePage extends HtmlFormatter {
 
 			DotFormatter formatter = DotFormatter.getInstance();
 			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
-			EvilStatsStore oneStats = new EvilStatsStore(); // copy the excluded column lists
 			formatter.writeRealRelationships(table, false, excludedColumns, dotOut);
 			dotOut.close();
 
 			dotOut = new LineWriter(twoDegreesDotFile, Config.DOT_CHARSET);
-			EvilStatsStore twoStats = new EvilStatsStore(); // copy the excluded column lists
 			formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
 			dotOut.close();
 
-			if (oneStats.getNumTablesWritten() + oneStats.getNumViewsWritten() == twoStats.getNumTablesWritten() + twoStats.getNumViewsWritten()) {
+			// TODO: kill this write & delete hack
+			if (fixmeNochange) {
 				twoDegreesDotFile.delete(); // no different than before, so don't show it
 			}
 

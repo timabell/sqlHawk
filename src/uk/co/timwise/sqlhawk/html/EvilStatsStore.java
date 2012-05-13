@@ -32,9 +32,6 @@ import uk.co.timwise.sqlhawk.model.TableColumn;
  */
 @Deprecated
 public class EvilStatsStore {
-	private int numTables;
-	private int numViews;
-
 	// TODO: move getExcludedColumns to right place
 	public static Set<TableColumn> getExcludedColumns(Collection<Table> tables) {
 		Set<TableColumn> excludedColumns = new HashSet<TableColumn>();
@@ -47,20 +44,5 @@ public class EvilStatsStore {
 			}
 		}
 		return excludedColumns;
-	}
-
-	public void wroteTable(Table table) {
-		if (table.isView())
-			++numViews;
-		else
-			++numTables;
-	}
-
-	public int getNumTablesWritten() {
-		return numTables;
-	}
-
-	public int getNumViewsWritten() {
-		return numViews;
 	}
 }
