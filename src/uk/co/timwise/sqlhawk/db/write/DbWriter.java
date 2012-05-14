@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
+import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Procedure;
@@ -60,7 +61,7 @@ public class DbWriter {
 				if (fineEnabled)
 					logger.fine("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.
-				String updateSql = updatedDefinition.replaceFirst("CREATE", "ALTER");
+				String updateSql = SqlManagement.ConvertCreateToAlter(updatedDefinition);
 				try {
 					if (!config.isDryRun())
 						connection.prepareStatement(updateSql).execute();
@@ -71,7 +72,7 @@ public class DbWriter {
 			} else { //new proc
 				if (fineEnabled)
 					logger.fine("Adding new proc " + procName);
-				String createSql = updatedDefinition.replaceFirst("ALTER", "CREATE");
+				String createSql = SqlManagement.ConvertAlterToCreate(updatedDefinition);
 				try {
 					if (!config.isDryRun())
 						connection.prepareStatement(createSql).execute();

@@ -34,12 +34,12 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
+import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ExplicitRemoteTable;
 import uk.co.timwise.sqlhawk.model.Function;
@@ -140,7 +140,7 @@ public class DbReader {
 				if (!validator.isValid(procName))
 					continue;
 				String procDefinition = rs.getString("definition");
-				procDefinition = ConvertCreateToAlter(procDefinition);
+				procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
 				Procedure proc = new Procedure(schema, procName, procDefinition);
 				if (logger.isLoggable(Level.FINE))
 					logger.fine("Read procedure definition '" + procName + "'");
@@ -181,7 +181,7 @@ public class DbReader {
 				if (!validator.isValid(functionName))
 					continue;
 				String functionDefinition = rs.getString("definition");
-				functionDefinition = ConvertCreateToAlter(functionDefinition);
+				functionDefinition = SqlManagement.ConvertCreateToAlter(functionDefinition);
 				Function proc = new Function(schema, functionName, functionDefinition);
 				if (logger.isLoggable(Level.FINE))
 					logger.fine("Read function definition '" + functionName + "'");
@@ -1097,7 +1097,7 @@ public class DbReader {
 		if (viewSql==null)
 			return null;
 		viewSql = viewSql.trim();
-		viewSql = ConvertCreateToAlter(viewSql);
+		viewSql = SqlManagement.ConvertCreateToAlter(viewSql);
 		if (viewSql.length()==0)
 			return null;
 		return viewSql;
@@ -1176,22 +1176,5 @@ public class DbReader {
 			System.err.println(exc);
 		}
 		return keywords;
-	}
-
-	/**
-	 * Change definition from CREATE to ALTER before saving - this is to make
-	 * using scm .sql scripts manually easier. A single change to CREATE the
-	 * first time you use a proc/function/view is easier than repeatedly
-	 * changing to ALTER.
-	 * TODO: maybe make this a configurable option at some point.
-	 *
-	 * @param sqlText
-	 *          the sql text
-	 * @return the string
-	 */
-	private String ConvertCreateToAlter(String sqlText) {
-		Pattern p = Pattern.compile("^CREATE", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-		Matcher m = p.matcher(sqlText);
-		return m.replaceFirst("ALTER");
 	}
 }
