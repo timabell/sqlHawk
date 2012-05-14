@@ -145,7 +145,7 @@ public class DbReader {
 				//   A single change to CREATE the first time you use a proc
 				//   is easier than repeatedly changing to ALTER.
 				// - maybe make this a configurable option at some point.
-				Pattern p = Pattern.compile("CREATE", Pattern.CASE_INSENSITIVE);
+				Pattern p = Pattern.compile("^CREATE", Pattern.CASE_INSENSITIVE);
 				Matcher m = p.matcher(procDefinition);
 				procDefinition = m.replaceFirst("ALTER");
 				Procedure proc = new Procedure(schema, procName, procDefinition);
