@@ -58,16 +58,15 @@ public class HtmlWriter {
 
 		File diagramsDir = new File(outputDir, "diagrams/summary");
 
+		// set up column exclude list
+		Set<TableColumn> excludedColumns = getExcludedColumns(tablesAndViews);
+		boolean hasRealRelationships = true; // TODO: cacluate whether this should be set;
+		boolean hasImplied = false;  // TODO: cacluate whether this should be set;
+
 		// generate the compact form of the relationships .dot file
 		String dotBaseFilespec = "relationships";
 		out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.compact.dot"), Config.DOT_CHARSET);
-		// set up column exclude list
-		Set<TableColumn> excludedColumns = HtmlWriter.getExcludedColumns(tablesAndViews);
-
 		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
-		// TODO: get this from the metadata, not from the diagram tool output (facepalm):
-		boolean hasRealRelationships = fixme;
-		boolean hasImplied = fixme;
 		out.close();
 
 		if (hasRealRelationships) {
@@ -167,7 +166,7 @@ public class HtmlWriter {
 				logger.fine("Writing details of " + table.getName());
 
 			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
-			tableFormatter.write(db, table, hasOrphans, hasImplied, outputDir, excludedColumns, out);
+			tableFormatter.write(db, table, hasOrphans, hasImplied, outputDir, excludedColumns, impliedConstraints, out);
 			out.close();
 		}
 
@@ -176,8 +175,7 @@ public class HtmlWriter {
 		out.close();
 	}
 
-	// TODO: move getExcludedColumns to right place
-	public static Set<TableColumn> getExcludedColumns(Collection<Table> tables) {
+	private static Set<TableColumn> getExcludedColumns(Collection<Table> tables) {
 		Set<TableColumn> excludedColumns = new HashSet<TableColumn>();
 	
 		for (Table table : tables) {

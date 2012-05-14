@@ -21,11 +21,13 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.implied.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
@@ -66,9 +68,9 @@ public class HtmlTablePage extends HtmlFormatter {
 		return instance;
 	}
 
-	public void write(Database db, Table table, boolean hasOrphans, boolean hasImplied, File outputDir, Set<TableColumn> excludedColumns, LineWriter out) throws IOException {
+	public void write(Database db, Table table, boolean hasOrphans, boolean hasImplied, File outputDir, Set<TableColumn> excludedColumns, List<ImpliedForeignKeyConstraint> impliedConstraints, LineWriter out) throws IOException {
 		File diagramsDir = new File(outputDir, "diagrams");
-		generateDots(table, diagramsDir, excludedColumns);
+		generateDots(table, diagramsDir, excludedColumns, impliedConstraints);
 
 		writeHeader(db, table, null, hasOrphans, out);
 		out.writeln("<table width='100%' border='0'>");
@@ -457,7 +459,7 @@ public class HtmlTablePage extends HtmlFormatter {
 	 * @return boolean <code>true</code> if the table has implied relatives within two
 	 *                 degrees of separation.
 	 */
-	private void generateDots(Table table, File diagramDir, Set<TableColumn> excludedColumns) throws IOException {
+	private void generateDots(Table table, File diagramDir, Set<TableColumn> excludedColumns, List<ImpliedForeignKeyConstraint> impliedConstraints) throws IOException {
 		File oneDegreeDotFile = new File(diagramDir, table.getName() + ".1degree.dot");
 		File oneDegreeDiagramFile = new File(diagramDir, table.getName() + ".1degree.png");
 		File twoDegreesDotFile = new File(diagramDir, table.getName() + ".2degrees.dot");
@@ -475,8 +477,6 @@ public class HtmlTablePage extends HtmlFormatter {
 		impliedDiagramFile.delete();
 
 		if (table.getMaxChildren() + table.getMaxParents() > 0) {
-			Set<ForeignKeyConstraint> impliedConstraints = fixme; // TODO: get impliedConstraints from somewhere sensible
-
 			DotFormatter formatter = DotFormatter.getInstance();
 			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
 			formatter.writeRealRelationships(table, false, excludedColumns, dotOut);
@@ -486,8 +486,7 @@ public class HtmlTablePage extends HtmlFormatter {
 			formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
 			dotOut.close();
 
-			// TODO: kill this write & delete hack
-			if (fixmeNochange) {
+			if (false) { // TODO: fix this hack, was deleting if now change. make it not write it in the first place
 				twoDegreesDotFile.delete(); // no different than before, so don't show it
 			}
 
