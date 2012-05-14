@@ -140,14 +140,7 @@ public class DbReader {
 				if (!validator.isValid(procName))
 					continue;
 				String procDefinition = rs.getString("definition");
-				//Change definition from CREATE to ALTER before saving
-				// - this is to make using scm .sql scripts manually easier.
-				//   A single change to CREATE the first time you use a proc
-				//   is easier than repeatedly changing to ALTER.
-				// - maybe make this a configurable option at some point.
-				Pattern p = Pattern.compile("^CREATE", Pattern.CASE_INSENSITIVE);
-				Matcher m = p.matcher(procDefinition);
-				procDefinition = m.replaceFirst("ALTER");
+				procDefinition = ConvertCreateToAlter(procDefinition);
 				Procedure proc = new Procedure(schema, procName, procDefinition);
 				if (logger.isLoggable(Level.FINE))
 					logger.fine("Read procedure definition '" + procName + "'");
@@ -188,14 +181,7 @@ public class DbReader {
 				if (!validator.isValid(functionName))
 					continue;
 				String functionDefinition = rs.getString("definition");
-				//Change definition from CREATE to ALTER before saving
-				// - this is to make using scm .sql scripts manually easier.
-				//   A single change to CREATE the first time you use a proc
-				//   is easier than repeatedly changing to ALTER.
-				// - maybe make this a configurable option at some point.
-				Pattern p = Pattern.compile("CREATE", Pattern.CASE_INSENSITIVE);
-				Matcher m = p.matcher(functionDefinition);
-				functionDefinition = m.replaceFirst("ALTER");
+				functionDefinition = ConvertCreateToAlter(functionDefinition);
 				Function proc = new Function(schema, functionName, functionDefinition);
 				if (logger.isLoggable(Level.FINE))
 					logger.fine("Read function definition '" + functionName + "'");
@@ -1111,9 +1097,7 @@ public class DbReader {
 		if (viewSql==null)
 			return null;
 		viewSql = viewSql.trim();
-		Pattern p = Pattern.compile("CREATE", Pattern.CASE_INSENSITIVE);
-		Matcher m = p.matcher(viewSql);
-		viewSql = m.replaceFirst("ALTER");
+		viewSql = ConvertCreateToAlter(viewSql);
 		if (viewSql.length()==0)
 			return null;
 		return viewSql;
@@ -1192,5 +1176,22 @@ public class DbReader {
 			System.err.println(exc);
 		}
 		return keywords;
+	}
+
+	/**
+	 * Change definition from CREATE to ALTER before saving - this is to make
+	 * using scm .sql scripts manually easier. A single change to CREATE the
+	 * first time you use a proc/function/view is easier than repeatedly
+	 * changing to ALTER.
+	 * TODO: maybe make this a configurable option at some point.
+	 *
+	 * @param sqlText
+	 *          the sql text
+	 * @return the string
+	 */
+	private String ConvertCreateToAlter(String sqlText) {
+		Pattern p = Pattern.compile("^CREATE", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+		Matcher m = p.matcher(sqlText);
+		return m.replaceFirst("ALTER");
 	}
 }
