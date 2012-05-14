@@ -56,7 +56,7 @@
 	</target>
 	<target name="javadoc" />
 	<target name="compile" depends="init">
-		<javac srcdir="${src}" includes="**/*.java" destdir="${dest}" debug="on" debuglevel="source,lines" source="1.5" target="1.5" classpathref="project.classpath" />
+		<javac srcdir="${src}" includes="**/*.java" destdir="${dest}" debug="on" debuglevel="source,vars,lines" source="1.5" target="1.5" classpathref="project.classpath" />
 	</target>
 
 	<target name="revision">
