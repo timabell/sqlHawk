@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -61,7 +62,7 @@ public class HtmlWriter {
 		String dotBaseFilespec = "relationships";
 		out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.compact.dot"), Config.DOT_CHARSET);
 		// set up column exclude list
-		Set<TableColumn> excludedColumns = EvilStatsStore.getExcludedColumns(tablesAndViews);
+		Set<TableColumn> excludedColumns = HtmlWriter.getExcludedColumns(tablesAndViews);
 
 		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		// TODO: get this from the metadata, not from the diagram tool output (facepalm):
@@ -173,5 +174,19 @@ public class HtmlWriter {
 		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
 		StyleSheet.getInstance().write(out);
 		out.close();
+	}
+
+	// TODO: move getExcludedColumns to right place
+	public static Set<TableColumn> getExcludedColumns(Collection<Table> tables) {
+		Set<TableColumn> excludedColumns = new HashSet<TableColumn>();
+	
+		for (Table table : tables) {
+			for (TableColumn column : table.getColumns()) {
+				if (column.isExcluded()) { // supplied extra xml meta data says ignore this column
+					excludedColumns.add(column);
+				}
+			}
+		}
+		return excludedColumns;
 	}
 }
