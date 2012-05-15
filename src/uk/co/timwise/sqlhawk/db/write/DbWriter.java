@@ -36,8 +36,7 @@ public class DbWriter {
 	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
 	public void write(Config config, Connection connection,
-			DatabaseMetaData meta, String dbName, String schema,
-			Database db, Database existingDb) throws Exception {
+			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
 		System.out.println();
 		System.out.println("Updating existing database...");
 		//add/update stored procs.

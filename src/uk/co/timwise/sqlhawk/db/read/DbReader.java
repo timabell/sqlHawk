@@ -63,13 +63,14 @@ public class DbReader {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
-	public Database Read(Config config, Connection connection, DatabaseMetaData meta, String name, String schema, SchemaMeta schemaMeta) throws SQLException, MissingResourceException {
+	public Database Read(Config config, Connection connection, DatabaseMetaData meta, SchemaMeta schemaMeta)
+			throws SQLException, MissingResourceException {
 		Properties properties = config.getDbType().getProps();
-		database = new Database(name, schema);
+		database = new Database(config.getDb(), config.getSchema());
 		database.setGeneratedDate(new Date());
 		this.connection = connection;
 		this.meta = meta;
-		this.schema = schema;
+		this.schema = config.getSchema();
 		database.setDescription(config.getDescription());
 		database.setDbms(getDatabaseProduct());
 		database.setKeywords(getKeywords(meta));

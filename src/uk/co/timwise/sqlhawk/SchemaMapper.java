@@ -114,7 +114,7 @@ public class SchemaMapper {
 	 * @throws Exception
 	 */
 	private Database analyze(Config config) throws Exception {
-		return readDb(config, config.getDb(), config.getSchema());
+		return readDb(config);
 	}
 
 	private boolean processMultipleSchemas(Config config, File outputDir)
@@ -140,59 +140,63 @@ public class SchemaMapper {
 		return false;
 	}
 
-	private Database readDb(Config config, String dbName, String schema)
+	private Database readDb(Config config)
 			throws Exception {
 		Connection connection = getConnection(config);
 		DatabaseMetaData meta = connection.getMetaData();
 
-		if (schema == null && meta.supportsSchemasInTableDefinitions() &&
-				!config.isSchemaDisabled()) {
-			schema = config.getUser();
-			if (schema == null)
-				throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
-			config.setSchema(schema);
-		}
+		setSchema(config, meta);
 
-		SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), dbName, schema);
+		SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), config.getDb(), config.getSchema());
 
 		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		if (schemaMeta != null && schemaMeta.getFile() != null) {
 			logger.info("Using additional metadata from " + schemaMeta.getFile());
 		}
-		//
+
 		// create our representation of the database
-		//
 		logger.info("Gathering schema details");
 		if (!fineEnabled)
 			System.out.println("Gathering schema details...");
 		DbReader reader = new DbReader();
-		Database db = reader.Read(config, connection, meta, dbName, schema, schemaMeta);
-		schemaMeta = null; // done with it so let GC reclaim it
+		Database db = reader.Read(config, connection, meta, schemaMeta);
 		return db;
+	}
+
+	/**
+	 * Sets the schema if supported.
+	 * If no schema specified then user is used for the schema.
+	 * Throws exception if both missing.
+	 *
+	 * @throws InvalidConfigurationException
+	 * @throws SQLException
+	 */
+	private void setSchema(Config config, DatabaseMetaData meta)
+			throws InvalidConfigurationException, SQLException {
+		if (config.getSchema() == null && meta.supportsSchemasInTableDefinitions() &&
+				!config.isSchemaDisabled()) {
+			if (config.getSchema() == null && config.getUser() == null) {
+				throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
+			}
+			config.setSchema(config.getUser()); // set the schema to the be the selected user
+		}
 	}
 
 	private void writeDb(Config config, Database db)
 			throws Exception {
 		Connection connection = getConnection(config);
 		DatabaseMetaData meta = connection.getMetaData();
-		String schema = db.getSchema();
-		String dbName = db.getName();
-		if (schema == null && meta.supportsSchemasInTableDefinitions() &&
-				!config.isSchemaDisabled()) {
-			schema = config.getUser();
-			if (schema == null)
-				throw new InvalidConfigurationException("Either a schema ('-s') or a user ('-u') must be specified");
-			config.setSchema(schema);
-		}
+		setSchema(config, meta);
+
 		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		logger.info("Gathering existing schema details");
 		if (!fineEnabled)
 			System.out.println("Gathering existing schema details...");
 		DbReader reader = new DbReader();
-		Database existingDb = reader.Read(config, connection, meta, dbName, schema, null);
+		Database existingDb = reader.Read(config, connection, meta, null);
 		System.out.println();
 		DbWriter writer = new DbWriter(); 
-		writer.write(config, connection, meta, dbName, schema, db, existingDb);
+		writer.write(config, connection, meta, db, existingDb);
 	}
 
 	private Connection getConnection(Config config)
