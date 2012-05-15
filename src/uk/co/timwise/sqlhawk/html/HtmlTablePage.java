@@ -486,7 +486,9 @@ public class HtmlTablePage extends HtmlFormatter {
 			formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
 			dotOut.close();
 
-			if (false) { // TODO: fix this hack, was deleting if now change. make it not write it in the first place
+			if (false) {
+				// TODO: fix this hack, was deleting 2-degree file if same as 1-degree.
+				//       make it not write it in the first place
 				twoDegreesDotFile.delete(); // no different than before, so don't show it
 			}
 
