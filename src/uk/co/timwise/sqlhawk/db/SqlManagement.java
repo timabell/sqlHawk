@@ -45,9 +45,20 @@ public class SqlManagement {
 	}
 
 	private static String ConvertAction(String sqlText, Convertion convertion) {
-		Pattern p = Pattern.compile("^CREATE", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-		Matcher m = p.matcher(sqlText);
-		return m.replaceFirst("ALTER");
+		Pattern pattern;
+		Matcher matcher;
+		switch (convertion){
+			case ToCreate:
+				pattern = Pattern.compile("^ALTER", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+				matcher = pattern.matcher(sqlText);
+				return matcher.replaceFirst("CREATE");
+			case ToAlter:
+				pattern = Pattern.compile("^CREATE", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+				matcher = pattern.matcher(sqlText);
+				return matcher.replaceFirst("ALTER");
+			default:
+				throw new IllegalArgumentException();
+		}
 	}
 
 	private enum Convertion {
