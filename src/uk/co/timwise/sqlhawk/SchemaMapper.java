@@ -83,8 +83,12 @@ public class SchemaMapper {
 		Database db = null;
 		if (config.isDatabaseInputEnabled())
 			db = analyze(config);
-		if (config.isScmInputEnabled())
+		if (config.isScmInputEnabled()) {
+			if (db != null) {
+				throw new Exception("Multiple inputs specified");
+			}
 			db = ScmDbReader.Load(config, config.getTargetDir());
+		}
 		if (db==null)
 			throw new Exception("No database information has been read. Make sure you set a read flag.");
 		//========= schema writing code ============
