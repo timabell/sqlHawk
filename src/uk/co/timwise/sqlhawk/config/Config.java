@@ -177,6 +177,7 @@ public class Config
 				//options for writing delete/insert order
 				new Switch("ordering-output", JSAP.NO_SHORTFLAG, "ordering-output", "Generate text files containing read/write order of tables that will work give current constraints. Useful for creating insert/delete scripts."),
 				//options for writing to a database
+				new Switch("initialize-tracking", JSAP.NO_SHORTFLAG, "initialize-tracking", "Creates the tracking table 'SqlHawk_UpgradeLog' that SqlHawk uses to determine if upgrade scripts have already been run."),
 				new Switch("database-output", JSAP.NO_SHORTFLAG, "database-output", "Write schema to a database / dbms. RISK OF DATA LOSS! TAKE BACKUPS FIRST!"),
 				new Switch("dry-run", JSAP.NO_SHORTFLAG, "dry-run", "Dry run. Don't actually write changes to the database."),
 				//options for reading extra metadata
