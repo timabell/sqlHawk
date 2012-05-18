@@ -15,14 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.db.write;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.SqlManagement;
@@ -94,6 +97,14 @@ public class DbWriter {
 				if (!config.isDryRun())
 					connection.prepareStatement("DROP PROCEDURE " + procName).execute();
 			}
+		}
+	}
+
+	public void initializeLog(Connection connection, Config config) throws SQLException, InvalidConfigurationException, IOException {
+		Properties properties = config.getDbType().getProps();
+		String upgradeLogTableSql = properties.getProperty("upgradeLogTable");
+		if (!config.isDryRun()) {
+			connection.prepareStatement(upgradeLogTableSql).execute();
 		}
 	}
 }

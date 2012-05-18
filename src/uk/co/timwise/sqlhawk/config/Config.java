@@ -561,8 +561,9 @@ public class Config
 	/**
 	 * Maximum number of threads to use when querying database metadata information.
 	 * @throws InvalidConfigurationException if unable to load properties
+	 * @throws IOException
 	 */
-	public int getMaxDbThreads() throws InvalidConfigurationException {
+	public int getMaxDbThreads() throws InvalidConfigurationException, IOException {
 		if (maxDbThreads == null) {
 			Properties properties = getDbProperties();
 			int max = Integer.MAX_VALUE;
@@ -930,15 +931,12 @@ public class Config
 		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
 	}
 
-	public Properties getDbProperties() {
-		if (dbType == null) {
-			return null;
-		}
+	public Properties getDbProperties() throws InvalidConfigurationException, IOException {
 		return getDbType().getProps();
 	}
 	
 
-	public String getDbPropertiesLoadedFrom() {
+	public String getDbPropertiesLoadedFrom() throws InvalidConfigurationException, IOException {
 		return getDbType().getDbPropertiesLoadedFrom();
 	}
 
@@ -1040,30 +1038,11 @@ public class Config
 		return jsapConfig.getBoolean("dry-run");
 	}
 
-	public DbType getDbType() {
+	public DbType getDbType() throws InvalidConfigurationException, IOException {
+		if (dbType == null) {
+			dbType = DbType.getDbType(getDbTypeName());
+		}
 		return dbType;
-	}
-
-	public void setDbType(DbType dbType) {
-		this.dbType = dbType;
-	}
-
-	/**
-	 * @param type database type for which to load configuration
-	 * @throws IOException
-	 * @throws InvalidConfigurationException if db properties are incorrectly formed
-	 */
-	public void loadDbType() throws InvalidConfigurationException, IOException {
-		setDbType(DbType.getDbType(getDbTypeName()));
-	}
-
-	/**
-	 * @param type database type to load configuration for
-	 * @throws IOException
-	 * @throws InvalidConfigurationException if db properties are incorrectly formed
-	 */
-	public void loadDbType(String type) throws InvalidConfigurationException, IOException {
-		setDbType(DbType.getDbType(type));
 	}
 
 	public boolean isIntializeLogEnabled() {

@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.db.read;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -64,7 +65,7 @@ public class DbReader {
 	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
 	public Database Read(Config config, Connection connection, DatabaseMetaData meta, SchemaMeta schemaMeta)
-			throws SQLException, MissingResourceException {
+			throws SQLException, MissingResourceException, InvalidConfigurationException, IOException {
 		Properties properties = config.getDbType().getProps();
 		database = new Database(config.getDb(), config.getSchema());
 		database.setGeneratedDate(new Date());
@@ -217,9 +218,11 @@ public class DbReader {
 	 * @param properties
 	 * @param config
 	 * @throws SQLException
+	 * @throws IOException
+	 * @throws InvalidConfigurationException
 	 */
 	private void initTables(final DatabaseMetaData metadata, final Properties properties,
-			final Config config) throws SQLException {
+			final Config config) throws SQLException, InvalidConfigurationException, IOException {
 		final Pattern include = config.getTableInclusions();
 		final Pattern exclude = config.getTableExclusions();
 		final int maxThreads = config.getMaxDbThreads();

@@ -77,9 +77,6 @@ public class SchemaMapper {
 		}
 		//if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
 		//	return false; //probably checking and tidying up.
-		if (config.isDatabaseInputEnabled() || config.isDatabaseOutputEnabled()){
-			config.loadDbType();
-		}
 		Database db = null;
 		if (config.isDatabaseInputEnabled())
 			db = analyze(config);
@@ -90,7 +87,7 @@ public class SchemaMapper {
 			db = ScmDbReader.Load(config, config.getTargetDir());
 		}
 		if (db==null)
-			throw new Exception("No database information has been read. Make sure you set a read flag.");
+			logger.warning("No database information has been read. Set a read flag in the command line arguments if required.");
 		//========= schema writing code ============
 		if (config.isHtmlGenerationEnabled()) {
 			new HtmlWriter().writeHtml(config, db, fineEnabled);
@@ -101,6 +98,9 @@ public class SchemaMapper {
 			xmlWriter.writeXml(config.getTargetDir(), db);
 		if (config.isOrderingOutputEnabled())
 			writeOrderingFiles(config.getTargetDir(), db);
+		if (config.isIntializeLogEnabled()) {
+			initializeLog(config);
+		}
 		if (config.isDatabaseOutputEnabled()) {
 			db.setSchema(config.getSchema());
 			writeDb(config, db);
@@ -184,6 +184,15 @@ public class SchemaMapper {
 			}
 			config.setSchema(config.getUser()); // set the schema to the be the selected user
 		}
+	}
+
+	private void initializeLog(Config config)
+			throws Exception {
+		Connection connection = getConnection(config);
+		logger.info("Connected to " + config.getDb());
+		logger.info("Initializing tracking log table...");
+		DbWriter writer = new DbWriter();
+		writer.initializeLog(connection, config);
 	}
 
 	private void writeDb(Config config, Database db)
