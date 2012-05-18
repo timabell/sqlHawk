@@ -1065,4 +1065,8 @@ public class Config
 	public void loadDbType(String type) throws InvalidConfigurationException, IOException {
 		setDbType(DbType.getDbType(type));
 	}
+
+	public boolean isIntializeLogEnabled() {
+		return jsapConfig.getBoolean("initialize-tracking");
+	}
 }
