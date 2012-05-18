@@ -43,12 +43,31 @@ public class DbWriter {
 		System.out.println();
 		System.out.println("Updating existing database...");
 		//add/update stored procs.
+		if (db.getProcs().isEmpty()){
+			logger.warning("No procedures requested, skipping stored procedure update.");
+		} else {
+			updateProcs(config, connection, db, existingDb);
+		}
+	}
+
+	/**
+	 * Update procs in target db to match contents of "db".
+	 *
+	 * @param config the config
+	 * @param connection the connection
+	 * @param db the db
+	 * @param existingDb the existing db
+	 * @throws Exception the exception
+	 * @throws SQLException the sQL exception
+	 */
+	private void updateProcs(Config config, Connection connection, Database db, Database existingDb) throws Exception,
+			SQLException {
 		if (fineEnabled)
 			logger.fine("Adding/updating stored procedures...");
+		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		final Pattern include = config.getProcedureInclusions();
 		final Pattern exclude = config.getProcedureExclusions();
 		NameValidator validator = new NameValidator("procedure", include, exclude, null);
-		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		for (Procedure updatedProc : db.getProcs()){
 			String procName = updatedProc.getName();
 			if (!validator.isValid(procName))

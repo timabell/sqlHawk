@@ -37,10 +37,10 @@ public class ScmDbReader {
 
 	private static Map<String, Procedure> readProcs(File inputDir) throws Exception{
 		File procFolder = new File(inputDir, "Procedures");
-		if (!procFolder.isDirectory())
-			throw new Exception("input folder not found");
-		File[] files = procFolder.listFiles();
 		Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
+		if (!procFolder.isDirectory())
+			return procs; //nothing to do
+		File[] files = procFolder.listFiles();
 		for(File file : files){
 			if (!file.getName().endsWith(".sql")) //skip non sql files
 				continue;
