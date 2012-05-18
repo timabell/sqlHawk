@@ -35,6 +35,9 @@ public class DbSpecificConfig {
 	 * @param dbType
 	 */
 	public DbSpecificConfig(DbType dbType) {
+		if (dbType == null) {
+			throw new IllegalArgumentException("DbType missing when loading DbSpecificConfig.");
+		}
 		this.dbType = dbType;
 		loadOptions();
 	}
