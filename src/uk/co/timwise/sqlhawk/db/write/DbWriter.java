@@ -15,6 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.db.write;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -25,6 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
@@ -32,6 +35,7 @@ import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Procedure;
+import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
 public class DbWriter {
@@ -124,6 +128,31 @@ public class DbWriter {
 		String upgradeLogTableSql = properties.getProperty("upgradeLogTable");
 		if (!config.isDryRun()) {
 			connection.prepareStatement(upgradeLogTableSql).execute();
+		}
+	}
+
+	public void runUpgradeScripts(Config config, Connection connection,
+			DatabaseMetaData meta) throws Exception {
+		File scriptFolder = new File(config.getTargetDir(), "UpgradeScripts");
+		if (!scriptFolder.isDirectory()) {
+			logger.warning("Upgrade script directory '" + scriptFolder + "' not found. Skipping upgrade scripts.");
+			return;
+		}
+		File[] files = scriptFolder.listFiles();
+		// TODO: sort upgrade scripts by filename, paying attention to numbers at start
+		// TODO: handle subfolders
+		for(File file : files){
+			if (!file.getName().endsWith(".sql")) //skip non sql files
+				continue;
+			String definition = FileHandling.readFile(file);
+			// TODO: see if the script has already been run
+			if (!config.isDryRun()) {
+				try {
+					connection.prepareStatement(definition).execute();
+				} catch (Exception ex) {
+					throw new Exception("Failed to run upgrade script '" + file + "'.", ex);
+				}
+			}
 		}
 	}
 }

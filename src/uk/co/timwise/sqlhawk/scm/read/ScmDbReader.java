@@ -15,16 +15,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.scm.read;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Map;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Procedure;
 import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
+import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
 public class ScmDbReader {
@@ -46,24 +44,10 @@ public class ScmDbReader {
 				continue;
 			String name = file.getName();
 			name = name.substring(0, name.length()-4);// trim extension from filename
-			String definition = readFile(file);
+			String definition = FileHandling.readFile(file);
 			Procedure proc = new Procedure(null, name, definition);
 			procs.put(name, proc);
 		}
 		return procs;
 	}
-
-	private static String readFile( File file ) throws IOException {
-		//http://stackoverflow.com/questions/326390/how-to-create-a-java-string-from-the-contents-of-a-file
-		BufferedReader reader = new BufferedReader( new FileReader (file));
-		String line  = null;
-		StringBuilder stringBuilder = new StringBuilder();
-		String ls = System.getProperty("line.separator");
-		while( ( line = reader.readLine() ) != null ) {
-			stringBuilder.append( line );
-			stringBuilder.append( ls );
-		}
-		return stringBuilder.toString();
-	}
-
 }

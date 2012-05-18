@@ -210,6 +210,7 @@ public class SchemaMapper {
 		System.out.println();
 		DbWriter writer = new DbWriter(); 
 		writer.write(config, connection, meta, db, existingDb);
+		writer.runUpgradeScripts(config, connection, meta);
 	}
 
 	private Connection getConnection(Config config)
