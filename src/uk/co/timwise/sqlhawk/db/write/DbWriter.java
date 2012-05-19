@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -141,7 +142,8 @@ public class DbWriter {
 			logger.warning("Upgrade script directory '" + scriptFolder + "' not found. Skipping upgrade scripts.");
 			return;
 		}
-		runScriptDirectory(config, connection, scriptFolder);
+		String batch = config.getBatch();
+		runScriptDirectory(config, connection, scriptFolder, batch);
 	}
 
 	/**
@@ -150,10 +152,11 @@ public class DbWriter {
 	 * @param config the config
 	 * @param connection the connection
 	 * @param scriptFolder the script folder
+	 * @param batch string to tie all the scripts together with in the upgrade log table
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws Exception the exception
 	 */
-	private void runScriptDirectory(Config config, Connection connection, File scriptFolder) throws IOException,
+	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch) throws IOException,
 			Exception {
 		File[] files = scriptFolder.listFiles();
 		Arrays.sort(files, new Comparator<File>() {
@@ -183,7 +186,7 @@ public class DbWriter {
 		for(File file : files){
 			if (file.isDirectory()) {
 				logger.fine("Processing script directory '" + file + "'...");
-				runScriptDirectory(config, connection, file);
+				runScriptDirectory(config, connection, file, batch);
 			}
 			if (!file.getName().endsWith(".sql")) //skip non sql files
 				continue;
@@ -195,6 +198,15 @@ public class DbWriter {
 					connection.prepareStatement(definition).execute();
 				} catch (Exception ex) {
 					throw new Exception("Failed to run upgrade script '" + file + "'.", ex);
+				}
+				try {
+					PreparedStatement log = connection.prepareStatement(
+							"INSERT INTO SqlHawk_UpgradeLog (Batch, ScriptPath) VALUES (?, ?);");
+					log.setString(1, batch);
+					log.setString(2, file.toString());
+					log.execute();
+				} catch (Exception ex) {
+					throw new Exception("INSERT INTO SqlHawk_UpgradeLog failed.", ex);
 				}
 			}
 		}
