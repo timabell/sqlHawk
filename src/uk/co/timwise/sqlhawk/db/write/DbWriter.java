@@ -45,6 +45,7 @@ import uk.co.timwise.sqlhawk.util.FileHandling;
 public class DbWriter {
 	private final static Logger logger = Logger.getLogger(TableReader.class.getName());
 	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
+	private String upgradeLogInsertSql;
 
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
@@ -143,6 +144,8 @@ public class DbWriter {
 			return;
 		}
 		String batch = config.getBatch();
+		Properties properties = config.getDbType().getProps();
+		upgradeLogInsertSql = properties.getProperty("upgradeLogInsert");
 		runScriptDirectory(config, connection, scriptFolder, batch);
 	}
 
@@ -200,8 +203,7 @@ public class DbWriter {
 					throw new Exception("Failed to run upgrade script '" + file + "'.", ex);
 				}
 				try {
-					PreparedStatement log = connection.prepareStatement(
-							"INSERT INTO SqlHawk_UpgradeLog (Batch, ScriptPath) VALUES (?, ?);");
+					PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
 					log.setString(1, batch);
 					log.setString(2, file.toString());
 					log.execute();
