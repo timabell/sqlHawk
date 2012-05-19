@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
@@ -156,13 +157,26 @@ public class DbWriter {
 			Exception {
 		File[] files = scriptFolder.listFiles();
 		Arrays.sort(files, new Comparator<File>() {
+			Pattern fileNumbers = Pattern.compile("^([0-9]+)(.*)");
 			@Override
 			public int compare(File o1, File o2) {
 				if (o1.isDirectory() ^ o2.isDirectory()){
 					// run directories last
 					return o1.isDirectory() ? 1 : -1;
 				}
-				return o1.getName().compareTo(o2.getName());
+				Matcher o1Number = fileNumbers.matcher(o1.getName());
+				Matcher o2Number = fileNumbers.matcher(o2.getName());
+				if (!o1Number.find() || !o2Number.find()) {
+					// not both numeric, so simple string compare
+					return o1.getName().compareTo(o2.getName());
+				}
+				Integer o1n = Integer.parseInt(o1Number.group(1));
+				Integer o2n = Integer.parseInt(o2Number.group(1));
+				if (o1n != o2n) {
+					return o1n.compareTo(o2n);
+				}
+				// same number, compare rest of script (avoiding leading zero differences)
+				return o1Number.group(2).compareTo(o2Number.group(2));
 			}
 		});
 		// TODO: sort upgrade scripts by filename, paying attention to numbers at start
