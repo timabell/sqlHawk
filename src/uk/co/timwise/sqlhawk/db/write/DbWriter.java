@@ -138,16 +138,34 @@ public class DbWriter {
 			logger.warning("Upgrade script directory '" + scriptFolder + "' not found. Skipping upgrade scripts.");
 			return;
 		}
+		runScriptDirectory(config, connection, scriptFolder);
+	}
+
+	/**
+	 * Recursively run all the upgrade scripts in a directory.
+	 *
+	 * @param config the config
+	 * @param connection the connection
+	 * @param scriptFolder the script folder
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws Exception the exception
+	 */
+	private void runScriptDirectory(Config config, Connection connection, File scriptFolder) throws IOException,
+			Exception {
 		File[] files = scriptFolder.listFiles();
 		// TODO: sort upgrade scripts by filename, paying attention to numbers at start
-		// TODO: handle subfolders
 		for(File file : files){
+			if (file.isDirectory()) {
+				logger.fine("Processing script directory '" + file + "'...");
+				runScriptDirectory(config, connection, file);
+			}
 			if (!file.getName().endsWith(".sql")) //skip non sql files
 				continue;
 			String definition = FileHandling.readFile(file);
 			// TODO: see if the script has already been run
 			if (!config.isDryRun()) {
 				try {
+					logger.info("Running upgrade script '" + file + "'...");
 					connection.prepareStatement(definition).execute();
 				} catch (Exception ex) {
 					throw new Exception("Failed to run upgrade script '" + file + "'.", ex);
