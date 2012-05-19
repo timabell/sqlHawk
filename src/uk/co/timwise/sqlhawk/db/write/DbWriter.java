@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -153,6 +155,16 @@ public class DbWriter {
 	private void runScriptDirectory(Config config, Connection connection, File scriptFolder) throws IOException,
 			Exception {
 		File[] files = scriptFolder.listFiles();
+		Arrays.sort(files, new Comparator<File>() {
+			@Override
+			public int compare(File o1, File o2) {
+				if (o1.isDirectory() ^ o2.isDirectory()){
+					// run directories last
+					return o1.isDirectory() ? 1 : -1;
+				}
+				return o1.getName().compareTo(o2.getName());
+			}
+		});
 		// TODO: sort upgrade scripts by filename, paying attention to numbers at start
 		for(File file : files){
 			if (file.isDirectory()) {
