@@ -215,7 +215,11 @@ public class DbWriter {
 				}
 				try {
 					logger.info("Running upgrade script '" + file + "'...");
-					connection.prepareStatement(definition).execute();
+					String[] splitSql = definition.split("GO");
+					for (String sql : splitSql) {
+						logger.finest("Running upgrade script batch\n" + sql);
+						connection.prepareStatement(sql).execute();
+					}
 				} catch (Exception ex) {
 					throw new Exception("Failed to run upgrade script '" + file + "'.", ex);
 				}
