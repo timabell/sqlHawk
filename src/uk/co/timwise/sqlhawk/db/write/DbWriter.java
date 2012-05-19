@@ -146,7 +146,8 @@ public class DbWriter {
 		String batch = config.getBatch();
 		Properties properties = config.getDbType().getProps();
 		upgradeLogInsertSql = properties.getProperty("upgradeLogInsert");
-		runScriptDirectory(config, connection, scriptFolder, batch);
+		int strip = scriptFolder.toString().length() + 1; // remove base path + trailing slash
+		runScriptDirectory(config, connection, scriptFolder, batch, strip);
 	}
 
 	/**
@@ -156,10 +157,11 @@ public class DbWriter {
 	 * @param connection the connection
 	 * @param scriptFolder the script folder
 	 * @param batch string to tie all the scripts together with in the upgrade log table
+	 * @param strip number of chars to remove from paths when logging
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws Exception the exception
 	 */
-	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch) throws IOException,
+	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch, int strip) throws IOException,
 			Exception {
 		File[] files = scriptFolder.listFiles();
 		Arrays.sort(files, new Comparator<File>() {
@@ -189,7 +191,7 @@ public class DbWriter {
 		for(File file : files){
 			if (file.isDirectory()) {
 				logger.fine("Processing script directory '" + file + "'...");
-				runScriptDirectory(config, connection, file, batch);
+				runScriptDirectory(config, connection, file, batch, strip);
 			}
 			if (!file.getName().endsWith(".sql")) //skip non sql files
 				continue;
@@ -205,7 +207,7 @@ public class DbWriter {
 				try {
 					PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
 					log.setString(1, batch);
-					log.setString(2, file.toString());
+					log.setString(2, file.toString().substring(strip));
 					log.execute();
 				} catch (Exception ex) {
 					throw new Exception("INSERT INTO SqlHawk_UpgradeLog failed.", ex);
