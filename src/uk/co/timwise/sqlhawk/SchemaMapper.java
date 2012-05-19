@@ -209,8 +209,8 @@ public class SchemaMapper {
 		Database existingDb = reader.Read(config, connection, meta, null);
 		System.out.println();
 		DbWriter writer = new DbWriter(); 
-		writer.write(config, connection, meta, db, existingDb);
 		writer.runUpgradeScripts(config, connection, meta);
+		writer.write(config, connection, meta, db, existingDb);
 	}
 
 	private Connection getConnection(Config config)
