@@ -31,8 +31,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
