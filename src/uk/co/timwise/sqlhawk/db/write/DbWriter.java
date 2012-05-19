@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -46,6 +47,7 @@ public class DbWriter {
 	private final static Logger logger = Logger.getLogger(TableReader.class.getName());
 	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 	private String upgradeLogInsertSql;
+	private String upgradeLogFindSql;
 
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
@@ -146,6 +148,7 @@ public class DbWriter {
 		String batch = config.getBatch();
 		Properties properties = config.getDbType().getProps();
 		upgradeLogInsertSql = properties.getProperty("upgradeLogInsert");
+		upgradeLogFindSql = properties.getProperty("upgradeLogFind");
 		int strip = scriptFolder.toString().length() + 1; // remove base path + trailing slash
 		runScriptDirectory(config, connection, scriptFolder, batch, strip);
 	}
@@ -195,9 +198,23 @@ public class DbWriter {
 			}
 			if (!file.getName().endsWith(".sql")) //skip non sql files
 				continue;
+			String relativePath = file.toString().substring(strip);
 			String definition = FileHandling.readFile(file);
 			// TODO: see if the script has already been run
 			if (!config.isDryRun()) {
+				try {
+					PreparedStatement log = connection.prepareStatement(upgradeLogFindSql);
+					log.setString(1, relativePath);
+					log.execute();
+					ResultSet resultSet = log.getResultSet();
+					if (resultSet.next()) { // existing record of this script found in log
+						int upgradeId = resultSet.getInt(1);
+						logger.fine("Script '" + file + "' already run. UpgradeId " + upgradeId);
+						continue;
+					}
+				} catch (Exception ex) {
+					throw new Exception("SELECT FROM SqlHawk_UpgradeLog failed.", ex);
+				}
 				try {
 					logger.info("Running upgrade script '" + file + "'...");
 					connection.prepareStatement(definition).execute();
@@ -207,7 +224,7 @@ public class DbWriter {
 				try {
 					PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
 					log.setString(1, batch);
-					log.setString(2, file.toString().substring(strip));
+					log.setString(2, relativePath);
 					log.execute();
 				} catch (Exception ex) {
 					throw new Exception("INSERT INTO SqlHawk_UpgradeLog failed.", ex);
