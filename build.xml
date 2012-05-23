@@ -37,6 +37,8 @@
 		<jar compress="true" destfile="${dist}/sqlHawk-${git.version}_source.jar">
 			<fileset dir="${src}" />
 		</jar>
+		<delete file="${dist}/sqlHawk.jar" failonerror="false" />
+		<symlink link="${dist}/sqlHawk.jar" resource="sqlHawk-${git.version}.jar"/>
 	</target>
 	<target name="clean">
 		<delete dir="${dist}" includeEmptyDirs="true" failonerror="false" />
