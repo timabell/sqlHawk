@@ -189,6 +189,7 @@ public class DbWriter {
 			}
 		});
 		// TODO: sort upgrade scripts by filename, paying attention to numbers at start
+		Pattern batchSplitter = Pattern.compile("^GO", Pattern.MULTILINE);  // split where GO on its own on a line
 		for(File file : files){
 			if (file.isDirectory()) {
 				logger.fine("Processing script directory '" + file + "'...");
@@ -215,7 +216,10 @@ public class DbWriter {
 				}
 				try {
 					logger.info("Running upgrade script '" + file + "'...");
-					String[] splitSql = definition.split("GO");
+					// Split into batches similar to the sql server tools,this makes
+					// management of scripts easier as you can include a reference to a
+					// new table in the same sql file as the create statement.
+					String[] splitSql = batchSplitter.split(definition);
 					for (String sql : splitSql) {
 						logger.finest("Running upgrade script batch\n" + sql);
 						connection.prepareStatement(sql).execute();
