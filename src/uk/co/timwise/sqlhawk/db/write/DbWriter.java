@@ -235,7 +235,7 @@ public class DbWriter {
 						continue;
 					}
 				} catch (Exception ex) {
-					throw new Exception("SELECT FROM SqlHawk_UpgradeLog failed.", ex);
+					throw new Exception("Reading table SqlHawk_UpgradeLog failed, use --initialize-tracking before first run.", ex);
 				}
 				try {
 					logger.info("Running upgrade script '" + file + "'...");
