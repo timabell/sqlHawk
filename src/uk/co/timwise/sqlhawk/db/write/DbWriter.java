@@ -148,7 +148,30 @@ public class DbWriter {
 		upgradeLogInsertSql = properties.getProperty("upgradeLogInsert");
 		upgradeLogFindSql = properties.getProperty("upgradeLogFind");
 		int strip = scriptFolder.toString().length() + 1; // remove base path + trailing slash
-		runScriptDirectory(config, connection, scriptFolder, batch, strip);
+		boolean useTransactions = meta.supportsTransactions();
+		boolean savedTransactionsSetting = false;
+		if (useTransactions) {
+			logger.fine("Starting transaction for scripted update...");
+			savedTransactionsSetting = connection.getAutoCommit();
+			connection.setAutoCommit(false);
+		} else {
+			logger.fine("Transactions not supported by this db type. Transactions will not be used.");
+		}
+		try {
+			runScriptDirectory(config, connection, scriptFolder, batch, strip);
+			if (useTransactions) {
+				logger.fine("Committing scripted update transaction...");
+				connection.commit();
+				connection.setAutoCommit(savedTransactionsSetting);
+			}
+		} catch (Exception ex) {
+			if (useTransactions) {
+				logger.fine("Rolling back scripted update transaction...");
+				connection.rollback();
+				connection.setAutoCommit(savedTransactionsSetting);
+			}
+			throw ex;
+		}
 	}
 
 	/**
