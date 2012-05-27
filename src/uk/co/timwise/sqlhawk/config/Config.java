@@ -883,12 +883,13 @@ public class Config
 	 * @param logLevel
 	 */
 	public void setLogLevel(String logLevel) {
-		if (logLevel == null) {
-			this.logLevel = Level.WARNING;
+		if (logLevel == null || logLevel.isEmpty()) {
+			this.logLevel = Level.INFO; // default log level
 			return;
 		}
 
 		Map<String, Level> levels = new LinkedHashMap<String, Level>();
+		levels.put("all", Level.ALL);
 		levels.put("severe", Level.SEVERE);
 		levels.put("warning", Level.WARNING);
 		levels.put("info", Level.INFO);
@@ -896,6 +897,7 @@ public class Config
 		levels.put("fine", Level.FINE);
 		levels.put("finer", Level.FINER);
 		levels.put("finest", Level.FINEST);
+		levels.put("off", Level.OFF);
 
 		this.logLevel = levels.get(logLevel.toLowerCase());
 		if (this.logLevel == null) {
