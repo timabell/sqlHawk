@@ -43,14 +43,12 @@ import uk.co.timwise.sqlhawk.util.FileHandling;
 
 public class DbWriter {
 	private final static Logger logger = Logger.getLogger(TableReader.class.getName());
-	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 	private String upgradeLogInsertSql;
 	private String upgradeLogFindSql;
 
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
-		System.out.println();
-		System.out.println("Updating existing database...");
+		logger.info("Updating existing database...");
 		//add/update stored procs.
 		if (db.getProcs().isEmpty()){
 			logger.warning("No procedures requested, skipping stored procedure update.");
@@ -71,8 +69,7 @@ public class DbWriter {
 	 */
 	private void updateProcs(Config config, Connection connection, Database db, Database existingDb) throws Exception,
 			SQLException {
-		if (fineEnabled)
-			logger.fine("Adding/updating stored procedures...");
+		logger.fine("Adding/updating stored procedures...");
 		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		final Pattern include = config.getProcedureInclusions();
 		final Pattern exclude = config.getProcedureExclusions();
@@ -81,15 +78,13 @@ public class DbWriter {
 			String procName = updatedProc.getName();
 			if (!validator.isValid(procName))
 				continue;
-			if (fineEnabled)
-				logger.finest("Processing proc " + procName);
+			logger.finest("Processing proc " + procName);
 			String updatedDefinition = updatedProc.getDefinition();
 			if (existingProcs.containsKey(procName)) {
 				//check if definitions match
 				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition()))
 					continue; //already up to date, move on to next proc.
-				if (fineEnabled)
-					logger.fine("Updating existing proc " + procName);
+				logger.fine("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.
 				String updateSql = SqlManagement.ConvertCreateToAlter(updatedDefinition);
 				try {
@@ -100,8 +95,7 @@ public class DbWriter {
 					throw new Exception("Error updating proc " + procName, ex);
 				}
 			} else { //new proc
-				if (fineEnabled)
-					logger.fine("Adding new proc " + procName);
+				logger.fine("Adding new proc " + procName);
 				String createSql = SqlManagement.ConvertAlterToCreate(updatedDefinition);
 				try {
 					if (!config.isDryRun())
@@ -112,16 +106,13 @@ public class DbWriter {
 				}
 			}
 		}
-		if (fineEnabled)
-			logger.fine("Deleting unwanted stored procedures...");
+		logger.fine("Deleting unwanted stored procedures...");
 		Map<String, Procedure> updatedProcs = db.getProcMap();
 		for (Procedure existingProc : existingProcs.values()){
 			String procName = existingProc.getName();
-			if (fineEnabled)
-				logger.finest("Checking if proc " + procName + " needs dropping...");
+			logger.finest("Checking if proc " + procName + " needs dropping...");
 			if (!updatedProcs.containsKey(procName)){
-				if (fineEnabled)
-					logger.fine("Dropping unwanted proc " + procName);
+				logger.fine("Dropping unwanted proc " + procName);
 				if (!config.isDryRun())
 					connection.prepareStatement("DROP PROCEDURE " + procName).execute();
 			}

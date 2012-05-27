@@ -33,7 +33,6 @@ public class NameValidator {
 	private final Pattern exclude;
 	private final Set<String> validTypes;
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
 	/**
 	 * @param clazz table or view
@@ -73,40 +72,32 @@ public class NameValidator {
 		//some databases (MySQL) return more types of object than we wanted
 		//these can be filtered out with a validTypes list.
 		if (validTypes!=null && type!=null && !validTypes.contains(type.toUpperCase())){
-			if (fineEnabled) {
-				logger.finest("Excluding " + clazz + " " + name +
+			logger.finest("Excluding " + clazz + " " + name +
 						": unwanted object type");
-			}
 			return false;
 		}
 
 		// Oracle 10g introduced problematic flashback tables
 		// with bizarre illegal names
 		if (name.indexOf("$") != -1) {
-			if (fineEnabled) {
-				logger.finest("Excluding " + clazz + " " + name +
-						": embedded $ implies illegal name");
-			}
+			logger.finest("Excluding " + clazz + " " + name +
+					": embedded $ implies illegal name");
 			return false;
 		}
 
 		if (exclude.matcher(name).matches()) {
-			if (fineEnabled) {
-				logger.finest("Excluding " + clazz + " " + name +
-						": matches exclusion pattern \"" + exclude + '"');
-			}
+			logger.finest("Excluding " + clazz + " " + name +
+					": matches exclusion pattern \"" + exclude + '"');
 			return false;
 		}
 
 		boolean valid = include.matcher(name).matches();
-		if (fineEnabled) {
-			if (valid) {
-				logger.finest("Including " + clazz + " " + name +
-						": matches inclusion pattern \"" + include + '"');
-			} else {
-				logger.finest("Excluding " + clazz + " " + name +
-						": doesn't match inclusion pattern \"" + include + '"');
-			}
+		if (valid) {
+			logger.finest("Including " + clazz + " " + name +
+					": matches inclusion pattern \"" + include + '"');
+		} else {
+			logger.finest("Excluding " + clazz + " " + name +
+					": doesn't match inclusion pattern \"" + include + '"');
 		}
 		return valid;
 	}

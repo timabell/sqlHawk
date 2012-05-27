@@ -62,7 +62,6 @@ public class DbReader {
 	private String schema;
 	private Set<String> sqlKeywords;
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
 	public Database Read(Config config, Connection connection, DatabaseMetaData meta, SchemaMeta schemaMeta)
 			throws SQLException, MissingResourceException, InvalidConfigurationException, IOException {
@@ -77,52 +76,52 @@ public class DbReader {
 		database.setKeywords(getKeywords(meta));
 		if (config.isTableProcessingEnabled())
 		{
-			System.out.print("Reading tables from db...");
+			logger.info("Reading tables from db...");
 			initTables(meta, properties, config);
-			System.out.println("Reading constraints from db...");
+			logger.info("Reading constraints from db...");
 			initCheckConstraints(properties);
-			System.out.println("Reading table ids from db...");
+			logger.info("Reading table ids from db...");
 			initTableIds(properties);
-			System.out.println("Reading table indexes from db...");
+			logger.info("Reading table indexes from db...");
 			initIndexIds(properties);
-			System.out.println("Reading table comments from db...");
+			logger.info("Reading table comments from db...");
 			initTableComments(properties);
-			System.out.println("Reading table column comments from db...");
+			logger.info("Reading table column comments from db...");
 			initTableColumnComments(properties);
-			System.out.println("Reading relationships from db...");
+			logger.info("Reading relationships from db...");
 			connectTables();
 		}
 		if (config.isViewsEnabled()) {
-			System.out.print("Reading views from db...");
+			logger.info("Reading views from db...");
 			initViews(meta, properties, config);
-			System.out.println("Reading view comments from db...");
+			logger.info("Reading view comments from db...");
 			initViewComments(properties);
-			System.out.println("Reading view column comments from db...");
+			logger.info("Reading view column comments from db...");
 			initViewColumnComments(properties);
-			System.out.println("Reading view definitions from db...");
+			logger.info("Reading view definitions from db...");
 			initViewSql(properties);
 		}
-		System.out.println("Reading procedures from db...");
+		logger.info("Reading procedures from db...");
 		initStoredProcedures(properties, config);
-		System.out.println("Reading functions from db...");
+		logger.info("Reading functions from db...");
 		initFunctions(properties, config);
-		System.out.println("Reading additional data from xml...");
+		logger.info("Reading additional data from xml...");
 		updateFromXmlMetadata(schemaMeta);
-		System.out.println("Done Reading db.");
+		logger.info("Done Reading db.");
 		return database;
 	}
 
 	private void initViewSql(Properties properties) throws SQLException {
 		for(View view : database.getViews())
 		{
-			if (fineEnabled)
-				logger.finest("getting sql for view " + view.getName());
+			logger.finest("getting sql for view " + view.getName());
 			view.setViewSql(fetchViewSql(properties, view.getName()));
 		}
 	}
 
 	private void initStoredProcedures(Properties properties, final Config config) throws SQLException {
 		String sql = properties.getProperty("selectStoredProcsSql");
+		logger.finest("Loaded selectStoredProcsSql:\n" + sql);
 		if (sql == null)
 			return; 
 
@@ -144,15 +143,12 @@ public class DbReader {
 				String procDefinition = rs.getString("definition");
 				procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
 				Procedure proc = new Procedure(schema, procName, procDefinition);
-				if (logger.isLoggable(Level.FINE))
-					logger.fine("Read procedure definition '" + procName + "'");
+				logger.fine("Read procedure definition '" + procName + "'");
 				database.putProc(procName, proc);
 			}
 		} catch (SQLException sqlException) {
 			// don't die just because this failed
-			System.err.println();
-			System.err.println("Failed to retrieve procedure definitions: " + sqlException);
-			System.err.println(sql);
+			logger.warning("Failed to retrieve procedure definitions: " + sqlException);
 		} finally {
 			if (rs != null)
 				rs.close();
@@ -164,6 +160,7 @@ public class DbReader {
 
 	private void initFunctions(Properties properties, final Config config) throws SQLException {
 		String sql = properties.getProperty("selectFunctionsSql");
+		logger.finest("Loaded selectFunctionsSql:\n" + sql);
 		if (sql == null)
 			return; 
 
@@ -185,15 +182,12 @@ public class DbReader {
 				String functionDefinition = rs.getString("definition");
 				functionDefinition = SqlManagement.ConvertCreateToAlter(functionDefinition);
 				Function proc = new Function(schema, functionName, functionDefinition);
-				if (logger.isLoggable(Level.FINE))
-					logger.fine("Read function definition '" + functionName + "'");
+				logger.fine("Read function definition '" + functionName + "'");
 				database.putFunction(functionName, proc);
 			}
 		} catch (SQLException sqlException) {
 			// don't die just because this failed
-			System.err.println();
-			System.err.println("Failed to retrieve function definitions: " + sqlException);
-			System.err.println(sql);
+			logger.warning("Failed to retrieve function definitions: " + sqlException);
 		} finally {
 			if (rs != null)
 				rs.close();
@@ -264,7 +258,6 @@ public class DbReader {
 
 		// wait for everyone to finish
 		creator.join();
-		System.out.println(); // complete the dotted line from table processing
 
 		database.setTables(creator.getTables());
 	}
@@ -289,14 +282,9 @@ public class DbReader {
 			if (validator.isValid(entry.name, entry.type)) {
 				View view = new View(entry.schema, entry.name, entry.remarks, entry.viewSql);
 				database.putViews(view.getName(), view);
-				if (logger.isLoggable(Level.FINE)) {
-					logger.fine("Found details of view " + view.getName());
-				} else {
-					System.out.print('.');
-				}
+				logger.fine("Found details of view " + view.getName());
 			}
 		}
-		System.out.println();
 	}
 
 	/**
@@ -345,6 +333,7 @@ public class DbReader {
 			String... types) throws SQLException {
 		String queryName = forTables ? "selectTablesSql" : "selectViewsSql";
 		String sql = properties.getProperty(queryName);
+		logger.finest("Loaded " + queryName + "\n" + sql);
 		List<BasicTableMeta> basics = new ArrayList<BasicTableMeta>();
 		ResultSet rs = null;
 
@@ -370,10 +359,7 @@ public class DbReader {
 				}
 			} catch (SQLException sqlException) {
 				// don't die just because this failed
-				System.out.flush();
-				System.err.println();
-				System.err.println("Failed to retrieve " + clazz + " names with custom SQL: " + sqlException);
-				System.err.println(sql);
+				logger.warning("Failed to retrieve " + clazz + " names with custom SQL: " + sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -397,12 +383,7 @@ public class DbReader {
 			} catch (SQLException exc) {
 				if (forTables)
 					throw exc;
-
-				System.out.flush();
-				System.err.println();
-				System.err.println("Ignoring view " + rs.getString("TABLE_NAME") + " due to exception:");
-				exc.printStackTrace();
-				System.err.println("Continuing analysis.");
+				logger.warning("Ignoring view " + rs.getString("TABLE_NAME") + " due to exception:\n" + exc);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -449,6 +430,7 @@ public class DbReader {
 
 	private void initCheckConstraints(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectCheckConstraintsSql");
+		logger.finest("Loaded selectCheckConstraintsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -465,9 +447,7 @@ public class DbReader {
 				}
 			} catch (SQLException sqlException) {
 				// don't die just because this failed
-				System.err.println();
-				System.err.println("Failed to retrieve check constraints: " + sqlException);
-				System.err.println(sql);
+				logger.warning("Failed to retrieve check constraints: " + sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -479,6 +459,7 @@ public class DbReader {
 
 	private void initTableIds(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectTableIdsSql");
+		logger.finest("Loaded selectTableIdsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -493,10 +474,6 @@ public class DbReader {
 					if (table != null)
 						table.setId(rs.getObject("table_id"));
 				}
-			} catch (SQLException sqlException) {
-				System.err.println();
-				System.err.println(sql);
-				throw sqlException;
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -508,6 +485,7 @@ public class DbReader {
 
 	private void initIndexIds(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectIndexIdsSql");
+		logger.finest("Loaded selectIndexIdsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -525,10 +503,6 @@ public class DbReader {
 							index.setId(rs.getObject("index_id"));
 					}
 				}
-			} catch (SQLException sqlException) {
-				System.err.println();
-				System.err.println(sql);
-				throw sqlException;
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -548,6 +522,7 @@ public class DbReader {
 	 */
 	private void initTableComments(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectTableCommentsSql");
+		logger.finest("Loaded selectTableCommentsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -567,9 +542,7 @@ public class DbReader {
 				}
 			} catch (SQLException sqlException) {
 				// don't die just because this failed
-				System.err.println();
-				System.err.println("Failed to retrieve table/view comments: " + sqlException);
-				System.err.println(sql);
+				logger.warning("Failed to retrieve table/view comments: " + sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -587,6 +560,7 @@ public class DbReader {
 	 */
 	private void initViewComments(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectViewCommentsSql");
+		logger.finest("Loaded selectViewCommentsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -606,9 +580,7 @@ public class DbReader {
 				}
 			} catch (SQLException sqlException) {
 				// don't die just because this failed
-				System.err.println();
-				System.err.println("Failed to retrieve table/view comments: " + sqlException);
-				System.err.println(sql);
+				logger.warning("Failed to retrieve table/view comments: " + sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -628,6 +600,7 @@ public class DbReader {
 	 */
 	private void initTableColumnComments(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectColumnCommentsSql");
+		logger.finest("Loaded selectColumnCommentsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -650,9 +623,7 @@ public class DbReader {
 				}
 			} catch (SQLException sqlException) {
 				// don't die just because this failed
-				System.err.println();
-				System.err.println("Failed to retrieve column comments: " + sqlException);
-				System.err.println(sql);
+				logger.warning("Failed to retrieve column comments: " + sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -670,6 +641,7 @@ public class DbReader {
 	 */
 	private void initViewColumnComments(Properties properties) throws SQLException {
 		String sql = properties.getProperty("selectViewColumnCommentsSql");
+		logger.finest("Loaded selectViewColumnCommentsSql:\n" + sql);
 		if (sql != null) {
 			PreparedStatement stmt = null;
 			ResultSet rs = null;
@@ -692,9 +664,7 @@ public class DbReader {
 				}
 			} catch (SQLException sqlException) {
 				// don't die just because this failed
-				System.err.println();
-				System.err.println("Failed to retrieve view column comments: " + sqlException);
-				System.err.println(sql);
+				logger.warning("Failed to retrieve view column comments: " + sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -939,8 +909,7 @@ public class DbReader {
 		TableReader tableReader = new TableReader();
 		tableReader.setMeta(meta);
 		for (Table table : database.getTablesByName().values()) {
-			if (fineEnabled)
-				logger.fine("Connecting keys for table " + table.getName());
+			logger.fine("Connecting keys for table " + table.getName());
 			tableReader.connectForeignKeys(table, database.getTablesByName(), excludeIndirectColumns, excludeColumns, this);
 		}
 	}
@@ -980,11 +949,7 @@ public class DbReader {
 				tables.put(table.getName(), table);
 			}
 
-			if (logger.isLoggable(Level.FINE)) {
-				logger.fine("Found details of table " + table.getName());
-			} else {
-				System.out.print('.');
-			}
+			logger.fine("Found details of table " + table.getName());
 		}
 
 		/**
@@ -1072,9 +1037,10 @@ public class DbReader {
 	 */
 	public String fetchViewSql(Properties properties, String viewName) throws SQLException {
 		String selectViewSql = properties.getProperty("selectViewSql");
+		logger.finest("Loaded selectViewSql:\n" + selectViewSql);
 		if (selectViewSql == null)
 		{
-			System.err.println("selectViewSql missing from properties, couldn't read view");
+			logger.fine("selectViewSql missing from properties, couldn't read view");
 			return null;
 		}
 		PreparedStatement stmt = null;
@@ -1089,9 +1055,6 @@ public class DbReader {
 			} catch (SQLException tryOldName) {
 				viewSql = rs.getString("text");
 			}   
-		} catch (SQLException sqlException) {
-			System.err.println(selectViewSql);
-			throw sqlException;
 		} finally {
 			if (rs != null)
 				rs.close();
@@ -1177,7 +1140,7 @@ public class DbReader {
 			}
 		} catch (Exception exc) {
 			// don't totally fail just because we can't extract these details...
-			System.err.println(exc);
+			logger.warning("Exception tokenizing keywords: " + exc);
 		}
 		return keywords;
 	}

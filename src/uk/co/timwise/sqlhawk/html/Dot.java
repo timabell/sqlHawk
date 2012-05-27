@@ -59,6 +59,7 @@ public class Dot {
 				versionText = matcher.group();
 			} else {
 				if (Config.getInstance().isHtmlGenerationEnabled()) {
+					// TODO: switch to logger
 					System.err.println();
 					System.err.println("Invalid dot configuration detected.  '" +
 							getDisplayableCommand(dotCommand) + "' returned:");

@@ -25,7 +25,7 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 public class HtmlWriter {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public void writeHtml(Config config, Database db, boolean fineEnabled) throws IOException,
+	public void writeHtml(Config config, Database db) throws IOException,
 			UnsupportedEncodingException, FileNotFoundException {
 		File outputDir = config.getTargetDir();
 		LineWriter out;
@@ -34,17 +34,9 @@ public class HtmlWriter {
 
 		logger.info("Gathered schema details");
 		logger.info("Writing/graphing summary...");
-		System.err.flush();
-		System.out.flush();
-		if (!fineEnabled) {
-			System.out.print("Writing/graphing summary");
-			System.out.print(".");
-		}
 		ImageWriter.getInstance().writeImages(outputDir);
 		ResourceWriter.getInstance().writeResource("/jquery.js", new File(outputDir, "/jquery.js"));
 		ResourceWriter.getInstance().writeResource("/sqlHawk.js", new File(outputDir, "/sqlHawk.js"));
-		if (!fineEnabled)
-			System.out.print(".");
 		Collection<Table> tablesAndViews = db.getTablesAndViews();
 		boolean showDetailedTables = config.isShowDetailedTablesEnabled();
 		final boolean includeImpliedConstraints = config.isImpliedConstraintsEnabled();
@@ -71,8 +63,6 @@ public class HtmlWriter {
 
 		if (hasRealRelationships) {
 			// real relationships exist so generate the 'big' form of the relationships .dot file
-			if (!fineEnabled)
-				System.out.print(".");
 			out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.large.dot"), Config.DOT_CHARSET);
 			DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, false, showDetailedTables, excludedColumns, out);
 			out.close();
@@ -88,9 +78,6 @@ public class HtmlWriter {
 
 		List<Table> orphans = DbAnalyzer.getOrphans(tablesAndViews);
 		boolean hasOrphans = !orphans.isEmpty() && Dot.getInstance().isValid();
-
-		if (!fineEnabled)
-			System.out.print(".");
 
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
 		out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
@@ -110,23 +97,14 @@ public class HtmlWriter {
 		HtmlRelationshipsPage.getInstance().write(db, diagramsDir, dotBaseFilespec, hasOrphans, hasRealRelationships, hasImplied, excludedColumns, out);
 		out.close();
 
-		if (!fineEnabled)
-			System.out.print(".");
-
 		dotBaseFilespec = "utilities";
 		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), config.getCharset());
 		HtmlOrphansPage.getInstance().write(db, orphans, diagramsDir, out);
 		out.close();
 
-		if (!fineEnabled)
-			System.out.print(".");
-
 		out = new LineWriter(new File(outputDir, "index.html"), 64 * 1024, config.getCharset());
 		HtmlMainIndexPage.getInstance().write(db, tablesAndViews, hasOrphans, out);
 		out.close();
-
-		if (!fineEnabled)
-			System.out.print(".");
 
 		List<ForeignKeyConstraint> constraints = DbAnalyzer.getForeignKeyConstraints(tablesAndViews);
 		out = new LineWriter(new File(outputDir, "constraints.html"), 256 * 1024, config.getCharset());
@@ -134,15 +112,9 @@ public class HtmlWriter {
 		constraintIndexFormatter.write(db, constraints, tablesAndViews, hasOrphans, out);
 		out.close();
 
-		if (!fineEnabled)
-			System.out.print(".");
-
 		out = new LineWriter(new File(outputDir, "anomalies.html"), 16 * 1024, config.getCharset());
 		HtmlAnomaliesPage.getInstance().write(db, tablesAndViews, impliedConstraints, hasOrphans, out);
 		out.close();
-
-		if (!fineEnabled)
-			System.out.print(".");
 
 		for (HtmlColumnsPage.ColumnInfo columnInfo : HtmlColumnsPage.getInstance().getColumnInfos()) {
 			out = new LineWriter(new File(outputDir, columnInfo.getLocation()), 16 * 1024, config.getCharset());
@@ -154,16 +126,10 @@ public class HtmlWriter {
 
 		logger.info("Completed summary");
 		logger.info("Writing/diagramming details...");
-		if (!fineEnabled) {
-			System.out.print("Writing/diagramming details");
-		}
 
 		HtmlTablePage tableFormatter = HtmlTablePage.getInstance();
 		for (Table table : tablesAndViews) {
-			if (!fineEnabled)
-				System.out.print('.');
-			else
-				logger.fine("Writing details of " + table.getName());
+			logger.fine("Writing details of " + table.getName());
 
 			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
 			tableFormatter.write(db, table, hasOrphans, hasImplied, outputDir, excludedColumns, impliedConstraints, out);

@@ -40,7 +40,6 @@ public class ForeignKeyConstraint implements Comparable<ForeignKeyConstraint> {
 	private final int deleteRule;
 	private final int updateRule;
 	private final static Logger logger = Logger.getLogger(ForeignKeyConstraint.class.getName());
-	private final static boolean finerEnabled = logger.isLoggable(Level.FINER);
 
 	/**
 	 * Construct a foreign key for the specified child table.
@@ -52,8 +51,7 @@ public class ForeignKeyConstraint implements Comparable<ForeignKeyConstraint> {
 	 */
 	public ForeignKeyConstraint(Table child, String name, int updateRule, int deleteRule) {
 		this.name = name; // implied constraints will have a null name and override getName()
-		if (finerEnabled)
-			logger.finer("Adding foreign key constraint '" + getName() + "' to " + child);
+		logger.finer("Adding foreign key constraint '" + getName() + "' to " + child);
 		childTable = child;
 		this.deleteRule = deleteRule;
 		this.updateRule = updateRule;

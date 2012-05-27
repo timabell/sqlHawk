@@ -65,6 +65,7 @@ public class RemoteTableReader extends TableReader {
 				throw sqlExc;
 
 			// otherwise just report the fact that we tried & couldn't
+			// TODO: switch to logger output
 			System.err.println("Couldn't resolve foreign keys for remote table " + table.getSchema() + "." + table.getName() + ": " + sqlExc);
 		} finally {
 			if (rs != null)

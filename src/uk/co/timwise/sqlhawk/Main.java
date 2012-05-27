@@ -33,6 +33,7 @@ public class Main {
 		if (version!=null) //will be null if run outside package, i.e. in eclipse.
 			System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
 		System.out.println("More information at http://github.com/timabell/sqlHawk");
+		System.out.println("License: GPLv3.");
 		System.out.println();
 
 		//load config

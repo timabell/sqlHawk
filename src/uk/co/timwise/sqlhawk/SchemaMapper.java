@@ -32,7 +32,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
@@ -57,7 +56,6 @@ import uk.co.timwise.sqlhawk.xml.write.xmlWriter;
 
 public class SchemaMapper {
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private boolean fineEnabled;
 
 	/**
 	 * Performs whatever mappings are requested by the config.
@@ -90,7 +88,7 @@ public class SchemaMapper {
 			logger.warning("No database information has been read. Set a read flag in the command line arguments if required.");
 		//========= schema writing code ============
 		if (config.isHtmlGenerationEnabled()) {
-			new HtmlWriter().writeHtml(config, db, fineEnabled);
+			new HtmlWriter().writeHtml(config, db);
 		}
 		if (config.isSourceControlOutputEnabled())
 			new ScmDbWriter().writeForSourceControl(config.getTargetDir(), db);
@@ -105,8 +103,7 @@ public class SchemaMapper {
 			db.setSchema(config.getSchema());
 			writeDb(config, db);
 		}
-		System.out.println();
-		System.out.println("Done.");
+		logger.info("Done.");
 		return true; //success
 	}
 
@@ -159,9 +156,7 @@ public class SchemaMapper {
 		}
 
 		// create our representation of the database
-		logger.info("Gathering schema details");
-		if (!fineEnabled)
-			System.out.println("Gathering schema details...");
+		logger.info("Gathering schema details...");
 		DbReader reader = new DbReader();
 		Database db = reader.Read(config, connection, meta, schemaMeta);
 		return db;
@@ -203,11 +198,8 @@ public class SchemaMapper {
 
 		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		logger.info("Gathering existing schema details");
-		if (!fineEnabled)
-			System.out.println("Gathering existing schema details...");
 		DbReader reader = new DbReader();
 		Database existingDb = reader.Read(config, connection, meta, null);
-		System.out.println();
 		DbWriter writer = new DbWriter(); 
 		writer.runUpgradeScripts(config, connection, meta);
 		writer.write(config, connection, meta, db, existingDb);
@@ -252,9 +244,6 @@ public class SchemaMapper {
 				handler.setLevel(config.getLogLevel());
 			}
 		}
-
-		fineEnabled = logger.isLoggable(Level.FINE);
-		logger.info("Starting schema analysis");
 	}
 
 	private void writeOrderingFiles(File outputDir, Database db)
@@ -307,9 +296,7 @@ public class SchemaMapper {
 	 * @param meta DatabaseMetaData
 	 */
 	private static void dumpNoTablesMessage(String schema, String user, DatabaseMetaData meta, boolean specifiedInclusions) throws SQLException {
-		System.out.println();
-		System.out.println();
-		System.out.println("No tables or views were found in schema '" + schema + "'.");
+		System.err.println("No tables or views were found in schema '" + schema + "'.");
 		List<String> schemas = null;
 		Exception failure = null;
 		try {
@@ -321,56 +308,50 @@ public class SchemaMapper {
 		}
 
 		if (schemas == null) {
-			System.out.println("The user you specified (" + user + ')');
-			System.out.println("  might not have rights to read the database metadata.");
-			System.out.flush();
+			System.err.println("The user you specified (" + user + ')');
+			System.err.println("  might not have rights to read the database metadata.");
+			System.err.flush();
 			if (failure != null)    // to appease the compiler
 				failure.printStackTrace();
 			return;
 		} else if (schema == null || schemas.contains(schema)) {
-			System.out.println("The schema exists in the database, but the user you specified (" + user + ')');
-			System.out.println("  might not have rights to read its contents.");
+			System.err.println("The schema exists in the database, but the user you specified (" + user + ')');
+			System.err.println("  might not have rights to read its contents.");
 			if (specifiedInclusions) {
-				System.out.println("Another possibility is that the regular expression that you specified");
-				System.out.println("  for what to include (via -i) didn't match any tables.");
+				System.err.println("Another possibility is that the regular expression that you specified");
+				System.err.println("  for what to include (via -i) didn't match any tables.");
 			}
 		} else {
-			System.out.println("The schema does not exist in the database.");
-			System.out.println("Make sure that you specify a valid schema with the -s option and that");
-			System.out.println("  the user specified (" + user + ") can read from the schema.");
-			System.out.println("Note that schema names are usually case sensitive.");
+			System.err.println("The schema does not exist in the database.");
+			System.err.println("Make sure that you specify a valid schema with the -s option and that");
+			System.err.println("  the user specified (" + user + ") can read from the schema.");
+			System.err.println("Note that schema names are usually case sensitive.");
 		}
-		System.out.println();
+		System.err.println();
 		boolean plural = schemas.size() != 1;
-		System.out.println(schemas.size() + " schema" + (plural ? "s" : "") + " exist" + (plural ? "" : "s") + " in this database.");
-		System.out.println("Some of these \"schemas\" may be users or system schemas.");
-		System.out.println();
+		System.err.println(schemas.size() + " schema" + (plural ? "s" : "") + " exist" + (plural ? "" : "s") + " in this database.");
+		System.err.println("Some of these \"schemas\" may be users or system schemas.");
+		System.err.println();
 		for (String unknown : schemas) {
-			System.out.print(unknown + " ");
+			System.err.print(unknown + " ");
 		}
 
-		System.out.println();
+		System.err.println();
 		List<String> populatedSchemas = DbAnalyzer.getPopulatedSchemas(meta);
 		if (populatedSchemas.isEmpty()) {
-			System.out.println("Unable to determine if any of the schemas contain tables/views");
+			System.err.println("Unable to determine if any of the schemas contain tables/views");
 		} else {
-			System.out.println("These schemas contain tables/views that user '" + user + "' can see:");
-			System.out.println();
+			System.err.println("These schemas contain tables/views that user '" + user + "' can see:");
+			System.err.println();
 			for (String populated : populatedSchemas) {
-				System.out.print(" " + populated);
+				System.err.print(" " + populated);
 			}
 		}
 	}
 
 	private Connection getConnection(Config config, String connectionURL,
 			String driverClass, String driverPath) throws FileNotFoundException, IOException {
-		if (logger.isLoggable(Level.INFO)) {
-			logger.info("Using database properties:");
-			logger.info("  " + config.getDbPropertiesLoadedFrom());
-		} else {
-			System.out.println("Using database properties:");
-			System.out.println("  " + config.getDbPropertiesLoadedFrom());
-		}
+		logger.fine("Using database properties:\n" + "  " + config.getDbPropertiesLoadedFrom());
 
 		List<URL> classpath = new ArrayList<URL>();
 		List<File> invalidClasspathEntries = new ArrayList<File>();

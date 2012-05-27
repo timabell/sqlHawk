@@ -29,7 +29,6 @@ import uk.co.timwise.sqlhawk.model.xml.TableColumnMeta;
 
 public class TableColumnReader {
 	private static final Logger logger = Logger.getLogger(TableColumnReader.class.getName());
-	private static final boolean finerEnabled = logger.isLoggable(Level.FINER);
 
 	/**
 	 * Create a column associated with a table.
@@ -67,7 +66,7 @@ public class TableColumnReader {
 		tableColumn.setId(new Integer(rs.getInt("ORDINAL_POSITION") - 1));
 		tableColumn.setAllExcluded(tableColumn.matches(excludeColumns));
 		tableColumn.setExcluded(tableColumn.isAllExcluded() || tableColumn.matches(excludeIndirectColumns));
-		if (tableColumn.isExcluded() && finerEnabled) {
+		if (tableColumn.isExcluded() && logger.isLoggable(Level.FINER)) {
 			logger.finer("Excluding column " + tableColumn.getTable() + '.' + tableColumn.getName() +
 					": matches " + excludeColumns + ":" + tableColumn.isAllExcluded() + " " +
 					excludeIndirectColumns + ":" + tableColumn.matches(excludeIndirectColumns));

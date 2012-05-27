@@ -17,7 +17,6 @@ package uk.co.timwise.sqlhawk;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -124,7 +123,6 @@ public class DbAnalyzer {
 		Set<String> schemas = new TreeSet<String>(); // alpha sorted
 		Pattern schemaRegex = Pattern.compile(schemaSpec);
 		Logger logger = Logger.getLogger(DbAnalyzer.class.getName());
-		boolean logging = logger.isLoggable(Level.FINE);
 
 		Iterator<String> iter = getSchemas(meta).iterator();
 		while (iter.hasNext()) {
@@ -134,14 +132,12 @@ public class DbAnalyzer {
 				try {
 					rs = meta.getTables(null, schema, "%", null);
 					if (rs.next()) {
-						if (logging)
-							logger.fine("Including schema " + schema +
-									": matches + \"" + schemaRegex + "\" and contains tables");
+						logger.fine("Including schema " + schema +
+								": matches + \"" + schemaRegex + "\" and contains tables");
 						schemas.add(schema);
 					} else {
-						if (logging)
-							logger.fine("Excluding schema " + schema +
-									": matches \"" + schemaRegex + "\" but contains no tables");
+						logger.fine("Excluding schema " + schema +
+								": matches \"" + schemaRegex + "\" but contains no tables");
 					}
 				} catch (SQLException ignore) {
 				} finally {
@@ -149,9 +145,8 @@ public class DbAnalyzer {
 						rs.close();
 				}
 			} else {
-				if (logging)
-					logger.fine("Excluding schema " + schema +
-							": doesn't match \"" + schemaRegex + '"');
+				logger.fine("Excluding schema " + schema +
+						": doesn't match \"" + schemaRegex + '"');
 			}
 		}
 

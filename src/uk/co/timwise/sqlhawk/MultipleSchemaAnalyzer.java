@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -44,7 +43,6 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 public final class MultipleSchemaAnalyzer {
 	private static MultipleSchemaAnalyzer instance = new MultipleSchemaAnalyzer();
 	private final Logger logger = Logger.getLogger(getClass().getName());
-	private final boolean fineEnabled = logger.isLoggable(Level.FINE);
 
 	private MultipleSchemaAnalyzer() {
 	}
@@ -75,17 +73,16 @@ public final class MultipleSchemaAnalyzer {
 
 		List<String> populatedSchemas;
 		if (schemas == null) {
-			System.out.println("Analyzing schemas that match regular expression '" + schemaSpec + "':");
-			System.out.println("(use -schemaSpec on command line or in .properties to exclude other schemas)");
+			logger.info("Analyzing schemas that match regular expression '" + schemaSpec + "':");
+			logger.info("(use -schemaSpec on command line or in .properties to exclude other schemas)");
 			populatedSchemas = getPopulatedSchemas(meta, schemaSpec, user);
 		} else {
-			System.out.println("Analyzing schemas:");
+			logger.info("Analyzing schemas:");
 			populatedSchemas = schemas;
 		}
 
 		for (String populatedSchema : populatedSchemas)
-			System.out.print(" " + populatedSchema);
-		System.out.println();
+			logger.info(" " + populatedSchema);
 
 		writeIndexPage(dbName, populatedSchemas, meta, outputDir, charset);
 
@@ -98,7 +95,7 @@ public final class MultipleSchemaAnalyzer {
 			command.add(schema);
 			command.add("-o");
 			command.add(new File(outputDir, schema).toString());
-			System.out.println("Analyzing " + schema);
+			logger.info("Analyzing " + schema);
 			System.out.flush();
 			logger.fine("Analyzing schema with: " + command);
 			Process java = Runtime.getRuntime().exec(command.toArray(new String[]{}));
@@ -119,9 +116,8 @@ public final class MultipleSchemaAnalyzer {
 			}
 		}
 
-		System.out.println();
-		System.out.println("Wrote relationship details of " + populatedSchemas.size() + " schema" + (populatedSchemas.size() == 1 ? "" : "s") + ".");
-		System.out.println("Start with " + new File(outputDir, "index.html"));
+		logger.info("Wrote relationship details of " + populatedSchemas.size() + " schema" + (populatedSchemas.size() == 1 ? "" : "s") + ".");
+		logger.info("Start with " + new File(outputDir, "index.html"));
 	}
 
 	public void analyze(String dbName, List<String> schemas, List<String> args,
@@ -148,16 +144,12 @@ public final class MultipleSchemaAnalyzer {
 			while (iter.hasNext()) {
 				String schema = iter.next();
 				if (!schemaRegex.matcher(schema).matches()) {
-					if (fineEnabled) {
-						logger.fine("Excluding schema " + schema +
-								": doesn't match + \"" + schemaRegex + '"');
-					}
+					logger.fine("Excluding schema " + schema +
+							": doesn't match + \"" + schemaRegex + '"');
 					iter.remove(); // remove those that we're not supposed to analyze
 				} else {
-					if (fineEnabled) {
 						logger.fine("Including schema " + schema +
 								": matches + \"" + schemaRegex + '"');
-					}
 				}
 			}
 		} else {

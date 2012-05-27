@@ -17,7 +17,6 @@ package uk.co.timwise.sqlhawk;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -29,7 +28,6 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
 import uk.co.timwise.sqlhawk.config.Config;
-import uk.co.timwise.sqlhawk.text.TableOrderer;
 
 public class DbType {
 	private String dbPropertiesLoadedFrom;
@@ -60,7 +58,7 @@ public class DbType {
 					databaseTypes.add(entryName.substring(0, dotPropsIndex));
 			}
 		} catch (IOException exc) {
-			System.out.println("Failed to open jar to read properties files:\n" + exc);
+			System.err.println("Failed to open jar to read properties files:\n" + exc);
 		} finally {
 			if (jar != null) {
 				try {
