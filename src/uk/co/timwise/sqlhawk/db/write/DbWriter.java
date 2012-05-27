@@ -132,6 +132,8 @@ public class DbWriter {
 		Properties properties = config.getDbType().getProps();
 		String upgradeLogTableSql = properties.getProperty("upgradeLogTable");
 		if (!config.isDryRun()) {
+			logger.info("Creating table SqlHawk_UpgradeLog...");
+			logger.finest("Running initialization sql:\n" + upgradeLogTableSql);
 			connection.prepareStatement(upgradeLogTableSql).execute();
 		}
 	}
