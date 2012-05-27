@@ -25,8 +25,10 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 public class HtmlWriter {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public void writeHtml(Config config, Database db) throws IOException,
-			UnsupportedEncodingException, FileNotFoundException {
+	public void writeHtml(Config config, Database db) throws Exception {
+		if (db == null){
+			throw new Exception("Database input missing, can't write html.");
+		}
 		File outputDir = config.getTargetDir();
 		LineWriter out;
 		new File(outputDir, "tables").mkdirs();
