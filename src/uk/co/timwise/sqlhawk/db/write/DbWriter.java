@@ -211,8 +211,10 @@ public class DbWriter {
 				return o1Number.group(2).compareTo(o2Number.group(2));
 			}
 		});
-		// TODO: sort upgrade scripts by filename, paying attention to numbers at start
-		Pattern batchSplitter = Pattern.compile("^GO", Pattern.MULTILINE);  // split where GO on its own on a line
+		// Split where GO on its own on a line (ignoring whitespace, case insensitive)
+		// This is a best attempt short of full SQL parsing to establish quoting & commenting.
+		// see: http://stackoverflow.com/questions/10734824
+		Pattern batchSplitter = Pattern.compile("^\\s*GO\\s*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 		for(File file : files){
 			if (file.isDirectory()) {
 				logger.fine("Processing script directory '" + file + "'...");
