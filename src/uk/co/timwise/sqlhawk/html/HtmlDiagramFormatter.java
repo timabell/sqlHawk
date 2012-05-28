@@ -32,7 +32,7 @@ public class HtmlDiagramFormatter extends HtmlFormatter {
 				System.err.println("Warning: Failed to run dot.");
 				System.err.println("   Download " + dot.getSupportedVersions());
 				System.err.println("   from www.graphviz.org and make sure that dot is either in your path");
-				System.err.println("   or point to where you installed Graphviz with the -gv option.");
+				System.err.println("   or point to where you installed Graphviz with the --graphviz-path option.");
 				System.err.println("   Generated pages will not contain a diagramtic view of table relationships.");
 			}
 
