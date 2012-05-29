@@ -75,10 +75,10 @@ public class HtmlTableDiagrammer extends HtmlDiagramFormatter {
 				twoDegreesDiagramFile.delete();
 			}
 		} catch (Dot.DotFailure dotFailure) {
-			System.err.println(dotFailure);
+			logger.warning("Dot error while writing html" + dotFailure);
 			return false;
 		} catch (IOException ioExc) {
-			ioExc.printStackTrace();
+			logger.warning("IO error while writing html" + ioExc);
 			return false;
 		}
 

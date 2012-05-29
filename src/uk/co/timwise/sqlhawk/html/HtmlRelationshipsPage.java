@@ -46,7 +46,7 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 		return instance;
 	}
 
-	public boolean write(Database db, File diagramDir, String dotBaseFilespec, boolean hasOrphans, boolean hasRealRelationships, boolean hasImpliedRelationships, Set<TableColumn> excludedColumns, LineWriter html) {
+	public void write(Database db, File diagramDir, String dotBaseFilespec, boolean hasOrphans, boolean hasRealRelationships, boolean hasImpliedRelationships, Set<TableColumn> excludedColumns, LineWriter html) {
 		File compactRelationshipsDotFile = new File(diagramDir, dotBaseFilespec + ".real.compact.dot");
 		File compactRelationshipsDiagramFile = new File(diagramDir, dotBaseFilespec + ".real.compact.png");
 		File largeRelationshipsDotFile = new File(diagramDir, dotBaseFilespec + ".real.large.dot");
@@ -64,7 +64,7 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 				writeInvalidGraphvizInstallation(html);
 				html.writeln("</div>");
 				writeFooter(html);
-				return false;
+				return;
 			}
 
 			writeHeader(db, "All Relationships", hasOrphans, hasRealRelationships, hasImpliedRelationships, html);
@@ -81,9 +81,8 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 					html.writeln(dot.generateDiagram(largeRelationshipsDotFile, largeRelationshipsDiagramFile));
 					html.writeln("  <a name='diagram'><img id='realLargeImg' src='diagrams/summary/" + largeRelationshipsDiagramFile.getName() + "' usemap='#largeRelationshipsDiagram' class='diagram' border='0' alt=''></a>");
 				} catch (Dot.DotFailure dotFailure) {
-					System.err.println("dot failed to generate all of the relationships diagrams:");
-					System.err.println(dotFailure);
-					System.err.println("...but the relationships page may still be usable.");
+					logger.warning("dot failed to generate all of the relationships diagrams:\n"
+							+ dotFailure + "\nThe relationships page may still be usable.");
 				}
 			}
 
@@ -96,22 +95,18 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 					html.writeln("  <a name='diagram'><img id='impliedLargeImg' src='diagrams/summary/" + largeImpliedDiagramFile.getName() + "' usemap='#largeImpliedRelationshipsDiagram' class='diagram' border='0' alt=''></a>");
 				}
 			} catch (Dot.DotFailure dotFailure) {
-				System.err.println("dot failed to generate all of the relationships diagrams:");
-				System.err.println(dotFailure);
-				System.err.println("...but the relationships page may still be usable.");
+				logger.warning("dot failed to generate all of the relationships diagrams:\n"
+						+ dotFailure + "\n... The relationships page may still be usable.");
 			}
 
 			html.writeln("</td></tr></table>");
 			writeExcludedColumns(excludedColumns, null, html);
 
 			writeFooter(html);
-			return true;
 		} catch (Dot.DotFailure dotFailure) {
-			System.err.println(dotFailure);
-			return false;
+			logger.warning("Dot error while writing html" + dotFailure);
 		} catch (IOException ioExc) {
-			ioExc.printStackTrace();
-			return false;
+			logger.warning("IO error while writing html" + ioExc);
 		}
 	}
 

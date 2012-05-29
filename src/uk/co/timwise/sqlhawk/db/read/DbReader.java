@@ -33,7 +33,6 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 

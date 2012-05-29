@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
@@ -31,6 +32,7 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
  */
 public class HtmlOrphansPage extends HtmlDiagramFormatter {
 	private static HtmlOrphansPage instance = new HtmlOrphansPage();
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	/**
 	 * Singleton: Don't allow instantiation
@@ -78,7 +80,7 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 				try {
 					maps.append(dot.generateDiagram(dotFile, imgFile));
 				} catch (Dot.DotFailure dotFailure) {
-					System.err.println(dotFailure);
+					logger.warning("Error generating diagram:\n  " + dotFailure);
 					return false;
 				}
 

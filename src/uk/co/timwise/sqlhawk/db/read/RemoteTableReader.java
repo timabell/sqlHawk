@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.config.Config;
@@ -32,6 +33,7 @@ import uk.co.timwise.sqlhawk.model.Table;
  * by or references a table in the default schema.
  */
 public class RemoteTableReader extends TableReader {
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	/**
 	 * Connect to the PK's referenced by this table that live in the original schema
@@ -40,7 +42,7 @@ public class RemoteTableReader extends TableReader {
 	 * @param excludeColumns
 	 * @throws SQLException
 	 */
-	public static void connectForeignKeys(
+	public void connectForeignKeys(
 			Database db, String schema, String name, String baseSchema, Properties properties,
 			DatabaseMetaData meta, RemoteTable table, Map<String, Table> tables,
 			Pattern excludeIndirectColumns, Pattern excludeColumns, TableReader tableReader, DbReader dbReader) throws SQLException {
@@ -65,8 +67,7 @@ public class RemoteTableReader extends TableReader {
 				throw sqlExc;
 
 			// otherwise just report the fact that we tried & couldn't
-			// TODO: switch to logger output
-			System.err.println("Couldn't resolve foreign keys for remote table " + table.getSchema() + "." + table.getName() + ": " + sqlExc);
+			logger.warning("Couldn't resolve foreign keys for remote table " + table.getSchema() + "." + table.getName() + ": " + sqlExc);
 		} finally {
 			if (rs != null)
 				rs.close();

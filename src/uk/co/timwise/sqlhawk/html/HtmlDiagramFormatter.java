@@ -15,10 +15,13 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.html;
 
+import java.util.logging.Logger;
+
 
 public class HtmlDiagramFormatter extends HtmlFormatter {
 	private static boolean printedNoDotWarning = false;
 	private static boolean printedInvalidVersionWarning = false;
+	protected final Logger logger = Logger.getLogger(getClass().getName());
 
 	protected HtmlDiagramFormatter() {
 	}
@@ -28,12 +31,11 @@ public class HtmlDiagramFormatter extends HtmlFormatter {
 		if (!dot.exists()) {
 			if (!printedNoDotWarning) {
 				printedNoDotWarning = true;
-				System.err.println();
-				System.err.println("Warning: Failed to run dot.");
-				System.err.println("   Download " + dot.getSupportedVersions());
-				System.err.println("   from www.graphviz.org and make sure that dot is either in your path");
-				System.err.println("   or point to where you installed Graphviz with the --graphviz-path option.");
-				System.err.println("   Generated pages will not contain a diagramtic view of table relationships.");
+				logger.warning("Failed to run dot."
+						+ "\n   Download " + dot.getSupportedVersions()
+						+ "\n   from www.graphviz.org and make sure that dot is either in your path"
+						+ "\n   or point to where you installed Graphviz with the --graphviz-path option."
+						+ "\n   Generated pages will not contain a diagramtic view of table relationships.");
 			}
 
 			return null;
@@ -42,10 +44,9 @@ public class HtmlDiagramFormatter extends HtmlFormatter {
 		if (!dot.isValid()) {
 			if (!printedInvalidVersionWarning) {
 				printedInvalidVersionWarning = true;
-				System.err.println();
-				System.err.println("Warning: Invalid version of Graphviz dot detected (" + dot.getVersion() + ").");
-				System.err.println("   sqlHawk requires " + dot.getSupportedVersions() + ". from www.graphviz.org.");
-				System.err.println("   Generated pages will not contain a diagramatic view of table relationships.");
+				logger.warning("Invalid version of Graphviz dot detected (" + dot.getVersion() + ")."
+						+ "\n   sqlHawk requires " + dot.getSupportedVersions() + ". from www.graphviz.org."
+						+ "\n   Generated pages will not contain a diagramatic view of table relationships.");
 			}
 
 			return null;

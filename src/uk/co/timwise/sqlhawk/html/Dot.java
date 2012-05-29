@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,7 @@ public class Dot {
 	private String renderer;
 	private final Set<String> validatedRenderers = Collections.synchronizedSet(new HashSet<String>());
 	private final Set<String> invalidatedRenderers = Collections.synchronizedSet(new HashSet<String>());
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	private Dot() {
 		String versionText = null;
@@ -59,18 +61,14 @@ public class Dot {
 				versionText = matcher.group();
 			} else {
 				if (Config.getInstance().isHtmlGenerationEnabled()) {
-					// TODO: switch to logger
-					System.err.println();
-					System.err.println("Invalid dot configuration detected.  '" +
-							getDisplayableCommand(dotCommand) + "' returned:");
-					System.err.println("   " + versionLine);
+					logger.warning("Invalid dot configuration detected.  '" +
+							getDisplayableCommand(dotCommand) + "' returned:\n   " + versionLine);
 				}
 			}
 		} catch (Exception validDotDoesntExist) {
 			if (Config.getInstance().isHtmlGenerationEnabled()) {
-				System.err.println("Failed to query Graphviz version information");
-				System.err.println("  with: " + getDisplayableCommand(dotCommand));
-				System.err.println("  " + validDotDoesntExist);
+				logger.warning("Failed to query Graphviz version information  with: "
+						+ getDisplayableCommand(dotCommand) + "\n  " + validDotDoesntExist);
 			}
 		}
 
@@ -212,7 +210,6 @@ public class Dot {
 		}
 
 		if (!validatedRenderers.contains(renderer)) {
-			//System.err.println("\nFailed to validate " + getFormat() + " renderer '" + renderer + "'.  Reverting to detault renderer for " + getFormat() + '.');
 			invalidatedRenderers.add(renderer);
 			return false;
 		}
@@ -315,6 +312,7 @@ public class Dot {
 	private static class ProcessOutputReader extends Thread {
 		private final BufferedReader processReader;
 		private final String command;
+		private final Logger logger = Logger.getLogger(getClass().getName());
 
 		ProcessOutputReader(String command, InputStream processStream) {
 			processReader = new BufferedReader(new InputStreamReader(processStream));
@@ -329,7 +327,7 @@ public class Dot {
 				while ((line = processReader.readLine()) != null) {
 					// don't report port id unrecognized or unrecognized port
 					if (line.indexOf("unrecognized") == -1 && line.indexOf("port") == -1)
-						System.err.println(command + ": " + line);
+						logger.fine(command + ": " + line);
 				}
 			} catch (IOException ioException) {
 				ioException.printStackTrace();
@@ -337,7 +335,7 @@ public class Dot {
 				try {
 					processReader.close();
 				} catch (Exception exc) {
-					exc.printStackTrace(); // shouldn't ever get here...but...
+					logger.severe("Error closing processReader in exception handler:\n  " + exc);
 				}
 			}
 		}
