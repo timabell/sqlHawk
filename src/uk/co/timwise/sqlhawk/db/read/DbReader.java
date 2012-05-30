@@ -110,10 +110,17 @@ public class DbReader {
 	}
 
 	private void initViewSql(Properties properties) throws SQLException {
+		String selectViewSql = properties.getProperty("selectViewSql");
+		if (selectViewSql == null)
+		{
+			logger.warning("selectViewSql missing from properties, couldn't read view definitions");
+			return;
+		}
+		logger.finest("Loaded selectViewSql:\n" + selectViewSql);
 		for(View view : database.getViews())
 		{
 			logger.finer("getting sql for view " + view.getName());
-			view.setViewSql(fetchViewSql(properties, view.getName()));
+			view.setViewSql(fetchViewSql(properties, view.getName(), selectViewSql));
 		}
 	}
 
@@ -1038,14 +1045,7 @@ public class DbReader {
 	 * @return
 	 * @throws SQLException
 	 */
-	public String fetchViewSql(Properties properties, String viewName) throws SQLException {
-		String selectViewSql = properties.getProperty("selectViewSql");
-		logger.finest("Loaded selectViewSql:\n" + selectViewSql);
-		if (selectViewSql == null)
-		{
-			logger.warning("selectViewSql missing from properties, couldn't read view");
-			return null;
-		}
+	public String fetchViewSql(Properties properties, String viewName, String selectViewSql) throws SQLException {
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		String viewSql;
