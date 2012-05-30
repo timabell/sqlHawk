@@ -73,47 +73,46 @@ public class DbReader {
 		database.setDescription(config.getDescription());
 		database.setDbms(getDatabaseProduct());
 		database.setKeywords(getKeywords(meta));
+		logger.fine("Reading existing db...");
 		if (config.isTableProcessingEnabled())
 		{
-			logger.info("Reading tables from db...");
+			logger.fine("Reading tables...");
 			initTables(meta, properties, config);
-			logger.info("Reading constraints from db...");
+			logger.fine("Reading constraints...");
 			initCheckConstraints(properties);
-			logger.info("Reading table ids from db...");
+			logger.fine("Reading table ids...");
 			initTableIds(properties);
-			logger.info("Reading table indexes from db...");
+			logger.fine("Reading table indexes...");
 			initIndexIds(properties);
-			logger.info("Reading table comments from db...");
+			logger.fine("Reading table comments...");
 			initTableComments(properties);
-			logger.info("Reading table column comments from db...");
+			logger.fine("Reading table column comments...");
 			initTableColumnComments(properties);
-			logger.info("Reading relationships from db...");
+			logger.fine("Reading relationships...");
 			connectTables();
 		}
 		if (config.isViewsEnabled()) {
-			logger.info("Reading views from db...");
+			logger.fine("Reading views...");
 			initViews(meta, properties, config);
-			logger.info("Reading view comments from db...");
+			logger.fine("Reading view comments...");
 			initViewComments(properties);
-			logger.info("Reading view column comments from db...");
+			logger.fine("Reading view column comments...");
 			initViewColumnComments(properties);
-			logger.info("Reading view definitions from db...");
+			logger.fine("Reading view definitions...");
 			initViewSql(properties);
 		}
-		logger.info("Reading procedures from db...");
+		logger.fine("Reading procedures...");
 		initStoredProcedures(properties, config);
-		logger.info("Reading functions from db...");
+		logger.fine("Reading functions...");
 		initFunctions(properties, config);
-		logger.info("Reading additional data from xml...");
 		updateFromXmlMetadata(schemaMeta);
-		logger.info("Done Reading db.");
 		return database;
 	}
 
 	private void initViewSql(Properties properties) throws SQLException {
 		for(View view : database.getViews())
 		{
-			logger.finest("getting sql for view " + view.getName());
+			logger.finer("getting sql for view " + view.getName());
 			view.setViewSql(fetchViewSql(properties, view.getName()));
 		}
 	}
@@ -142,7 +141,8 @@ public class DbReader {
 				String procDefinition = rs.getString("definition");
 				procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
 				Procedure proc = new Procedure(schema, procName, procDefinition);
-				logger.fine("Read procedure definition '" + procName + "'");
+				logger.finer("Read procedure definition '" + procName + "'");
+				logger.finest("Procedure '" + procName + "' definition:\n" + procDefinition);
 				database.putProc(procName, proc);
 			}
 		} catch (SQLException sqlException) {
@@ -182,6 +182,7 @@ public class DbReader {
 				functionDefinition = SqlManagement.ConvertCreateToAlter(functionDefinition);
 				Function proc = new Function(schema, functionName, functionDefinition);
 				logger.fine("Read function definition '" + functionName + "'");
+				logger.finest("Function '" + functionName + "' definition:\n" + functionDefinition);
 				database.putFunction(functionName, proc);
 			}
 		} catch (SQLException sqlException) {
@@ -281,7 +282,9 @@ public class DbReader {
 			if (validator.isValid(entry.name, entry.type)) {
 				View view = new View(entry.schema, entry.name, entry.remarks, entry.viewSql);
 				database.putViews(view.getName(), view);
-				logger.fine("Found details of view " + view.getName());
+				logger.finer("View " + entry.name + " is valid.");
+			} else {
+				logger.finer("View " + entry.name + " not valid.");
 			}
 		}
 	}
@@ -332,7 +335,7 @@ public class DbReader {
 			String... types) throws SQLException {
 		String queryName = forTables ? "selectTablesSql" : "selectViewsSql";
 		String sql = properties.getProperty(queryName);
-		logger.finest("Loaded " + queryName + "\n" + sql);
+		logger.finest("Loaded " + queryName + ":\n" + sql);
 		List<BasicTableMeta> basics = new ArrayList<BasicTableMeta>();
 		ResultSet rs = null;
 
@@ -849,6 +852,7 @@ public class DbReader {
 	 */
 	private void updateFromXmlMetadata(SchemaMeta schemaMeta) throws SQLException {
 		if (schemaMeta != null) {
+			logger.info("Reading additional data from xml if available...");
 			final Pattern excludeNone = Pattern.compile("[^.]");
 			final Properties noProps = new Properties();
 
@@ -908,7 +912,7 @@ public class DbReader {
 		TableReader tableReader = new TableReader();
 		tableReader.setMeta(meta);
 		for (Table table : database.getTablesByName().values()) {
-			logger.fine("Connecting keys for table " + table.getName());
+			logger.finer("Connecting keys for table " + table.getName());
 			tableReader.connectForeignKeys(table, database.getTablesByName(), excludeIndirectColumns, excludeColumns, this);
 		}
 	}
@@ -948,7 +952,7 @@ public class DbReader {
 				tables.put(table.getName(), table);
 			}
 
-			logger.fine("Found details of table " + table.getName());
+			logger.finer("Found details of table " + table.getName());
 		}
 
 		/**
@@ -1039,7 +1043,7 @@ public class DbReader {
 		logger.finest("Loaded selectViewSql:\n" + selectViewSql);
 		if (selectViewSql == null)
 		{
-			logger.fine("selectViewSql missing from properties, couldn't read view");
+			logger.warning("selectViewSql missing from properties, couldn't read view");
 			return null;
 		}
 		PreparedStatement stmt = null;
