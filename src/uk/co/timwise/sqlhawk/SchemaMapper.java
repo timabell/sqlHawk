@@ -84,7 +84,7 @@ public class SchemaMapper {
 			}
 			db = ScmDbReader.Load(config, config.getTargetDir());
 		}
-		if (db==null)
+		if (db==null && !config.isIntializeLogEnabled())
 			logger.warning("No database information has been read. Set a read flag in the command line arguments if required.");
 		//========= schema writing code ============
 		if (config.isHtmlGenerationEnabled()) {
