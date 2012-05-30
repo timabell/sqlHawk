@@ -82,9 +82,11 @@ public class DbWriter {
 			String updatedDefinition = updatedProc.getDefinition();
 			if (existingProcs.containsKey(procName)) {
 				//check if definitions match
-				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition()))
+				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition())) {
+					logger.fine("Updating existing proc " + procName + " already up to date");
 					continue; //already up to date, move on to next proc.
-				logger.fine("Updating existing proc " + procName);
+				}
+				logger.info("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.
 				String updateSql = SqlManagement.ConvertCreateToAlter(updatedDefinition);
 				try {
@@ -95,7 +97,7 @@ public class DbWriter {
 					throw new Exception("Error updating proc " + procName, ex);
 				}
 			} else { //new proc
-				logger.fine("Adding new proc " + procName);
+				logger.info("Adding new proc " + procName);
 				String createSql = SqlManagement.ConvertAlterToCreate(updatedDefinition);
 				try {
 					if (!config.isDryRun())
@@ -112,7 +114,7 @@ public class DbWriter {
 			String procName = existingProc.getName();
 			logger.finest("Checking if proc " + procName + " needs dropping...");
 			if (!updatedProcs.containsKey(procName)){
-				logger.fine("Dropping unwanted proc " + procName);
+				logger.info("Dropping unwanted proc " + procName);
 				if (!config.isDryRun())
 					connection.prepareStatement("DROP PROCEDURE " + procName).execute();
 			}
