@@ -1,5 +1,5 @@
 /* This file is a part of the sqlHawk project.
- * http://github.com/timabell/sqlHawk
+ * http://timabell.github.com/sqlHawk/
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ public class Main {
 		String version = Main.class.getPackage().getImplementationVersion();
 		if (version!=null) //will be null if run outside package, i.e. in eclipse.
 			System.out.println("sqlHawk " + Main.class.getPackage().getImplementationVersion());
-		System.out.println("More information at http://github.com/timabell/sqlHawk");
+		System.out.println("More information at http://timabell.github.com/sqlHawk/");
 		System.out.println("License: GPLv3.");
 		System.out.println();
 

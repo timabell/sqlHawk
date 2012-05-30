@@ -1,8 +1,8 @@
-#Fri May 11 00:19:31 BST 2012
+#Wed May 30 19:36:19 BST 2012
 add_header=true
 add_todo=false
 eclipse.preferences.version=1
-header_text=/* This file is a part of the sqlHawk project.\n * http\://github.com/timabell/sqlHawk\n *\n *  This program is free software\: you can redistribute it and/or modify\n *  it under the terms of the GNU General Public License as published by\n *  the Free Software Foundation, either version 3 of the License, or\n *  (at your option) any later version.\n *\n *  This program is distributed in the hope that it will be useful,\n *  but WITHOUT ANY WARRANTY; without even the implied warranty of\n *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n *  GNU General Public License for more details.\n *\n *  You should have received a copy of the GNU General Public License\n *  along with this program.  If not, see <http\://www.gnu.org/licenses/>. */
+header_text=/* This file is a part of the sqlHawk project.\n * http\://timabell.github.com/sqlHawk/\n *\n *  This program is free software\: you can redistribute it and/or modify\n *  it under the terms of the GNU General Public License as published by\n *  the Free Software Foundation, either version 3 of the License, or\n *  (at your option) any later version.\n *\n *  This program is distributed in the hope that it will be useful,\n *  but WITHOUT ANY WARRANTY; without even the implied warranty of\n *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n *  GNU General Public License for more details.\n *\n *  You should have received a copy of the GNU General Public License\n *  along with this program.  If not, see <http\://www.gnu.org/licenses/>. */
 mode=mode_keep
 project_specific_settings=true
 replace_header=true
