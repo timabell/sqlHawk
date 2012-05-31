@@ -63,7 +63,7 @@ public class SchemaMapper {
 	 * @return true if ran without issue. Use to set exit code.
 	 * @throws Exception
 	 */
-	public boolean RunMapping(Config config) throws Exception {
+	public void RunMapping(Config config) throws Exception {
 		setupLogger(config);
 		//========= schema reading code ============
 		//TODO: check for any conflict in request options (read vs write?)
@@ -73,8 +73,7 @@ public class SchemaMapper {
 				|| config.isHtmlGenerationEnabled()) { //one or more output type enabled so need a target directory
 			setupOuputDir(config.getTargetDir());
 		}
-		//if (processMultipleSchemas(config, outputDir)) //multischema support temporarily disabled.
-		//	return false; //probably checking and tidying up.
+		//processMultipleSchemas(config, outputDir); // TODO: multischema support temporarily disabled.
 		Database db = null;
 		if (config.isDatabaseInputEnabled())
 			db = analyze(config);
@@ -104,7 +103,6 @@ public class SchemaMapper {
 			writeDb(config, db);
 		}
 		logger.info("Done.");
-		return true; //success
 	}
 
 	/**
@@ -118,12 +116,10 @@ public class SchemaMapper {
 		return readDb(config);
 	}
 
-	private boolean processMultipleSchemas(Config config, File outputDir)
-			throws Exception {
+	private void processMultipleSchemas(Config config, File outputDir) throws Exception {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
 			String dbName = config.getDb();
-
 			if (schemas != null){
 				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, schemas, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
@@ -136,9 +132,7 @@ public class SchemaMapper {
 				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
 			}
-			//return true;
 		}
-		return false;
 	}
 
 	private Database readDb(Config config)

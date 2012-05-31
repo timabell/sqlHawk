@@ -31,7 +31,7 @@ public class HtmlTableDiagrammer extends HtmlDiagramFormatter {
 		return instance;
 	}
 
-	public boolean write(Table table, File diagramDir, LineWriter html) {
+	public void write(Table table, File diagramDir, LineWriter html) {
 		File oneDegreeDotFile = new File(diagramDir, table.getName() + ".1degree.dot");
 		File oneDegreeDiagramFile = new File(diagramDir, table.getName() + ".1degree.png");
 		File twoDegreesDotFile = new File(diagramDir, table.getName() + ".2degrees.dot");
@@ -41,8 +41,9 @@ public class HtmlTableDiagrammer extends HtmlDiagramFormatter {
 
 		try {
 			Dot dot = getDot();
-			if (dot == null)
-				return false;
+			if (dot == null) {
+				return; // getDot() will already have warned user so just pass
+			}
 
 			String map = dot.generateDiagram(oneDegreeDotFile, oneDegreeDiagramFile);
 
@@ -76,12 +77,8 @@ public class HtmlTableDiagrammer extends HtmlDiagramFormatter {
 			}
 		} catch (Dot.DotFailure dotFailure) {
 			logger.warning("Dot error while writing html" + dotFailure);
-			return false;
 		} catch (IOException ioExc) {
 			logger.warning("IO error while writing html" + ioExc);
-			return false;
 		}
-
-		return true;
 	}
 }

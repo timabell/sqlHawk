@@ -503,13 +503,9 @@ public class HtmlTablePage extends HtmlFormatter {
 	private void writeDiagram(Table table, Set<TableColumn> excludedColumns, File diagramsDir, LineWriter html) throws IOException {
 		if (table.getMaxChildren() + table.getMaxParents() > 0) {
 			html.writeln("<table width='100%' border='0'><tr><td class='container'>");
-			if (HtmlTableDiagrammer.getInstance().write(table, diagramsDir, html)) {
-				html.writeln("</td></tr></table>");
-				writeExcludedColumns(excludedColumns, table, html);
-			} else {
-				html.writeln("</td></tr></table><p>");
-				writeInvalidGraphvizInstallation(html);
-			}
+			HtmlTableDiagrammer.getInstance().write(table, diagramsDir, html);
+			html.writeln("</td></tr></table>");
+			writeExcludedColumns(excludedColumns, table, html);
 		}
 	}
 

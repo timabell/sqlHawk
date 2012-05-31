@@ -370,8 +370,11 @@ public class TableReader {
 		// first try to initialize using the index query spec'd in the .properties
 		// do this first because some DB's (e.g. Oracle) do 'bad' things with getIndexInfo()
 		// (they try to do a DDL analyze command that has some bad side-effects)
-		if (initIndexes(properties.getProperty("selectIndexesSql"), dbReader))
+		String selectIndexesSql = properties.getProperty("selectIndexesSql");
+		if (selectIndexesSql!=null){
+			initIndexes(selectIndexesSql, dbReader);
 			return;
+		}
 
 		// couldn't, so try the old fashioned approach
 		ResultSet rs = null;
@@ -396,9 +399,9 @@ public class TableReader {
 	 *
 	 * @return boolean <code>true</code> if it worked, otherwise <code>false</code>
 	 */
-	private boolean initIndexes(String selectIndexesSql, DbReader dbReader) {
+	private void initIndexes(String selectIndexesSql, DbReader dbReader) {
 		if (selectIndexesSql == null)
-			return false;
+			return;
 
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -414,7 +417,6 @@ public class TableReader {
 		} catch (SQLException sqlException) {
 			logger.warning("Failed to query index information with SQL: " + selectIndexesSql);
 			logger.warning(sqlException.toString());
-			return false;
 		} finally {
 			if (rs != null) {
 				try {
@@ -431,8 +433,6 @@ public class TableReader {
 				}
 			}
 		}
-
-		return true;
 	}
 
 	/**

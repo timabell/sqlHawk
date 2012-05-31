@@ -49,10 +49,11 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 		return instance;
 	}
 
-	public boolean write(Database db, List<Table> orphanTables, File diagramDir, LineWriter html) throws IOException {
+	public void write(Database db, List<Table> orphanTables, File diagramDir, LineWriter html) throws IOException {
 		Dot dot = getDot();
-		if (dot == null)
-			return false;
+		if (dot == null) {
+			return; // getDot() will already have warned user so just pass
+		}
 
 		Set<Table> orphansWithImpliedRelationships = new HashSet<Table>();
 
@@ -81,7 +82,7 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 					maps.append(dot.generateDiagram(dotFile, imgFile));
 				} catch (Dot.DotFailure dotFailure) {
 					logger.warning("Error generating diagram:\n  " + dotFailure);
-					return false;
+					return;
 				}
 
 				html.write("  <img src='diagrams/summary/" + imgFile.getName() + "' usemap='#" + table + "' border='0' alt='' align='top'");
@@ -91,8 +92,6 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 			}
 
 			html.write(maps.toString());
-
-			return true;
 		} finally {
 			html.writeln("</a>");
 			writeFooter(html);

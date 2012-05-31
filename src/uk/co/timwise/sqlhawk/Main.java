@@ -53,7 +53,8 @@ public class Main {
 		try {
 			//begin analysis
 			SchemaMapper mapper = new SchemaMapper();
-			exitCode = mapper.RunMapping(config) ? 0 : 1;
+			mapper.RunMapping(config);
+			exitCode = 0; // success
 		} catch (ConnectionFailure couldntConnect) {
 			// failure already logged
 			exitCode = 3;
