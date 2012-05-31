@@ -83,8 +83,12 @@ public class DbWriter {
 			if (existingProcs.containsKey(procName)) {
 				//check if definitions match
 				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition())) {
-					logger.fine("Updating existing proc " + procName + " already up to date");
-					continue; //already up to date, move on to next proc.
+					if (!config.isForceEnabled()) {
+						logger.fine("Existing proc " + procName + " already up to date");
+						continue; //already up to date, move on to next proc.
+					} else {
+						logger.fine("Forcing update of up to date proc " + procName);
+					}
 				}
 				logger.info("Updating existing proc " + procName);
 				//Change definition from CREATE to ALTER and run.

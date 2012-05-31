@@ -180,6 +180,7 @@ public class Config
 				new Switch("initialize-tracking", JSAP.NO_SHORTFLAG, "initialize-tracking", "Creates the tracking table 'SqlHawk_UpgradeLog' that SqlHawk uses to determine if upgrade scripts have already been run."),
 				new Switch("database-output", JSAP.NO_SHORTFLAG, "database-output", "Write schema to a database / dbms. RISK OF DATA LOSS! TAKE BACKUPS FIRST!"),
 				new Switch("dry-run", JSAP.NO_SHORTFLAG, "dry-run", "Dry run. Don't actually write changes to the database."),
+				new Switch("force", JSAP.NO_SHORTFLAG, "force", "Update stored procedures, views and functions even if they don't appear different. This will allow you to revalidate these against the latest schema Recommended for use on continuous integration builds."),
 				new FlaggedOption("upgrade-batch", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "upgrade-batch", "When running upgrade scripts this will if set be added to the upgrade log to group together a set of scripts into a single batch. Suggested examples: the output of git describe, or an svn version number. This is to help track down the source of changes."),
 				//options for reading extra metadata
 				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
@@ -1039,6 +1040,10 @@ public class Config
 
 	public boolean isDryRun() {
 		return jsapConfig.getBoolean("dry-run");
+	}
+
+	public boolean isForceEnabled() {
+		return jsapConfig.getBoolean("force");
 	}
 
 	public DbType getDbType() throws InvalidConfigurationException, IOException {
