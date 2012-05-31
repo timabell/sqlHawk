@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
@@ -33,21 +34,17 @@ public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxMo
 	private static final long serialVersionUID = 1L;
 	private final List<DbSpecificConfig> dbConfigs = new ArrayList<DbSpecificConfig>();
 	private Object selected;
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public DbTypeSelectorModel(String defaultType) {
 		Pattern pattern = Pattern.compile(".*/" + defaultType);
-		Set<String> dbTypes = new TreeSet<String>(DbType.getBuiltInDatabaseTypes(Config.getJarName()));
+		Set<String> dbTypes = new TreeSet<String>(new DbType().getBuiltInDatabaseTypes(Config.getJarName()));
 		for (String typeName : dbTypes) {
 			DbSpecificConfig config = null;
 			try {
-				config = new DbSpecificConfig(DbType.getDbType(typeName));
-			} catch (InvalidConfigurationException e) {
-				System.err.println("Error loading properties for db type '" + typeName + "'");
-				e.printStackTrace();
-				System.exit(1);
-			} catch (IOException e) {
-				System.err.println("Error loading properties for db type '" + typeName + "'");
-				e.printStackTrace();
+				config = new DbSpecificConfig(new DbType().getDbType(typeName));
+			} catch (Exception e) {
+				logger.severe("Error loading properties for db type '" + typeName + "':\n" + e.toString());
 				System.exit(1);
 			}
 			dbConfigs.add(config);

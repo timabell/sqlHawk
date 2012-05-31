@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
@@ -52,6 +53,7 @@ public class StyleSheet {
 	private String selectedTableBackgroundColor;
 	private String excludedColumnBackgroundColor;
 	private final List<String> ids = new ArrayList<String>();
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	private StyleSheet(BufferedReader cssReader) throws IOException {
 		String lineSeparator = System.getProperty("line.separator");
@@ -163,7 +165,7 @@ public class StyleSheet {
 				attribs.put(attribute, value);
 			}
 		} catch (NoSuchElementException badToken) {
-			System.err.println("Failed to extract attributes from '" + data + "'");
+			logger.warning("Failed to extract attributes from '" + data + "'");
 			throw badToken;
 		}
 

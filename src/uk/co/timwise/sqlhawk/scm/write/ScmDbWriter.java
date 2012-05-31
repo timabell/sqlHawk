@@ -18,6 +18,7 @@ package uk.co.timwise.sqlhawk.scm.write;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
@@ -28,6 +29,7 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
 
 
 public class ScmDbWriter {
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public void writeForSourceControl(File outputDir, Database db) throws IOException {
 		writeProcs(outputDir, db.getProcs());
@@ -61,7 +63,7 @@ public class ScmDbWriter {
 		for (View view : views) {
 			String viewSql = view.getViewSql();
 			if (viewSql==null) {
-				System.err.println("No definition found for view " + view.getName());
+				logger.warning("No definition found for view " + view.getName());
 				continue; //don't write empty file.
 			}
 			LineWriter out = new LineWriter(new File(viewFolder, view.getName() + ".sql"), Config.DOT_CHARSET);

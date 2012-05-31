@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
 
@@ -33,17 +34,18 @@ public class DbType {
 	private String dbPropertiesLoadedFrom;
 	private Properties props;
 	private String name;
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
 	}
 
 
-	public static Set<String> getBuiltInDatabaseTypes() {
+	public Set<String> getBuiltInDatabaseTypes() {
 		return getBuiltInDatabaseTypes(Config.getJarName());
 	}
 
-	public static Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
+	public Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
 		Set<String> databaseTypes = new TreeSet<String>();
 		JarInputStream jar = null;
 
@@ -57,13 +59,15 @@ public class DbType {
 				if (dotPropsIndex != -1)
 					databaseTypes.add(entryName.substring(0, dotPropsIndex));
 			}
-		} catch (IOException exc) {
-			System.err.println("Failed to open jar to read properties files:\n" + exc);
+		} catch (Exception exc) {
+			logger.severe("Failed to open jar and read properties files:\n" + exc);
 		} finally {
 			if (jar != null) {
 				try {
 					jar.close();
-				} catch (IOException ignore) {}
+				} catch (IOException ignore) {
+					logger.warning("Failed to close file handle to jar:\n" + ignore.toString());
+				}
 			}
 		}
 
@@ -76,7 +80,7 @@ public class DbType {
 	 * @throws IOException
 	 * @throws InvalidConfigurationException if db properties are incorrectly formed
 	 */
-	public static DbType getDbType(String type) throws IOException, InvalidConfigurationException {
+	public DbType getDbType(String type) throws IOException, InvalidConfigurationException {
 		ResourceBundle bundle = null;
 		String dbPropertiesLoadedFrom = null;
 		File propertiesFile = new File(type);
@@ -97,9 +101,9 @@ public class DbType {
 					bundle = ResourceBundle.getBundle(path);
 					dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]/" + path + ".properties";
 				} catch (Exception notInJar) {
-					System.err.println("Failed to find properties for db type '"+type+"' in file '"+type+"' or '"+type+".properties', and no bundled version found:");
-					notInJar.printStackTrace();
-					notInJarWithoutPath.printStackTrace();
+					logger.severe("Failed to find properties for db type '"+type+"' in file '"+type+"' or '"
+							+type+".properties', and no bundled version found:\n"
+							+ notInJar.toString() + "\n" + notInJarWithoutPath.toString());
 				}
 			}
 		}

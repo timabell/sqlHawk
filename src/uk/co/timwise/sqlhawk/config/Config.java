@@ -976,9 +976,9 @@ public class Config
 	public void dumpDbUsage() {
 		System.out.println("Built-in database types and their required connection parameters:");
 		System.out.println();
-		for (String typeName : DbType.getBuiltInDatabaseTypes()) {
+		for (String typeName : new DbType().getBuiltInDatabaseTypes()) {
 			try {
-				new DbSpecificConfig(DbType.getDbType(typeName)).dumpUsage();
+				new DbSpecificConfig(new DbType().getDbType(typeName)).dumpUsage();
 			} catch (InvalidConfigurationException e) {
 				System.err.println("Error loading properties for db type '" + typeName + "'");
 				e.printStackTrace();
@@ -1043,7 +1043,7 @@ public class Config
 
 	public DbType getDbType() throws InvalidConfigurationException, IOException {
 		if (dbType == null) {
-			dbType = DbType.getDbType(getDbTypeName());
+			dbType = new DbType().getDbType(getDbTypeName());
 		}
 		return dbType;
 	}
