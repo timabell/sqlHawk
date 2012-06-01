@@ -408,7 +408,7 @@ public class HtmlTablePage extends HtmlFormatter {
 	}
 
 	private void writeView(View table, Database db, LineWriter out) throws IOException {
-		String sql = table.getViewSql();
+		String sql = table.getDefinition();
 		if (sql == null)
 			return;
 		Map<String, Table> tables = new CaseInsensitiveMap<Table>();

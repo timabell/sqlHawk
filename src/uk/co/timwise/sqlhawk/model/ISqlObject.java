@@ -16,27 +16,24 @@
 package uk.co.timwise.sqlhawk.model;
 
 /**
- * Treat views as tables that have no rows and are represented by the SQL that
- * defined them.
+ * Objects implementing this interface are things that are defined entirely by their
+ * SQL text, such as views.
+ *
  */
-public class View extends Table implements ISqlObject {
-	private String viewSql;
+public interface ISqlObject {
 
-	public View(String schema, String name, String comments, String viewSql) {
-		super(schema, name, comments);
-		super.setNumRows(0); // no rows in views. probably should be null but leaving as zero for now to not break calling code.
-		this.viewSql = viewSql;
-	}
+	/**
+	 * Gets the name of the object.
+	 *
+	 * @return the name
+	 */
+	String getName();
 
-	@Override
-	public boolean isView() {
-		return true;
-	}
-
-	public String getDefinition() {
-		return viewSql;
-	}
-	public void setViewSql(String viewSql) {
-		this.viewSql = viewSql;
-	}
+	/**
+	 * Gets the definition of a procedure / view /function.
+	 * This will be in the form of a T-SQL ALTER script.
+	 *
+	 * @return the definition
+	 */
+	String getDefinition();
 }

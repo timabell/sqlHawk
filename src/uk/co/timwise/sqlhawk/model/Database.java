@@ -170,4 +170,8 @@ public class Database {
 		return procs;
 	}
 
+	public Map<String, Function> getFunctionMap() {
+		return functions;
+	}
+
 }

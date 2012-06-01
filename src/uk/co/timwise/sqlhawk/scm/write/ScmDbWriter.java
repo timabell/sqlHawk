@@ -61,7 +61,7 @@ public class ScmDbWriter {
 		File viewFolder = new File(outputDir, "Views");
 		ensureFolder(viewFolder);
 		for (View view : views) {
-			String viewSql = view.getViewSql();
+			String viewSql = view.getDefinition();
 			if (viewSql==null) {
 				logger.warning("No definition found for view " + view.getName());
 				continue; //don't write empty file.

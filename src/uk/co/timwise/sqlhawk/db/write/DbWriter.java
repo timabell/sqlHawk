@@ -37,7 +37,9 @@ import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
+import uk.co.timwise.sqlhawk.model.ISqlObject;
 import uk.co.timwise.sqlhawk.model.Procedure;
+import uk.co.timwise.sqlhawk.model.View;
 import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
@@ -49,73 +51,64 @@ public class DbWriter {
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
 		logger.info("Updating existing database...");
-		updateProcs(config, connection, db, existingDb);
+		createUpdateDrop(config, connection, db.getProcMap(), existingDb.getProcMap(), "proc");
+		createUpdateDrop(config, connection, db.getViewMap(), existingDb.getViewMap(), "view");
+		createUpdateDrop(config, connection, db.getFunctionMap(), existingDb.getFunctionMap(), "function");
 	}
 
 	/**
-	 * Update procs in target db to match contents of "db".
-	 *
-	 * @param config the config
-	 * @param connection the connection
-	 * @param db the db
-	 * @param existingDb the existing db
-	 * @throws Exception the exception
-	 * @throws SQLException the sQL exception
-	 */
-	private void updateProcs(Config config, Connection connection, Database db, Database existingDb) throws Exception,
-			SQLException {
-		logger.fine("Synchronising stored procedures...");
-		Map<String, Procedure> existingProcs = existingDb.getProcMap();
-		final Pattern include = config.getProcedureInclusions();
-		final Pattern exclude = config.getProcedureExclusions();
-		NameValidator validator = new NameValidator("procedure", include, exclude, null);
-		for (Procedure updatedProc : db.getProcs()){
-			String procName = updatedProc.getName();
-			if (!validator.isValid(procName))
-				continue;
-			logger.finest("Processing proc " + procName);
-			String updatedDefinition = updatedProc.getDefinition();
-			if (existingProcs.containsKey(procName)) {
+	 * Update views/functions/procs in target db to match contents of "updatedObjects".
+	 * Note that exclusion patterns are expeccted to have already
+	 * been applied to existingObjects data to avoid accidentally
+	 * dropping excluded objects. */
+	private <TSqlObject extends ISqlObject> void createUpdateDrop(Config config, Connection connection,
+			Map<String, TSqlObject> updatedObjects, Map<String, TSqlObject> existingObjects, String typeName)
+				throws Exception, SQLException {
+		logger.fine("Synchronising " + typeName + "s...");
+		for (TSqlObject updatedObject : updatedObjects.values()){
+			String name = updatedObject.getName();
+			logger.finest("Processing " + typeName + " " + name);
+			String updatedDefinition = updatedObject.getDefinition();
+			if (existingObjects.containsKey(name)) {
 				//check if definitions match
-				if (updatedDefinition.equals(existingProcs.get(procName).getDefinition())) {
+				if (updatedDefinition.equals(existingObjects.get(name).getDefinition())) {
 					if (!config.isForceEnabled()) {
-						logger.fine("Existing proc " + procName + " already up to date");
-						continue; //already up to date, move on to next proc.
+						logger.fine("Existing " + typeName + " " + name + " already up to date");
+						continue; //already up to date, move on to next object.
 					} else {
-						logger.fine("Forcing update of up to date proc " + procName);
+						logger.fine("Forcing update of up to date " + typeName + " " + name);
 					}
 				}
-				logger.info("Updating existing proc " + procName);
+				logger.info("Updating existing " + typeName + " " + name);
 				//Change definition from CREATE to ALTER and run.
 				String updateSql = SqlManagement.ConvertCreateToAlter(updatedDefinition);
 				try {
 					if (!config.isDryRun())
 						connection.prepareStatement(updateSql).execute();
 				} catch (SQLException ex){
-					//rethrow with information on which proc failed.
-					throw new Exception("Error updating proc " + procName, ex);
+					//rethrow with information on which object failed.
+					throw new Exception("Error updating " + typeName + " " + name, ex);
 				}
-			} else { //new proc
-				logger.info("Adding new proc " + procName);
+			} else { //new object
+				logger.info("Adding new " + typeName + " " + name);
 				String createSql = SqlManagement.ConvertAlterToCreate(updatedDefinition);
 				try {
 					if (!config.isDryRun())
 						connection.prepareStatement(createSql).execute();
 				} catch (SQLException ex){
-					//rethrow with information on which proc failed.
-					throw new Exception("Error updating proc " + procName, ex);
+					//rethrow with information on which object failed.
+					throw new Exception("Error updating " + typeName + " " + name, ex);
 				}
 			}
 		}
-		logger.fine("Deleting unwanted stored procedures...");
-		Map<String, Procedure> updatedProcs = db.getProcMap();
-		for (Procedure existingProc : existingProcs.values()){
-			String procName = existingProc.getName();
-			logger.finest("Checking if proc " + procName + " needs dropping...");
-			if (!updatedProcs.containsKey(procName)){
-				logger.info("Dropping unwanted proc " + procName);
+		logger.fine("Deleting unwanted " + typeName + "s...");
+		for (TSqlObject existingView : existingObjects.values()){
+			String objectName = existingView.getName();
+			logger.finest("Checking if " + typeName + " " + objectName + " needs dropping...");
+			if (!updatedObjects.containsKey(objectName)){
+				logger.info("Dropping unwanted " + typeName + " " + objectName);
 				if (!config.isDryRun())
-					connection.prepareStatement("DROP PROCEDURE " + procName).execute();
+					connection.prepareStatement("DROP " + typeName + " " + objectName).execute(); //TODO: move syntax to property files
 			}
 		}
 	}

@@ -253,7 +253,7 @@ public class XmlTableFormatter {
 	 */
 	private void appendView(Element tableNode, View table) {
 		String sql;
-		if (table.isView() && (sql = table.getViewSql()) != null) {
+		if (table.isView() && (sql = table.getDefinition()) != null) {
 			DOMUtil.appendAttribute(tableNode, "viewSql", sql);
 		}
 	}

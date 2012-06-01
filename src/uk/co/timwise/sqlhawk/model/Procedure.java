@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.model;
 
-public class Procedure implements Comparable<Procedure> {
+public class Procedure implements Comparable<Procedure>, ISqlObject {
 	private final String schema;
 	private final String name;
 	private String definition;
