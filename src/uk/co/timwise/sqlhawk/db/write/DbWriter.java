@@ -64,7 +64,7 @@ public class DbWriter {
 	 */
 	private void updateProcs(Config config, Connection connection, Database db, Database existingDb) throws Exception,
 			SQLException {
-		logger.fine("Adding/updating stored procedures...");
+		logger.fine("Synchronising stored procedures...");
 		Map<String, Procedure> existingProcs = existingDb.getProcMap();
 		final Pattern include = config.getProcedureInclusions();
 		final Pattern exclude = config.getProcedureExclusions();
