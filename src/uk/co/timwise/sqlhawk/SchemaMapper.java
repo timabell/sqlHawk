@@ -81,7 +81,7 @@ public class SchemaMapper {
 			if (db != null) {
 				throw new Exception("Multiple inputs specified");
 			}
-			db = ScmDbReader.Load(config, config.getTargetDir());
+			db = new ScmDbReader().Load(config, config.getTargetDir());
 		}
 		if (db==null && !config.isIntializeLogEnabled())
 			logger.warning("No database information has been read. Set a read flag in the command line arguments if required.");

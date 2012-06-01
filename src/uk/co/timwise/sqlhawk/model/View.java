@@ -20,12 +20,14 @@ package uk.co.timwise.sqlhawk.model;
  * defined them.
  */
 public class View extends Table implements ISqlObject {
-	private String viewSql;
+	private String definition;
 
-	public View(String schema, String name, String comments, String viewSql) {
+	public View() {}
+
+	public View(String schema, String name, String comments, String definition) {
 		super(schema, name, comments);
 		super.setNumRows(0); // no rows in views. probably should be null but leaving as zero for now to not break calling code.
-		this.viewSql = viewSql;
+		this.definition = definition;
 	}
 
 	@Override
@@ -34,9 +36,16 @@ public class View extends Table implements ISqlObject {
 	}
 
 	public String getDefinition() {
-		return viewSql;
+		return definition;
 	}
-	public void setViewSql(String viewSql) {
-		this.viewSql = viewSql;
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void setDefinition(String definition) {
+		this.definition = definition;
 	}
 }

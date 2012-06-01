@@ -29,6 +29,8 @@ public interface ISqlObject {
 	 */
 	String getName();
 
+	void setName(String name);
+
 	/**
 	 * Gets the definition of a procedure / view /function.
 	 * This will be in the form of a T-SQL ALTER script.
@@ -36,4 +38,6 @@ public interface ISqlObject {
 	 * @return the definition
 	 */
 	String getDefinition();
+
+	void setDefinition(String definition);
 }

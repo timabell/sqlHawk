@@ -30,7 +30,7 @@ public class Database {
 	private String description;
 	public String Dbms;
 	private Map<String, Table> tables = new CaseInsensitiveMap<Table>();
-	private final Map<String, View> views = new CaseInsensitiveMap<View>();
+	private Map<String, View> views = new CaseInsensitiveMap<View>();
 	private final Map<String, Table> remoteTables = new CaseInsensitiveMap<Table>(); // key: schema.tableName value: RemoteTable
 	private Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
 	private Map<String, Function> functions = new CaseInsensitiveMap<Function>();
@@ -172,6 +172,14 @@ public class Database {
 
 	public Map<String, Function> getFunctionMap() {
 		return functions;
+	}
+
+	public void setViews(Map<String, View> views) {
+		this.views = views;
+	}
+
+	public void setFunctions(Map<String, Function> functions) {
+		this.functions = functions;
 	}
 
 }

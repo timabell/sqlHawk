@@ -34,8 +34,8 @@ import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
  * It holds everything about the database table's metadata.
  */
 public class Table implements Comparable<Table> {
-	private final String schema;
-	private final String name;
+	private String schema;
+	protected String name;
 	protected final CaseInsensitiveMap<TableColumn> columns = new CaseInsensitiveMap<TableColumn>();
 	private final List<TableColumn> primaryKeys = new ArrayList<TableColumn>();
 	private final CaseInsensitiveMap<ForeignKeyConstraint> foreignKeys = new CaseInsensitiveMap<ForeignKeyConstraint>();
@@ -46,6 +46,8 @@ public class Table implements Comparable<Table> {
 	private String comments;
 	private int maxChildren;
 	private int maxParents;
+
+	public Table() {}
 
 	/**
 	 * Construct a table that knows everything about the database table's metadata

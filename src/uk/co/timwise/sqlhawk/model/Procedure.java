@@ -16,8 +16,8 @@
 package uk.co.timwise.sqlhawk.model;
 
 public class Procedure implements Comparable<Procedure>, ISqlObject {
-	private final String schema;
-	private final String name;
+	private String schema;
+	private String name;
 	private String definition;
 
 	public String getSchema() {
@@ -31,6 +31,8 @@ public class Procedure implements Comparable<Procedure>, ISqlObject {
 	public String getDefinition(){
 		return definition;
 	}
+
+	public Procedure() {}
 
 	public Procedure(String schema, String name, String definition) {
 		this.schema = schema;
@@ -51,5 +53,15 @@ public class Procedure implements Comparable<Procedure>, ISqlObject {
 		if (nameCompare!=0)
 			return nameCompare;
 		return definition.compareTo(proc.definition);
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public void setDefinition(String definition) {
+		this.definition = definition;
 	}
 }

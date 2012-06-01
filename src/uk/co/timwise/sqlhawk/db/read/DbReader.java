@@ -120,7 +120,7 @@ public class DbReader {
 		for(View view : database.getViews())
 		{
 			logger.finer("getting sql for view " + view.getName());
-			view.setViewSql(fetchViewSql(properties, view.getName(), selectViewSql));
+			view.setDefinition(fetchViewSql(properties, view.getName(), selectViewSql));
 		}
 	}
 

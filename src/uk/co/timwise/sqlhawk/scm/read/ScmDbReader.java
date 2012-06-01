@@ -17,37 +17,58 @@ package uk.co.timwise.sqlhawk.scm.read;
 
 import java.io.File;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
+import uk.co.timwise.sqlhawk.model.Function;
+import uk.co.timwise.sqlhawk.model.ISqlObject;
 import uk.co.timwise.sqlhawk.model.Procedure;
+import uk.co.timwise.sqlhawk.model.View;
 import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
 import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
 public class ScmDbReader {
+	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public static Database Load(Config config, File inputDir) throws Exception {
+	public Database Load(Config config, File inputDir) throws Exception {
+		logger.info("Loading database definitions from folder '" + inputDir + "'");
+		if (!inputDir.isDirectory()) {
+			throw new Exception("specified scm input folder not found: " + inputDir);
+		}
 		Database db = new Database(null, null);
-		db.setProcs(readProcs(inputDir));
+		db.setProcs(readSqlObjects(new File(inputDir, "Procedures"), Procedure.class));
+		db.setViews(readSqlObjects(new File(inputDir, "Views"), View.class));
+		db.setFunctions(readSqlObjects(new File(inputDir, "Functions"), Function.class));
 		return db;
 	}
 
-	private static Map<String, Procedure> readProcs(File inputDir) throws Exception{
-		File procFolder = new File(inputDir, "Procedures");
-		Map<String, Procedure> procs = new CaseInsensitiveMap<Procedure>();
-		if (!procFolder.isDirectory())
-			return procs; //nothing to do
-		File[] files = procFolder.listFiles();
+	private <TSqlObject extends ISqlObject>
+				Map<String, TSqlObject> readSqlObjects(File inputDir, Class<TSqlObject> clazz)
+			throws Exception{
+		logger.fine("Loading scm files from " + inputDir);
+		Map<String, TSqlObject> sqlObjects = new CaseInsensitiveMap<TSqlObject>();
+		if (!inputDir.isDirectory()) {
+			logger.warning(inputDir + " not found");
+			return sqlObjects; //nothing to do
+		}
+		File[] files = inputDir.listFiles();
 		for(File file : files){
-			if (!file.getName().endsWith(".sql")) //skip non sql files
+			if (!file.getName().endsWith(".sql")) {
+				//skip non sql files
+				logger.finest("Ignoring non .sql file " + file);
 				continue;
+			}
+			logger.fine("Loading " + file);
 			String name = file.getName();
 			name = name.substring(0, name.length()-4);// trim extension from filename
 			String definition = FileHandling.readFile(file);
-			Procedure proc = new Procedure(null, name, definition);
-			procs.put(name, proc);
+			TSqlObject sqlObject = clazz.newInstance();//.Create(name, definition);
+			sqlObject.setName(name);
+			sqlObject.setDefinition(definition);
+			sqlObjects.put(name, sqlObject);
 		}
-		return procs;
+		return sqlObjects;
 	}
 }
