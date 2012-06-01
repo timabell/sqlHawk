@@ -49,12 +49,7 @@ public class DbWriter {
 	public void write(Config config, Connection connection,
 			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
 		logger.info("Updating existing database...");
-		//add/update stored procs.
-		if (db.getProcs().isEmpty()){
-			logger.warning("No procedures requested, skipping stored procedure update.");
-		} else {
-			updateProcs(config, connection, db, existingDb);
-		}
+		updateProcs(config, connection, db, existingDb);
 	}
 
 	/**
