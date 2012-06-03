@@ -685,6 +685,14 @@ header p {
   font-size: 18px;
   margin: 0px;
 }
+#appLogo {
+  height: 50px;
+  width: 50px;
+  padding: 1em;
+  float: right;
+  background: url('../images/sqlHawk-logo.svg') no-repeat center;
+  background-size: 60px;
+}
 
 #banner {
   z-index: 100;
