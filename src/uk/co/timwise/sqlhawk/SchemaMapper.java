@@ -195,7 +195,13 @@ public class SchemaMapper {
 		DbReader reader = new DbReader();
 		Database existingDb = reader.Read(config, connection, meta, null);
 		DbWriter writer = new DbWriter(); 
-		writer.runUpgradeScripts(config, connection, meta);
+		if (writer.runUpgradeScripts(config, connection, meta)) {
+			// Refresh the information about the target database having applied outstanding scripts.
+			// This ensures that if procs etc are added/removed in the scripted update then the final write
+			// doesn't fail due to incorrect use of CREATE vs UPDATE (or DROP).
+			logger.info("Re-reading database after scripted update...");
+			existingDb = reader.Read(config, connection, meta, null);
+		}
 		writer.write(config, connection, meta, db, existingDb);
 	}
 
