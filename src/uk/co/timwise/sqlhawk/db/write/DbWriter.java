@@ -132,12 +132,13 @@ public class DbWriter {
 	 * @return true, if any scripts were run, false if nothing was outstanding
 	 * @throws Exception the exception
 	 */
-	public boolean runUpgradeScripts(Config config, Connection connection,
+	public void runUpgradeScripts(Config config, Connection connection,
 			DatabaseMetaData meta) throws Exception {
+		logger.fine("Running upgrade scripts...");
 		File scriptFolder = new File(config.getTargetDir(), "UpgradeScripts");
 		if (!scriptFolder.isDirectory()) {
 			logger.warning("Upgrade script directory '" + scriptFolder + "' not found. Skipping upgrade scripts.");
-			return false;
+			return;
 		}
 		String batch = config.getBatch();
 		Properties properties = config.getDbType().getProps();
@@ -154,13 +155,12 @@ public class DbWriter {
 			logger.fine("Transactions not supported by this db type. Transactions will not be used.");
 		}
 		try {
-			boolean scriptsRun = runScriptDirectory(config, connection, scriptFolder, batch, strip);
+			runScriptDirectory(config, connection, scriptFolder, batch, strip);
 			if (useTransactions) {
 				logger.fine("Committing scripted update transaction...");
 				connection.commit();
 				connection.setAutoCommit(savedTransactionsSetting);
 			}
-			return scriptsRun;
 		} catch (Exception ex) {
 			if (useTransactions) {
 				logger.fine("Rolling back scripted update transaction...");
@@ -183,7 +183,7 @@ public class DbWriter {
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws Exception the exception
 	 */
-	private boolean runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch, int strip) throws IOException,
+	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch, int strip) throws IOException,
 			Exception {
 		File[] files = scriptFolder.listFiles();
 		Arrays.sort(files, new Comparator<File>() {
@@ -209,7 +209,6 @@ public class DbWriter {
 				return o1Number.group(2).compareTo(o2Number.group(2));
 			}
 		});
-		boolean scriptsRun = false;
 		// Split where GO on its own on a line (ignoring whitespace, case insensitive)
 		// This is a best attempt short of full SQL parsing to establish quoting & commenting.
 		// see: http://stackoverflow.com/questions/10734824
@@ -237,7 +236,6 @@ public class DbWriter {
 				} catch (Exception ex) {
 					throw new Exception("Reading table SqlHawk_UpgradeLog failed, use --initialize-tracking before first run.", ex);
 				}
-				scriptsRun = true;
 				try {
 					logger.info("Running upgrade script '" + file + "'...");
 					// Split into batches similar to the sql server tools,this makes
@@ -261,6 +259,5 @@ public class DbWriter {
 				}
 			}
 		}
-		return scriptsRun;
 	}
 }

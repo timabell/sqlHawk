@@ -127,8 +127,8 @@ public class SchemaMapper {
 				String schemaSpec = config.getSchemaSpec();
 				if (schemaSpec == null)
 					schemaSpec = config.getDbType().getProps().getProperty("schemaSpec", ".*");
-				Connection connection = getConnection(config);
-				DatabaseMetaData meta = connection.getMetaData();
+				DatabaseMetaData meta = null;
+				Connection connection = getConnection(config, meta);
 				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
 			}
@@ -137,14 +137,11 @@ public class SchemaMapper {
 
 	private Database readDb(Config config)
 			throws Exception {
-		Connection connection = getConnection(config);
-		DatabaseMetaData meta = connection.getMetaData();
-
+		DatabaseMetaData meta = null;
+		Connection connection = getConnection(config, meta);
 		setSchema(config, meta);
 
 		SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), config.getDb(), config.getSchema());
-
-		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		if (schemaMeta != null && schemaMeta.getFile() != null) {
 			logger.info("Using additional metadata from " + schemaMeta.getFile());
 		}
@@ -152,8 +149,7 @@ public class SchemaMapper {
 		// create our representation of the database
 		logger.info("Gathering schema details...");
 		DbReader reader = new DbReader();
-		Database db = reader.Read(config, connection, meta, schemaMeta);
-		return db;
+		return reader.Read(config, connection, meta, schemaMeta);
 	}
 
 	/**
@@ -177,8 +173,7 @@ public class SchemaMapper {
 
 	private void initializeLog(Config config)
 			throws Exception {
-		Connection connection = getConnection(config);
-		logger.info("Connected to " + config.getDb());
+		Connection connection = getConnection(config, null);
 		logger.info("Initializing tracking log table...");
 		DbWriter writer = new DbWriter();
 		writer.initializeLog(connection, config);
@@ -186,26 +181,21 @@ public class SchemaMapper {
 
 	private void writeDb(Config config, Database db)
 			throws Exception {
-		Connection connection = getConnection(config);
-		DatabaseMetaData meta = connection.getMetaData();
+		DatabaseMetaData meta = null;
+		Connection connection = getConnection(config, meta);
 		setSchema(config, meta);
 
-		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
-		logger.info("Gathering existing schema details");
+		DbWriter writer = new DbWriter();
+		writer.runUpgradeScripts(config, connection, meta);
+
+		logger.fine("Gathering update schema details before applying proc/view/function changes...");
 		DbReader reader = new DbReader();
 		Database existingDb = reader.Read(config, connection, meta, null);
-		DbWriter writer = new DbWriter(); 
-		if (writer.runUpgradeScripts(config, connection, meta)) {
-			// Refresh the information about the target database having applied outstanding scripts.
-			// This ensures that if procs etc are added/removed in the scripted update then the final write
-			// doesn't fail due to incorrect use of CREATE vs UPDATE (or DROP).
-			logger.info("Re-reading database after scripted update...");
-			existingDb = reader.Read(config, connection, meta, null);
-		}
+
 		writer.write(config, connection, meta, db, existingDb);
 	}
 
-	private Connection getConnection(Config config)
+	private Connection getConnection(Config config, DatabaseMetaData meta)
 			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config);
@@ -221,6 +211,8 @@ public class SchemaMapper {
 			driverPath = config.getDriverPath() + File.pathSeparator + driverPath;
 
 		connection = getConnection(config, connectionUrl, driverClass, driverPath);
+		meta = connection.getMetaData();
+		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
 		return connection;
 	}
 
