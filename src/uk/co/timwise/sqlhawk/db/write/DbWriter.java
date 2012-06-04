@@ -35,6 +35,7 @@ import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.SqlManagement;
+import uk.co.timwise.sqlhawk.db.read.DbReader;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ISqlObject;
@@ -49,8 +50,15 @@ public class DbWriter {
 	private String upgradeLogFindSql;
 
 	public void write(Config config, Connection connection,
-			DatabaseMetaData meta, Database db, Database existingDb) throws Exception {
-		logger.info("Updating existing database...");
+			DatabaseMetaData meta, Database db) throws Exception {
+		logger.fine("Writing to database...");
+
+		runUpgradeScripts(config, connection, meta);
+
+		logger.fine("Gathering update schema details before applying proc/view/function changes...");
+		DbReader reader = new DbReader();
+		Database existingDb = reader.Read(config, connection, meta, null);
+
 		createUpdateDrop(config, connection, db.getProcMap(), existingDb.getProcMap(), "proc");
 		createUpdateDrop(config, connection, db.getViewMap(), existingDb.getViewMap(), "view");
 		createUpdateDrop(config, connection, db.getFunctionMap(), existingDb.getFunctionMap(), "function");

@@ -186,13 +186,7 @@ public class SchemaMapper {
 		setSchema(config, meta);
 
 		DbWriter writer = new DbWriter();
-		writer.runUpgradeScripts(config, connection, meta);
-
-		logger.fine("Gathering update schema details before applying proc/view/function changes...");
-		DbReader reader = new DbReader();
-		Database existingDb = reader.Read(config, connection, meta, null);
-
-		writer.write(config, connection, meta, db, existingDb);
+		writer.write(config, connection, meta, db);
 	}
 
 	private Connection getConnection(Config config, DatabaseMetaData meta)
