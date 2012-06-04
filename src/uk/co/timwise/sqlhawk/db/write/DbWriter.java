@@ -53,15 +53,38 @@ public class DbWriter {
 			DatabaseMetaData meta, Database db) throws Exception {
 		logger.fine("Writing to database...");
 
-		runUpgradeScripts(config, connection, meta);
+		boolean useTransactions = meta.supportsTransactions();
+		boolean savedTransactionsSetting = false;
+		if (useTransactions) {
+			logger.fine("Starting transaction for database write...");
+			savedTransactionsSetting = connection.getAutoCommit();
+			connection.setAutoCommit(false);
+		} else {
+			logger.fine("Transactions not supported by this db type. Transactions will not be used.");
+		}
+		try {
+			runUpgradeScripts(config, connection, meta);
 
-		logger.fine("Gathering update schema details before applying proc/view/function changes...");
-		DbReader reader = new DbReader();
-		Database existingDb = reader.Read(config, connection, meta, null);
+			logger.fine("Gathering update schema details before applying proc/view/function changes...");
+			DbReader reader = new DbReader();
+			Database existingDb = reader.Read(config, connection, meta, null);
 
-		createUpdateDrop(config, connection, db.getProcMap(), existingDb.getProcMap(), "proc");
-		createUpdateDrop(config, connection, db.getViewMap(), existingDb.getViewMap(), "view");
-		createUpdateDrop(config, connection, db.getFunctionMap(), existingDb.getFunctionMap(), "function");
+			createUpdateDrop(config, connection, db.getProcMap(), existingDb.getProcMap(), "proc");
+			createUpdateDrop(config, connection, db.getViewMap(), existingDb.getViewMap(), "view");
+			createUpdateDrop(config, connection, db.getFunctionMap(), existingDb.getFunctionMap(), "function");
+			if (useTransactions) {
+				logger.fine("Committing database write transaction...");
+				connection.commit();
+				connection.setAutoCommit(savedTransactionsSetting);
+			}
+		} catch (Exception ex) {
+			if (useTransactions) {
+				logger.fine("Rolling back database write transaction...");
+				connection.rollback();
+				connection.setAutoCommit(savedTransactionsSetting);
+			}
+			throw ex;
+		}
 	}
 
 	/**
@@ -153,30 +176,7 @@ public class DbWriter {
 		upgradeLogInsertSql = properties.getProperty("upgradeLogInsert");
 		upgradeLogFindSql = properties.getProperty("upgradeLogFind");
 		int strip = scriptFolder.toString().length() + 1; // remove base path + trailing slash
-		boolean useTransactions = meta.supportsTransactions();
-		boolean savedTransactionsSetting = false;
-		if (useTransactions) {
-			logger.fine("Starting transaction for scripted update...");
-			savedTransactionsSetting = connection.getAutoCommit();
-			connection.setAutoCommit(false);
-		} else {
-			logger.fine("Transactions not supported by this db type. Transactions will not be used.");
-		}
-		try {
-			runScriptDirectory(config, connection, scriptFolder, batch, strip);
-			if (useTransactions) {
-				logger.fine("Committing scripted update transaction...");
-				connection.commit();
-				connection.setAutoCommit(savedTransactionsSetting);
-			}
-		} catch (Exception ex) {
-			if (useTransactions) {
-				logger.fine("Rolling back scripted update transaction...");
-				connection.rollback();
-				connection.setAutoCommit(savedTransactionsSetting);
-			}
-			throw ex;
-		}
+		runScriptDirectory(config, connection, scriptFolder, batch, strip);
 	}
 
 	/**
