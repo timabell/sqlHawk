@@ -13,12 +13,13 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk.util;
+package uk.co.timwise.sqlhawk.console;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.util.Arrays;
+
 
 /**
  * This class prompts the user for a password and attempts to mask input with

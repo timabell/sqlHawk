@@ -51,7 +51,6 @@ import uk.co.timwise.sqlhawk.scm.write.ScmDbWriter;
 import uk.co.timwise.sqlhawk.text.TableOrderer;
 import uk.co.timwise.sqlhawk.text.TextFormatter;
 import uk.co.timwise.sqlhawk.util.LineWriter;
-import uk.co.timwise.sqlhawk.util.PasswordReader;
 import uk.co.timwise.sqlhawk.xml.write.xmlWriter;
 
 
@@ -323,9 +322,6 @@ public class SchemaMapper {
 		}
 		if (config.getPassword() != null) {
 			connectionProperties.put("password", config.getPassword());
-		} else if (config.isPromptForPasswordEnabled()) {
-			connectionProperties.put("password",
-					new String(PasswordReader.getInstance().readPassword("Password: ")));
 		}
 
 		Connection connection = null;

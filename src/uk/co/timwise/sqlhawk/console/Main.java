@@ -53,6 +53,10 @@ public class Main {
 		int exitCode = 1;
 
 		try {
+			if (config.isPromptForPasswordEnabled()) {
+				config.getConnectionProperties().put("password",
+						new String(PasswordReader.getInstance().readPassword("Password: ")));
+			}
 			//begin analysis
 			SchemaMapper mapper = new SchemaMapper();
 			mapper.RunMapping(config);
