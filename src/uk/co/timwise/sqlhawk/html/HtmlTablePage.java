@@ -419,12 +419,11 @@ public class HtmlTablePage extends HtmlFormatter {
 			tables.put(v.getName(), v);
 
 		Set<Table> references = new TreeSet<Table>();
-		String formatted = Config.getInstance().getSqlFormatter().format(sql, db, references);
 
 		out.writeln("<div class='indent spacer'>");
-		out.writeln("  View Definition:");
-		out.writeln(formatted);
-		out.writeln("</div>");
+		out.writeln("  View Definition:<pre><code class='sql'>");
+		out.writeln(sql.replace("<", "&lt;"));
+		out.writeln("</code></pre></div>");
 		out.writeln("<div class='spacer'>&nbsp;</div>");
 
 		if (!references.isEmpty()) {

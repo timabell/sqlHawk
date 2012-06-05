@@ -20,20 +20,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
-import uk.co.timwise.sqlhawk.html.DefaultSqlFormatter;
 import uk.co.timwise.sqlhawk.html.Dot;
-import uk.co.timwise.sqlhawk.html.SqlFormatter;
-import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
 
 /**
  * Configuration of a sqlHawk run
@@ -66,8 +60,6 @@ public class Config
 	private Integer fontSize;
 	private String description;
 	private Level logLevel;
-	private SqlFormatter sqlFormatter;
-	private String sqlFormatterClass;
 	private Boolean highQuality;
 	private String schemaSpec;  // used in conjunction with evaluateAll
 	public static final String DOT_CHARSET = "UTF-8";
@@ -526,55 +518,6 @@ public class Config
 
 	public List<String> getSchemas() {
 		return schemas;
-	}
-
-	/**
-	 * Set the name of the {@link SqlFormatter SQL formatter} class to use to
-	 * format SQL into HTML.<p/>
-	 * The implementation of the class must be made available to the class
-	 * loader, typically by specifying the path to its jar with <em>--driver-path</em>
-	 * ({@link #setDriverPath(String)}).
-	 */
-	public void setSqlFormatter(String formatterClassName) {
-		sqlFormatterClass = formatterClassName;
-		sqlFormatter = null;
-	}
-
-	/**
-	 * Set the {@link SqlFormatter SQL formatter} to use to format
-	 * SQL into HTML.
-	 */
-	public void setSqlFormatter(SqlFormatter sqlFormatter) {
-		this.sqlFormatter = sqlFormatter;
-		if (sqlFormatter != null)
-			sqlFormatterClass = sqlFormatter.getClass().getName();
-	}
-
-	/**
-	 * Returns an implementation of {@link SqlFormatter SQL formatter} to use to format
-	 * SQL into HTML.  The default implementation is {@link DefaultSqlFormatter}.
-	 *
-	 * @return
-	 * @throws InvalidConfigurationException if unable to instantiate an instance
-	 */
-	@SuppressWarnings("unchecked")
-	public SqlFormatter getSqlFormatter() throws InvalidConfigurationException {
-		if (sqlFormatter == null) {
-			if (sqlFormatterClass == null) {
-				if (jsapConfig.userSpecified("sql-formatter"))
-					sqlFormatterClass = jsapConfig.getString("sql-formatter");
-				else
-					sqlFormatterClass = DefaultSqlFormatter.class.getName();
-			}
-			try {
-				Class<SqlFormatter> clazz = (Class<SqlFormatter>)Class.forName(sqlFormatterClass);
-				sqlFormatter = clazz.newInstance();
-			} catch (Exception exc) {
-				throw new InvalidConfigurationException("Failed to initialize instance of SQL formatter: ", exc)
-				.setParamName("sql-formatter");
-			}
-		}
-		return sqlFormatter;
 	}
 
 	public boolean isEvaluateAllEnabled() {
