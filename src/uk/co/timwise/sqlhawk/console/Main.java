@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.console;
 
-import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.db.read.ConnectionFailure;
 import uk.co.timwise.sqlhawk.db.read.EmptySchemaException;

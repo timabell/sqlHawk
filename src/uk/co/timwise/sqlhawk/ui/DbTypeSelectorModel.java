@@ -26,9 +26,9 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
 import uk.co.timwise.sqlhawk.DbType;
-import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
+import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 
 public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxModel {
 	private static final long serialVersionUID = 1L;

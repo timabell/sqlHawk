@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import uk.co.timwise.sqlhawk.DbType;
-import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.html.DefaultSqlFormatter;
 import uk.co.timwise.sqlhawk.html.Dot;
 import uk.co.timwise.sqlhawk.html.SqlFormatter;

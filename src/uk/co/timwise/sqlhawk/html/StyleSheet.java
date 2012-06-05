@@ -30,8 +30,8 @@ import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
-import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**

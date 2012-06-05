@@ -31,8 +31,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.db.read.DbReader;

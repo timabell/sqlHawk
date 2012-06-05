@@ -29,6 +29,7 @@ import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 
 public class DbType {
 	private String dbPropertiesLoadedFrom;

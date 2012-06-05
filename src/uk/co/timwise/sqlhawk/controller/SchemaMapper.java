@@ -34,8 +34,8 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
-import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.db.ConnectionURLBuilder;
 import uk.co.timwise.sqlhawk.db.read.ConnectionFailure;
 import uk.co.timwise.sqlhawk.db.read.DbReader;
