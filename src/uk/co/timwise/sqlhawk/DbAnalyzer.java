@@ -15,20 +15,12 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
@@ -85,71 +77,5 @@ public class DbAnalyzer {
 		});
 
 		return columns;
-	}
-
-	/**
-	 * getSchemas - returns a List of schema names (Strings)
-	 *
-	 * @param meta DatabaseMetaData
-	 */
-	public static List<String> getSchemas(DatabaseMetaData meta) throws SQLException {
-		List<String> schemas = new ArrayList<String>();
-
-		ResultSet rs = meta.getSchemas();
-		while (rs.next()) {
-			schemas.add(rs.getString("TABLE_SCHEM"));
-		}
-		rs.close();
-
-		return schemas;
-	}
-
-	/**
-	 * getSchemas - returns a List of schema names (Strings) that contain tables
-	 *
-	 * @param meta DatabaseMetaData
-	 */
-	public static List<String> getPopulatedSchemas(DatabaseMetaData meta) throws SQLException {
-		return getPopulatedSchemas(meta, ".*");
-	}
-
-	/**
-	 * getSchemas - returns a List of schema names (Strings) that contain tables and
-	 * match the <code>schemaSpec</code> regular expression
-	 *
-	 * @param meta DatabaseMetaData
-	 */
-	public static List<String> getPopulatedSchemas(DatabaseMetaData meta, String schemaSpec) throws SQLException {
-		Set<String> schemas = new TreeSet<String>(); // alpha sorted
-		Pattern schemaRegex = Pattern.compile(schemaSpec);
-		Logger logger = Logger.getLogger(DbAnalyzer.class.getName());
-
-		Iterator<String> iter = getSchemas(meta).iterator();
-		while (iter.hasNext()) {
-			String schema = iter.next().toString();
-			if (schemaRegex.matcher(schema).matches()) {
-				ResultSet rs = null;
-				try {
-					rs = meta.getTables(null, schema, "%", null);
-					if (rs.next()) {
-						logger.fine("Including schema " + schema +
-								": matches + \"" + schemaRegex + "\" and contains tables");
-						schemas.add(schema);
-					} else {
-						logger.fine("Excluding schema " + schema +
-								": matches \"" + schemaRegex + "\" but contains no tables");
-					}
-				} catch (SQLException ignore) {
-				} finally {
-					if (rs != null)
-						rs.close();
-				}
-			} else {
-				logger.fine("Excluding schema " + schema +
-						": doesn't match \"" + schemaRegex + '"');
-			}
-		}
-
-		return new ArrayList<String>(schemas);
 	}
 }
