@@ -143,7 +143,7 @@ public class SchemaMapper {
 			throws Exception {
 		ConnectionWithMeta connection = getConnection(config);
 
-		SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), config.getDb(), config.getSchema());
+		SchemaMeta schemaMeta = config.getMetaDataPath() == null ? null : new SchemaMeta(config.getMetaDataPath(), config.getDb(), config.getSchema());
 		if (schemaMeta != null && schemaMeta.getFile() != null) {
 			logger.info("Using additional metadata from " + schemaMeta.getFile());
 		}

@@ -35,20 +35,12 @@ import uk.co.timwise.sqlhawk.html.Dot;
 import uk.co.timwise.sqlhawk.html.SqlFormatter;
 import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
 
-import com.martiansoftware.jsap.FlaggedOption;
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPException;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.Parameter;
-import com.martiansoftware.jsap.SimpleJSAP;
-import com.martiansoftware.jsap.Switch;
-
 /**
  * Configuration of a sqlHawk run
  */
 public class Config
 {
-	private static Config instance;
+	private static Config instance; // TODO: remove config "instance", replace with simpler usages
 	private File targetDir;
 	private File graphvizDir;
 	private String dbTypeName;
@@ -80,10 +72,33 @@ public class Config
 	private String schemaSpec;  // used in conjunction with evaluateAll
 	public static final String DOT_CHARSET = "UTF-8";
 	private static final String ESCAPED_EQUALS = "\\=";
-	private JSAPResult jsapConfig;
 	private DbType dbType;
-	private SimpleJSAP jsapParser;
-	private String jarCommandLine;
+	private boolean htmlGenerationEnabled;
+	private boolean sourceControlOutputEnabled;
+	private boolean xmlOutputEnabled;
+	private boolean impliedConstraintsEnabled;
+	private String metaDataPath;
+	private boolean schemaDisabled;
+	private boolean singleSignOn;
+	private boolean rankDirBugEnabled;
+	private boolean railsEnabled;
+	private boolean encodeCommentsEnabled;
+	private boolean numRowsEnabled;
+	private boolean viewsEnabled;
+	private boolean tableProcessingEnabled;
+	private boolean evaluateAllEnabled;
+	private String databaseInstance;
+	private boolean showDetailedTablesEnabled;
+	private String driverPath;
+	private Map<String, String> extraOptions;
+	private boolean orderingOutputEnabled;
+	private boolean databaseInputEnabled;
+	private boolean scmInputEnabled;
+	private boolean databaseOutputEnabled;
+	private boolean dryRun;
+	private boolean forceEnabled;
+	private boolean intializeLogEnabled;
+	private String batch;
 
 	/**
 	 * Default constructor. Intended for when you want to inject properties
@@ -95,118 +110,37 @@ public class Config
 			setInstance(this);
 	}
 
-	/**
-	 * Construct a configuration from an array of options (e.g. from a command
-	 * line interface).
-	 *
-	 * @param options
-	 * @throws JSAPException 
-	 */
-	public Config(String[] argv) throws JSAPException
-	{
-		setInstance(this);
-		//new code for arg parsing using jsap library.
-		File jarFile = new File(Config.class.getProtectionDomain().getCodeSource().getLocation().getFile());
-		String jarName = jarFile.getName();
-		if (jarName=="output") //nicer help output if running outside a jar (i.e. debugging in eclipse)
-			jarName = "sqlHawk.jar";
-		jarCommandLine = "java -jar " + jarName;
-		jsapParser = new SimpleJSAP(jarCommandLine, "Maps sql schema to and from file formats.",
-				new Parameter[] {
-				//global options
-				new FlaggedOption("log-level", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "log-level", "Set the level of logging to perform. The available levels in ascending order of verbosity are: severe, warning, info, config, fine, finer, finest"),
-				new Switch("disable-tables", JSAP.NO_SHORTFLAG, "disable-tables", "Disables read and output of table details."),
-				new Switch("disable-views", JSAP.NO_SHORTFLAG, "disable-views", "Disables read and output of view details."),
-				//options for connecting to db
-				new Switch("db-help", JSAP.NO_SHORTFLAG, "db-help", "Show database specific usage information."),
-				new FlaggedOption("db-type", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 't', "db-type"),
-				new FlaggedOption("host", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'h', "host"),
-				new FlaggedOption("port", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "port"),
-				new FlaggedOption("user", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'u', "user", "Username to use when connecting to the database."),
-				new Switch("sso", JSAP.NO_SHORTFLAG, "sso", "Use single-signon when connecting to the database."),
-				new Switch("pfp", JSAP.NO_SHORTFLAG, "pfp", "Prompt For Password to use when connecting to the database."),
-				new FlaggedOption("password", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'p', "password", "Password to use when connecting to the database."),
-				new FlaggedOption("database", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 'd', "database", "Name of the database to connect to."),
-				new FlaggedOption("schema", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, 's', "schema", "Name of the schema to use/analyse."),
-				new FlaggedOption("schemas", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schemas", "Names of multiple schemas to use/analyse."),
-				new FlaggedOption("driver-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "driver-path", "Path to look for database driver jars."),
-				new FlaggedOption("connection-options-file", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options-file", "File containing a set of extra options to pass to the database driver."),
-				new FlaggedOption("connection-options", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "connection-options", "Set of extra options to pass to the database driver. Format of this option is --connection-options property1:value1,property2:value2...")
-				.setList(JSAP.LIST).setListSeparator(','),
-				//dbms vendor specific options. Options that don't have an entry here can be specified in connection-options. These options will work when specified either way. Explicit command line arguments are supplied purely to improve usability.
-				new FlaggedOption("database-instance", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "database-instance", "Sql server instance to connect to. If you want to use this then you need to use the db-type 'mssql-jtds-instance'"),
-				//options for reading from db
-				new Switch("database-input", JSAP.NO_SHORTFLAG, "database-input", "Read schema information from a database / dbms."),
-				new FlaggedOption("max-threads", JSAP.INTEGER_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "max-threads", "Set a limit the number of threads used to connect to the database. The default is 1. Set to -1 for no limit."),
-				new FlaggedOption("column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "column-exclusion-pattern", "Set the columns to exclude from all relationship diagrams. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
-				new FlaggedOption("indirect-column-exclusion-pattern", JSAP.STRING_PARSER, "[^.]", false, JSAP.NO_SHORTFLAG, "indirect-column-exclusion-pattern", "Set the columns to exclude from relationship diagrams where the specified columns aren't directly referenced by the focal table. Regular expression of the columns to exclude."), // default value matches nothing, i.e. nothing excluded
-				new FlaggedOption("table-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "table-inclusion-pattern", "Set the tables to include in analysis. Regular expression for matching table names. By default everything is included."), // default value matches anything, i.e. everything included
-				new FlaggedOption("table-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "table-exclusion-pattern", "Set the tables to exclude from analysis. Regular expression for matching table names."), // default value matches nothing, i.e. everything included
-				new FlaggedOption("procedure-inclusion-pattern", JSAP.STRING_PARSER, ".*", false, JSAP.NO_SHORTFLAG, "procedure-inclusion-pattern", "Set the procedures to include in analysis. Regular expression for matching procedure names. By default everything is included."), // default value matches anything, i.e. everything included
-				new FlaggedOption("procedure-exclusion-pattern", JSAP.STRING_PARSER, "", false, JSAP.NO_SHORTFLAG, "procedure-exclusion-pattern", "Set the procedures to exclude from analysis. Regular expression for matching procedure names."), // default value matches nothing, i.e. everything included
-				new Switch("guess-relationships", JSAP.NO_SHORTFLAG, "guess-relationships", "Guess the relationships between tables based on matches of column name & type. Use if you database has names like CustomerId for the PK of one table (Customer) and the matching field in a child table (Order.CustomerId) but doesn't have foreign keys constraints defined."),
-				new Switch("no-schema", JSAP.NO_SHORTFLAG, "no-schema", "Some databases types (e.g. older versions of Informix) don't really have the concept of a schema but still return true from 'supportsSchemasInTableDefinitions()'. This option lets you ignore that and treat all the tables as if they were in one flat namespace."),
-				new Switch("all", JSAP.NO_SHORTFLAG, "all", "Output all the available schemas"),
-				new FlaggedOption("schema-spec", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-spec", "When -all is specified then this is the regular expression that determines which schemas to evaluate."),
-				new Switch("rails", JSAP.NO_SHORTFLAG, "rails", "Look for Ruby on Rails-based naming conventions in relationships between logical foreign keys and primary keys. Basically all tables have a primary key named 'ID'. All tables are named plural names. The columns that logically reference that 'ID' are the singular form of the table name suffixed with '_ID'."),
-				new Switch("disable-row-counts", JSAP.NO_SHORTFLAG, "disable-row-counts", "Disables read and output of current row count of each table."),
-				//options for reading from scm files
-				new Switch("scm-input", JSAP.NO_SHORTFLAG, "scm-input", "Read schema information from source control files."),
-				//options for all file based operations
-				new FlaggedOption("target-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "target-path", "Sets the folder where generated files will be put or read from. The folder will be created if missing for write operations."),
-				//options for writing to html
-				new Switch("html-output", JSAP.NO_SHORTFLAG, "html-output", "Generate sqlHawk style html documentation."),
-				new Switch("html-comments", JSAP.NO_SHORTFLAG, "html-comments", "If this is set then raw html in comments will be allowed to pass through unencoded, otherwise html content will be encoded."),
-				new FlaggedOption("graphviz-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "graphviz-path", "Path to graphviz binaries. Used to find the 'dot' executable used to generate ER diagrams. If not specified then the program expects to find Graphviz's bin directory on the PATH."),
-				new FlaggedOption("diagram-font", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "diagram-font", "An alternate font name to use within diagram images. The default is 'Helvetica'."),
-				new FlaggedOption("diagram-font-size", JSAP.INTEGER_PARSER, "11", false, JSAP.NO_SHORTFLAG, "diagram-font-size", "An alternate font size to use within diagram images. The default is 11."),
-				new Switch("high-quality", JSAP.NO_SHORTFLAG, "high-quality", "Use a high quality 'dot' renderer. Higher quality output takes longer to generate and results in significantly larger image files (which take longer to download / display), but it generally looks better."),
-				new FlaggedOption("renderer", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "renderer", "Set the renderer to use for the -Tpng[:renderer[:formatter]] dot option as specified at http://www.graphviz.org/doc/info/command.html Note that the leading ':' is required while :formatter is optional. The default renderer is typically GD. Note that using the high-quality option is the preferred approach over using this option."),
-				new FlaggedOption("css", JSAP.STRING_PARSER, "sqlHawk.css", false, JSAP.NO_SHORTFLAG, "css", "The filename of an alternative cascading style sheet to use in generated html. Note that this file is parsed and used to determine characteristics of the generated diagrams, so it must contain specific settings that are documented within sqlHawk.css."),
-				new FlaggedOption("charset", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "charset", "The character set to use within HTML pages. Default is 'ISO-8859-1')."),
-				new FlaggedOption("schema-description", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "schema-description", "Description of schema that gets display on main html pages."),
-				new FlaggedOption("sql-formatter", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "sql-formatter", "The name of the SQL formatter class to use to format SQL into HTML. The implementation of the class must be made available to the class loader, typically by specifying the path to its jar with option 'driver-path'"),
-				new Switch("rankdirbug", JSAP.NO_SHORTFLAG, "rankdirbug", "Don't use this unless absolutely necessary as it screws up the layout. Changes dot's rank direction rankdir to right-to-left (RL). See http://www.graphviz.org/doc/info/attrs.html#d:rankdir"),
-				new Switch("compact-relationship-diagram", JSAP.NO_SHORTFLAG, "compact-relationship-diagram", "Switches dot to compact relationship diagrams. Use if generating diagrams for large numbers of tables (suggested for >300)"),
-				//options for writing to scm files
-				new Switch("scm-output", JSAP.NO_SHORTFLAG, "scm-output", "Generate output suitable for storing in source control."),
-				//options for writing to xml
-				new Switch("xml-output", JSAP.NO_SHORTFLAG, "xml-output", "Generate file(s) containing xml representation of a schema"),
-				//options for writing delete/insert order
-				new Switch("ordering-output", JSAP.NO_SHORTFLAG, "ordering-output", "Generate text files containing read/write order of tables that will work give current constraints. Useful for creating insert/delete scripts."),
-				//options for writing to a database
-				new Switch("initialize-tracking", JSAP.NO_SHORTFLAG, "initialize-tracking", "Creates the tracking table 'SqlHawk_UpgradeLog' that SqlHawk uses to determine if upgrade scripts have already been run."),
-				new Switch("database-output", JSAP.NO_SHORTFLAG, "database-output", "Write schema to a database / dbms. RISK OF DATA LOSS! TAKE BACKUPS FIRST!"),
-				new Switch("dry-run", JSAP.NO_SHORTFLAG, "dry-run", "Dry run. Don't actually write changes to the database."),
-				new Switch("force", JSAP.NO_SHORTFLAG, "force", "Update stored procedures, views and functions even if they don't appear different. This will allow you to revalidate these against the latest schema Recommended for use on continuous integration builds."),
-				new FlaggedOption("upgrade-batch", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "upgrade-batch", "When running upgrade scripts this will if set be added to the upgrade log to group together a set of scripts into a single batch. Suggested examples: the output of git describe, or an svn version number. This is to help track down the source of changes."),
-				//options for reading extra metadata
-				new FlaggedOption("metadata-path", JSAP.STRING_PARSER, JSAP.NO_DEFAULT, false, JSAP.NO_SHORTFLAG, "metadata-path", "Meta files are XML-based files that provide additional metadata about the schema being evaluated. Use this option to specify either the name of an individual XML file or the directory that contains meta files. If a directory is specified then it is expected to contain files matching the pattern [schema].meta.xml. For databases that don't have schema substitute [schema] with [database]."),
-		});
-		jsapConfig = jsapParser.parse(argv);
-		if (jsapParser.messagePrinted()) {
-			if (!jsapConfig.getBoolean("help")) {
-				showUsage();
-			}
-			System.exit( 1 );
-		}
-	}
-
-	public void showUsage() {
-		System.err.println();
-		System.err.println("Usage:");
-		System.err.println("  " + jarCommandLine + " " + jsapParser.getUsage());
-		System.err.println();
-		System.err.println("Run");
-		System.err.println(" " + jarCommandLine + " --help");
-		System.err.println("for full usage information.");
-	}
 
 	public static Config getInstance() {
 		if (instance == null)
 			instance = new Config();
 
 		return instance;
+	}
+
+	/**
+	 * Validate that the selected configuration is consistent with itself
+	 * and isn't missing options that are required due to the presence of
+	 * other options.
+	 * Throws an exception upon encountering an issue.
+	 * @throws Exception
+	 */
+	public void Validate() throws Exception {
+		if (isIntializeLogEnabled() && isDatabaseInputEnabled()){
+			throw new Exception("Conflicting configuration: both IntializeLog and DatabaseInput set. Set one or other.");
+		}
+		if (getPassword() != null && isSingleSignOn()){
+			throw new Exception("Conflicting configuration: Password and Single Sign On set. Set one or other.");
+		}
+		// TODO: validate all selected options and combinations
+		/*
+			if (dbTypeName==null) {
+				throw new MissingRequiredParameterException("db-type", false);
+			}
+			if (targetPath == null) {
+				throw new MissingRequiredParameterException("target-path", false);
+			}
+		 */
 	}
 
 	/**
@@ -221,28 +155,29 @@ public class Config
 	}
 
 	public boolean isHtmlGenerationEnabled() {
-		return jsapConfig.getBoolean("html-output");
+		return htmlGenerationEnabled;
 	}
 
 	public boolean isSourceControlOutputEnabled() {
-		return jsapConfig.getBoolean("scm-output");
+		return sourceControlOutputEnabled;
 	}
 
 	public boolean isXmlOutputEnabled() {
-		return jsapConfig.getBoolean("xml-output");
+		return xmlOutputEnabled;
 	}
 
 	public boolean isImpliedConstraintsEnabled() {
-		return jsapConfig.getBoolean("guess-relationships");
+		return impliedConstraintsEnabled;
 	}
 
 	public void setTargetDir(String targetDirName) {
 		if (targetDirName == null) {
-			throw new IllegalArgumentException("targetDirName is required");
+			targetDir = null;
+			return;
 		}
-		if (targetDirName.endsWith("\""))
+		if (targetDirName.endsWith("\"")){
 			targetDirName = targetDirName.substring(0, targetDirName.length() - 1);
-
+		}
 		setTargetDir(new File(targetDirName));
 	}
 
@@ -251,13 +186,6 @@ public class Config
 	}
 
 	public File getTargetDir() {
-		if (targetDir == null) {
-			String targetPath = jsapConfig.getString("target-path");
-			if (targetPath == null) {
-				throw new MissingRequiredParameterException("target-path", false);
-			}
-			setTargetDir(targetPath);
-		}
 		return targetDir;
 	}
 
@@ -267,9 +195,14 @@ public class Config
 	 * @param graphvizDir
 	 */
 	public void setGraphvizDir(String graphvizDir) {
-		if (graphvizDir.endsWith("\""))
+		if (graphvizDir == null){
+			this.graphvizDir = null;
+			return;
+		}
+		if (graphvizDir.endsWith("\"")) {
 			graphvizDir = graphvizDir.substring(0, graphvizDir.length() - 1);
-		setGraphvizDir(new File(graphvizDir));
+		}
+		this.graphvizDir = new File(graphvizDir);
 	}
 
 	/**
@@ -293,11 +226,6 @@ public class Config
 	 * @return
 	 */
 	public File getGraphvizDir() {
-		if (graphvizDir == null) {        	
-			String gv = jsapConfig.getString("graphviz-path");
-			if (gv != null)
-				setGraphvizDir(gv);
-		}
 		return graphvizDir;
 	}
 
@@ -310,8 +238,8 @@ public class Config
 	 * matching the pattern <code>[schema].meta.xml</code>.
 	 * For databases that don't have schema substitute [schema] with [database].
 	 */
-	public String getMeta() {
-		return jsapConfig.getString("metadata-path");
+	public String getMetaDataPath() {
+		return metaDataPath;
 	}
 
 	public void setDbTypeName(String dbTypeName) {
@@ -319,10 +247,6 @@ public class Config
 	}
 
 	public String getDbTypeName() {
-		if (dbTypeName == null)
-			dbTypeName = jsapConfig.getString("db-type");
-		if (dbTypeName==null)
-			throw new MissingRequiredParameterException("db-type", false);
 		return dbTypeName;
 	}
 
@@ -331,8 +255,6 @@ public class Config
 	}
 
 	public String getDb() {
-		if (db == null)
-			db = jsapConfig.getString("database");
 		return db;
 	}
 
@@ -341,8 +263,6 @@ public class Config
 	}
 
 	public String getSchema() {
-		if (schema == null)
-			schema = jsapConfig.getString("schema");
 		return schema;
 	}
 
@@ -354,7 +274,7 @@ public class Config
 	 * as if they were in one flat namespace.
 	 */
 	public boolean isSchemaDisabled() {
-		return jsapConfig.getBoolean("no-schema");
+		return schemaDisabled;
 	}
 
 	public void setHost(String host) {
@@ -362,8 +282,6 @@ public class Config
 	}
 
 	public String getHost() {
-		if (host == null)
-			host = jsapConfig.getString("host");
 		return host;
 	}
 
@@ -372,9 +290,6 @@ public class Config
 	}
 
 	public Integer getPort() {
-		if (port == null && jsapConfig.contains("port")) {
-			port = jsapConfig.getInt("port");
-		}
 		return port;
 	}
 
@@ -387,8 +302,6 @@ public class Config
 	 * Required unless single sign-on is enabled
 	 */
 	public String getUser() {
-		if (user == null)
-			user = jsapConfig.getString("user");
 		return user;
 	}
 
@@ -398,7 +311,7 @@ public class Config
 	 * single sign-on environments.
 	 */
 	public boolean isSingleSignOn() {
-		return jsapConfig.getBoolean("sso");
+		return singleSignOn;
 	}
 
 	/**
@@ -414,18 +327,9 @@ public class Config
 	 * @return
 	 */
 	public String getPassword() {
-		if (password == null)
-			password = jsapConfig.getString("password");
 		return password;
 	}
 
-	/**
-	 * @see #setPromptForPasswordEnabled(boolean)
-	 * @return
-	 */
-	public boolean isPromptForPasswordEnabled() {
-		return jsapConfig.getBoolean("pfp");
-	}
 
 	public String getConnectionPropertiesFile() {
 		return userConnectionPropertiesFile;
@@ -505,22 +409,13 @@ public class Config
 	 * Defaults to <code>"sqlHawk.css"</code>.
 	 */
 	public String getCss() {
-		if (css == null) {
-			css = jsapConfig.getString("css");
-		}
 		return css;
 	}
 
 	/**
 	 * The font to use within diagram images.
-	 * Default: Helvetica
 	 */
 	public String getFont() {
-		if (font == null) {
-			font = jsapConfig.getString("diagram-font");
-			if (font == null)
-				font = "Helvetica";
-		}
 		return font;
 	}
 
@@ -530,21 +425,17 @@ public class Config
 	 *
 	 * Defaults to 11.
 	 */
-	public int getFontSize() {
-		if (fontSize == null) {
-			fontSize = jsapConfig.getInt("diagram-font-size");
-		}
-		return fontSize.intValue();
+	public Integer getFontSize() {
+		return fontSize;
 	}
 
 	/**
-	 * The character set to use within HTML pages (defaults to <code>"ISO-8859-1"</code>).
+	 * The character set to use within HTML pages (defaults to
+	 * <code>"ISO-8859-1"</code>).
 	 */
 	public String getCharset() {
 		if (charset == null) {
-			charset = jsapConfig.getString("charset");
-			if (charset == null)
-				charset = "ISO-8859-1";
+			charset = "ISO-8859-1";
 		}
 		return charset;
 	}
@@ -553,8 +444,6 @@ public class Config
 	 * Description of schema that gets display on main pages.
 	 */
 	public String getDescription() {
-		if (description == null)
-			description = jsapConfig.getString("schema-description");
 		return description;
 	}
 
@@ -589,7 +478,7 @@ public class Config
 	 * http://www.graphviz.org/doc/info/attrs.html#d:rankdir
 	 */
 	public boolean isRankDirBugEnabled() {
-		return jsapConfig.getBoolean("rankdirbug");
+		return rankDirBugEnabled;
 	}
 
 	/**
@@ -602,14 +491,14 @@ public class Config
 	 * form of the table name suffixed with <code>_ID</code>.<p>
 	 */
 	public boolean isRailsEnabled() {
-		return jsapConfig.getBoolean("rails");
+		return railsEnabled;
 	}
 
 	/**
 	 * Allow Html In Comments - encode them unless otherwise specified
 	 */
 	public boolean isEncodeCommentsEnabled() {
-		return !jsapConfig.getBoolean("html-comments");
+		return encodeCommentsEnabled;
 	}
 
 	/**
@@ -619,18 +508,18 @@ public class Config
 	 * Defaults to <code>true</code> (enabled).
 	 */
 	public boolean isNumRowsEnabled() {
-		return !jsapConfig.getBoolean("disable-row-counts");
+		return numRowsEnabled;
 	}
 
 	/**
 	 * If enabled we'll include views in the analysis.<p/>
 	 */
 	public boolean isViewsEnabled() {
-		return !jsapConfig.getBoolean("disable-views");
+		return viewsEnabled;
 	}
 
 	public boolean isTableProcessingEnabled() {
-		return !jsapConfig.getBoolean("disable-tables");
+		return tableProcessingEnabled;
 	}
 
 	/**
@@ -638,10 +527,6 @@ public class Config
 	 * Regular expression of the columns to exclude.
 	 */
 	public Pattern getColumnExclusions() {
-		if (columnExclusions == null) {
-			String strExclusions = jsapConfig.getString("column-exclusion-pattern");
-			columnExclusions = Pattern.compile(strExclusions);
-		}
 		return columnExclusions;
 	}
 
@@ -652,10 +537,6 @@ public class Config
 	 * columnExclusions - regular expression of the columns to exclude
 	 */
 	public Pattern getIndirectColumnExclusions() {
-		if (indirectColumnExclusions == null) {
-			String strExclusions = jsapConfig.getString("indirect-column-exclusion-pattern");
-			indirectColumnExclusions = Pattern.compile(strExclusions);
-		}
 		return indirectColumnExclusions;
 	}
 
@@ -665,14 +546,6 @@ public class Config
 	 * @return
 	 */
 	public Pattern getTableInclusions() {
-		if (tableInclusions == null) {
-			String strInclusions = jsapConfig.getString("table-inclusion-pattern");
-			try {
-				tableInclusions = Pattern.compile(strInclusions);
-			} catch (PatternSyntaxException badPattern) {
-				throw new InvalidConfigurationException(badPattern).setParamName("table-inclusion-pattern");
-			}
-		}
 		return tableInclusions;
 	}
 
@@ -682,14 +555,6 @@ public class Config
 	 * @return
 	 */
 	public Pattern getTableExclusions() {
-		if (tableExclusions == null) {
-			String strExclusions = jsapConfig.getString("table-exclusion-pattern");
-			try {
-				tableExclusions = Pattern.compile(strExclusions);
-			} catch (PatternSyntaxException badPattern) {
-				throw new InvalidConfigurationException(badPattern).setParamName("table-exclusion-pattern");
-			}
-		}
 		return tableExclusions;
 	}
 
@@ -699,14 +564,6 @@ public class Config
 	 * @return
 	 */
 	public Pattern getProcedureInclusions() {
-		if (procedureInclusions == null) {
-			String strInclusions = jsapConfig.getString("procedure-inclusion-pattern");
-			try {
-				procedureInclusions = Pattern.compile(strInclusions);
-			} catch (PatternSyntaxException badPattern) {
-				throw new InvalidConfigurationException(badPattern).setParamName("procedure-inclusion-pattern");
-			}
-		}
 		return procedureInclusions;
 	}
 
@@ -716,24 +573,10 @@ public class Config
 	 * @return
 	 */
 	public Pattern getProcedureExclusions() {
-		if (procedureExclusions == null) {
-			String strExclusions = jsapConfig.getString("procedure-exclusion-pattern");
-			try {
-				procedureExclusions = Pattern.compile(strExclusions);
-			} catch (PatternSyntaxException badPattern) {
-				throw new InvalidConfigurationException(badPattern).setParamName("procedure-exclusion-pattern");
-			}
-		}
 		return procedureExclusions;
 	}
 
 	public List<String> getSchemas() {
-		if (schemas == null) {
-			if (jsapConfig.userSpecified("schemas")) {
-				String[] tmp = jsapConfig.getStringArray("schemas");
-				schemas = Arrays.asList(tmp);
-			}
-		}
 		return schemas;
 	}
 
@@ -787,7 +630,7 @@ public class Config
 	}
 
 	public boolean isEvaluateAllEnabled() {
-		return jsapConfig.getBoolean("all");
+		return evaluateAllEnabled;
 	}
 
 	/**
@@ -806,8 +649,6 @@ public class Config
 	 * expression that determines which schemas to evaluate.
 	 */
 	public String getSchemaSpec() {
-		if (schemaSpec == null)
-			schemaSpec = jsapConfig.getString("schema-spec");
 		return schemaSpec;
 	}
 
@@ -867,60 +708,13 @@ public class Config
 	}
 
 	/**
-	 * Set the level of logging to perform.<p/>
-	 * The levels in descending order are:
-	 * <ul>
-	 *  <li><code>severe</code> (highest - least detail)
-	 *  <li><code>warning</code> (default)
-	 *  <li><code>info</code>
-	 *  <li><code>config</code>
-	 *  <li><code>fine</code>
-	 *  <li><code>finer</code>
-	 *  <li><code>finest</code>  (lowest - most detail)
-	 * </ul>
-	 *
-	 * @param logLevel
-	 */
-	public void setLogLevel(String logLevel) {
-		if (logLevel == null || logLevel.isEmpty()) {
-			this.logLevel = Level.INFO; // default log level
-			return;
-		}
-
-		Map<String, Level> levels = new LinkedHashMap<String, Level>();
-		levels.put("all", Level.ALL);
-		levels.put("severe", Level.SEVERE);
-		levels.put("warning", Level.WARNING);
-		levels.put("info", Level.INFO);
-		levels.put("config", Level.CONFIG);
-		levels.put("fine", Level.FINE);
-		levels.put("finer", Level.FINER);
-		levels.put("finest", Level.FINEST);
-		levels.put("off", Level.OFF);
-
-		this.logLevel = levels.get(logLevel.toLowerCase());
-		if (this.logLevel == null) {
-			throw new InvalidConfigurationException("Invalid logLevel: '" + logLevel +
-					"'. Must be one of: " + levels.keySet());
-		}
-	}
-
-	/**
 	 * Returns the level of logging to perform.
 	 * See {@link #setLogLevel(String)}.
 	 *
 	 * @return
 	 */
 	public Level getLogLevel() {
-		if (logLevel == null) {
-			setLogLevel(jsapConfig.getString("log-level"));
-		}
-
 		return logLevel;
-	}
-
-	public boolean isDbHelpRequired() {
-		return jsapConfig.getBoolean("db-help");// dbHelpRequired;
 	}
 
 	/**
@@ -943,9 +737,7 @@ public class Config
 	}
 
 	public String getDatabaseInstance() {
-		if (jsapConfig.userSpecified("database-instance"))
-			return jsapConfig.getString("database-instance");
-		return null;
+		return databaseInstance;
 	}
 
 	/**
@@ -972,76 +764,40 @@ public class Config
 		}
 	}
 
-	public void dumpDbUsage() {
-		System.out.println("Built-in database types and their required connection parameters:");
-		System.out.println();
-		for (String typeName : new DbType().getBuiltInDatabaseTypes()) {
-			try {
-				new DbSpecificConfig(new DbType().getDbType(typeName)).dumpUsage();
-			} catch (InvalidConfigurationException e) {
-				System.err.println("Error loading properties for db type '" + typeName + "'");
-				e.printStackTrace();
-				System.exit(1);
-			} catch (IOException e) {
-				System.err.println("Error loading properties for db type '" + typeName + "'");
-				e.printStackTrace();
-				System.exit(1);
-			}
-		}
-		System.out.println();
-		System.out.println("You can use your own database types by specifying the filespec of a .properties file with -t.");
-		System.out.println("Grab one out of " + getJarName() + " and modify it to suit your needs.");
-		System.out.println();
-	}
-
 	public boolean isShowDetailedTablesEnabled() {
-		return !jsapConfig.getBoolean("compact-relationship-diagram");
+		return showDetailedTablesEnabled;
 	}
 
 	public String getDriverPath() {
-		return jsapConfig.getString("driver-path");
+		return driverPath;
 	}
 
 	public Map<String, String> getExtraConnectionOptions() {
-		Map<String, String> extraOptions = new CaseInsensitiveMap<String>();
-		if (!jsapConfig.userSpecified("connection-options"))
-			return extraOptions; //return empty list
-		//get the raw value pairs from the command line argument.
-		//jsap will parse comma separated values into separate strings,
-		//then we manually parse the colon separated key:value into its parts
-		//and add to list of option data.
-		String[] rawOptions = jsapConfig.getStringArray("connection-options");
-		for(String rawOption : rawOptions){
-			String parts[] = rawOption.split(":");
-			if (parts.length!=2)
-				throw new InvalidConfigurationException("error parsing value in --connection-options '" + rawOption + "'" );
-			extraOptions.put(parts[0], parts[1]);
-		}
-		return extraOptions;
+		return getExtraOptions();
 	}
 
 	public boolean isOrderingOutputEnabled() {
-		return jsapConfig.getBoolean("ordering-output");
+		return orderingOutputEnabled;
 	}
 
 	public boolean isDatabaseInputEnabled() {
-		return jsapConfig.getBoolean("database-input");
+		return databaseInputEnabled;
 	}
 
 	public boolean isScmInputEnabled() {
-		return jsapConfig.getBoolean("scm-input");
+		return scmInputEnabled;
 	}
 
 	public boolean isDatabaseOutputEnabled() {
-		return jsapConfig.getBoolean("database-output");
+		return databaseOutputEnabled;
 	}
 
 	public boolean isDryRun() {
-		return jsapConfig.getBoolean("dry-run");
+		return dryRun;
 	}
 
 	public boolean isForceEnabled() {
-		return jsapConfig.getBoolean("force");
+		return forceEnabled;
 	}
 
 	public DbType getDbType() throws InvalidConfigurationException, IOException {
@@ -1052,10 +808,214 @@ public class Config
 	}
 
 	public boolean isIntializeLogEnabled() {
-		return jsapConfig.getBoolean("initialize-tracking");
+		return intializeLogEnabled;
 	}
 
-	public String getBatch() {
-		return jsapConfig.getString("upgrade-batch");
+	public String getBatch() { //TODO: more descriptive name for batch property
+		return batch;
+	}
+
+
+	public void setHtmlGenerationEnabled(boolean htmlGenerationEnabled) {
+		this.htmlGenerationEnabled = htmlGenerationEnabled;
+	}
+
+
+	public void setXmlOutputEnabled(boolean xmlOutputEnabled) {
+		this.xmlOutputEnabled = xmlOutputEnabled;
+	}
+
+
+	public void setSourceControlOutputEnabled(boolean sourceControlOutputEnabled) {
+		this.sourceControlOutputEnabled = sourceControlOutputEnabled;
+	}
+
+
+	public void setImpliedConstraintsEnabled(boolean impliedConstraintsEnabled) {
+		this.impliedConstraintsEnabled = impliedConstraintsEnabled;
+	}
+
+	public void setMetaDataPath(String metaDataPath) {
+		this.metaDataPath = metaDataPath;
+	}
+
+
+	public void setSchemaDisabled(boolean schemaDisabled) {
+		this.schemaDisabled = schemaDisabled;
+	}
+
+
+	public void setSingleSignOn(boolean singleSignOn) {
+		this.singleSignOn = singleSignOn;
+	}
+
+
+	public void setCss(String css) {
+		this.css = css;
+	}
+
+
+	public void setFontSize(Integer fontSize) {
+		this.fontSize = fontSize;
+	}
+
+
+	public void setFont(String font) {
+		this.font = font;
+	}
+
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
+	public void setCharset(String charset) {
+		this.charset = charset;
+	}
+
+
+	public void setRankDirBugEnabled(boolean rankDirBugEnabled) {
+		this.rankDirBugEnabled = rankDirBugEnabled;
+	}
+
+
+	public void setRailsEnabled(boolean railsEnabled) {
+		this.railsEnabled = railsEnabled;
+	}
+
+
+	public void setEncodeCommentsEnabled(boolean encodeCommentsEnabled) {
+		this.encodeCommentsEnabled = encodeCommentsEnabled;
+	}
+
+
+	public void setNumRowsEnabled(boolean numRowsEnabled) {
+		this.numRowsEnabled = numRowsEnabled;
+	}
+
+
+	public void setViewsEnabled(boolean viewsEnabled) {
+		this.viewsEnabled = viewsEnabled;
+	}
+
+
+	public void setTableProcessingEnabled(boolean tableProcessingEnabled) {
+		this.tableProcessingEnabled = tableProcessingEnabled;
+	}
+
+
+	public void setColumnExclusions(Pattern columnExclusions) {
+		this.columnExclusions = columnExclusions;
+	}
+
+
+	public void setIndirectColumnExclusions(Pattern indirectColumnExclusions) {
+		this.indirectColumnExclusions = indirectColumnExclusions;
+	}
+
+
+	public void setTableInclusions(Pattern tableInclusions) {
+		this.tableInclusions = tableInclusions;
+	}
+
+
+	public void setTableExclusions(Pattern tableExclusions) {
+		this.tableExclusions = tableExclusions;
+	}
+
+
+	public void setProcedureInclusions(Pattern procedureInclusions) {
+		this.procedureInclusions = procedureInclusions;
+	}
+
+
+	public void setProcedureExclusions(Pattern procedureExclusions) {
+		this.procedureExclusions = procedureExclusions;
+	}
+
+
+	public void setSchemas(List<String> schemas) {
+		this.schemas = schemas;
+	}
+
+
+	public void setEvaluateAllEnabled(boolean evaluateAllEnabled) {
+		this.evaluateAllEnabled = evaluateAllEnabled;
+	}
+
+
+	public void setSchemaSpec(String schemaSpec) {
+		this.schemaSpec = schemaSpec;
+	}
+
+
+	public void setLogLevel(Level logLevel) {
+		this.logLevel = logLevel;
+	}
+
+
+	public void setDatabaseInstance(String databaseInstance) {
+		this.databaseInstance = databaseInstance;
+	}
+
+
+	public void setShowDetailedTablesEnabled(boolean showDetailedTablesEnabled) {
+		this.showDetailedTablesEnabled = showDetailedTablesEnabled;
+	}
+
+
+	public void setDriverPath(String driverPath) {
+		this.driverPath = driverPath;
+	}
+
+
+	public Map<String, String> getExtraOptions() {
+		return extraOptions;
+	}
+
+
+	public void setExtraOptions(Map<String, String> extraOptions) {
+		this.extraOptions = extraOptions;
+	}
+
+
+	public void setOrderingOutputEnabled(boolean orderingOutputEnabled) {
+		this.orderingOutputEnabled = orderingOutputEnabled;
+	}
+
+
+	public void setDatabaseInputEnabled(boolean databaseInputEnabled) {
+		this.databaseInputEnabled = databaseInputEnabled;
+	}
+
+
+	public void setScmInputEnabled(boolean scmInputEnabled) {
+		this.scmInputEnabled = scmInputEnabled;
+	}
+
+
+	public void setDatabaseOutputEnabled(boolean databaseOutputEnabled) {
+		this.databaseOutputEnabled = databaseOutputEnabled;
+	}
+
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
+	}
+
+
+	public void setForceEnabled(boolean forceEnabled) {
+		this.forceEnabled = forceEnabled;
+	}
+
+
+	public void setIntializeLogEnabled(boolean intializeLogEnabled) {
+		this.intializeLogEnabled = intializeLogEnabled;
+	}
+
+
+	public void setBatch(String batch) {
+		this.batch = batch;
 	}
 }

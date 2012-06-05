@@ -45,7 +45,7 @@ public class DotFormatter {
 	 * Singleton - prevent creation
 	 */
 	private DotFormatter() {
-		fontSize = Config.getInstance().getFontSize();
+		fontSize = Config.getInstance().getFontSize().intValue();
 	}
 
 	public static DotFormatter getInstance() {
@@ -237,6 +237,10 @@ public class DotFormatter {
 		}
 		dot.writeln("    nodesep=\"0.18\"");
 		dot.writeln("    ranksep=\"0.46\"");
+		String font = Config.getInstance().getFont();
+		if (font == null){
+			font = "Helvetica";
+		}
 		dot.writeln("    fontname=\"" + Config.getInstance().getFont() + "\"");
 		dot.writeln("    fontsize=\"" + fontSize + "\"");
 		dot.writeln("  ];");

@@ -38,35 +38,21 @@ public class Main {
 		System.out.println("License: GPLv3.");
 		System.out.println();
 
-		//load config
-		Config config = new Config(argv);
-		if (argv.length == 0) {
-			config.showUsage();
-			System.exit(0);
-		}
-
-		if (config.isDbHelpRequired()) {
-			config.dumpDbUsage();
-			System.exit(0);
-		}
-
-		int exitCode = 1;
-
 		try {
-			if (config.isPromptForPasswordEnabled()) {
-				config.getConnectionProperties().put("password",
-						new String(PasswordReader.getInstance().readPassword("Password: ")));
-			}
-			//begin analysis
+			// load config
+			ArgParser argParser = new ArgParser();
+			Config config = argParser.Parse(argv);
+			config.Validate();
+
+			// run requested operations
 			SchemaMapper mapper = new SchemaMapper();
 			mapper.RunMapping(config);
-			exitCode = 0; // success
 		} catch (ConnectionFailure couldntConnect) {
 			// failure already logged
-			exitCode = 3;
+			System.exit(3);
 		} catch (EmptySchemaException noData) {
 			// failure already logged
-			exitCode = 2;
+			System.exit(2);
 		} catch (Config.MissingRequiredParameterException missingParam) {
 			System.err.println(missingParam.getMessage());
 			System.exit(1);
@@ -77,12 +63,13 @@ public class Main {
 			System.err.println(badConfig.getMessage());
 			if (badConfig.getCause() != null && !badConfig.getMessage().endsWith(badConfig.getMessage()))
 				System.err.println(" caused by " + badConfig.getCause().getMessage());
+			System.exit(1);
 		} catch (ProcessExecutionException badLaunch) {
 			System.err.println(badLaunch.getMessage());
+			System.exit(1);
 		} catch (Exception exc) {
 			exc.printStackTrace();
+			System.exit(1);
 		}
-
-		System.exit(exitCode);
 	}
 }
