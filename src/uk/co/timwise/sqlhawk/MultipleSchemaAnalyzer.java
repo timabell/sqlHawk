@@ -40,6 +40,7 @@ import uk.co.timwise.sqlhawk.util.LineWriter;
  * Writes an index page of schemas in a database and fires up new instances
  * of sqlHawk to analyse each one. This should be rewritten to avoid java
  * runtime calls and work from within the java code.
+ * TODO: multiple schema broken by extensive refactoring - https://github.com/timabell/sqlHawk/issues/61
  */
 public final class MultipleSchemaAnalyzer {
 	private static MultipleSchemaAnalyzer instance = new MultipleSchemaAnalyzer();
