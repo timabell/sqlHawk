@@ -22,28 +22,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 
-import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 
 public class DbAnalyzer {
-	/**
-	 * Returns a <code>List</code> of all of the <code>ForeignKeyConstraint</code>s
-	 * used by the specified tables.
-	 *
-	 * @param tables Collection
-	 * @return List
-	 */
-	public static List<ForeignKeyConstraint> getForeignKeyConstraints(Collection<Table> tables) {
-		List<ForeignKeyConstraint> constraints = new ArrayList<ForeignKeyConstraint>();
-
-		for (Table table : tables) {
-			constraints.addAll(table.getForeignKeys());
-		}
-
-		return constraints;
-	}
-
 	public static List<Table> getOrphans(Collection<Table> tables) {
 		List<Table> orphans = new ArrayList<Table>();
 

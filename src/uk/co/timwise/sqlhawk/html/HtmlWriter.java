@@ -123,7 +123,7 @@ public class HtmlWriter {
 		HtmlMainIndexPage.getInstance().write(db, tablesAndViews, hasOrphans, out);
 		out.close();
 
-		List<ForeignKeyConstraint> constraints = DbAnalyzer.getForeignKeyConstraints(tablesAndViews);
+		List<ForeignKeyConstraint> constraints = getForeignKeyConstraints(tablesAndViews);
 		out = new LineWriter(new File(outputDir, "constraints.html"), 256 * 1024, config.getCharset());
 		HtmlConstraintsPage constraintIndexFormatter = HtmlConstraintsPage.getInstance();
 		constraintIndexFormatter.write(db, constraints, tablesAndViews, hasOrphans, out);
@@ -156,6 +156,23 @@ public class HtmlWriter {
 		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
 		StyleSheet.getInstance().write(out);
 		out.close();
+	}
+
+	/**
+	 * Returns a <code>List</code> of all of the <code>ForeignKeyConstraint</code>s
+	 * used by the specified tables.
+	 *
+	 * @param tables Collection
+	 * @return List
+	 */
+	private static List<ForeignKeyConstraint> getForeignKeyConstraints(Collection<Table> tables) {
+		List<ForeignKeyConstraint> constraints = new ArrayList<ForeignKeyConstraint>();
+	
+		for (Table table : tables) {
+			constraints.addAll(table.getForeignKeys());
+		}
+	
+		return constraints;
 	}
 
 	private static Set<TableColumn> getExcludedColumns(Collection<Table> tables) {
