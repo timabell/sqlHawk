@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import uk.co.timwise.sqlhawk.console.Main;
 import uk.co.timwise.sqlhawk.db.read.ProcessExecutionException;
 import uk.co.timwise.sqlhawk.html.HtmlMultipleSchemasIndexPage;
 import uk.co.timwise.sqlhawk.util.LineWriter;
