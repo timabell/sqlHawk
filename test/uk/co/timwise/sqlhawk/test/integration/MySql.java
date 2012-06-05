@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import uk.co.timwise.sqlhawk.SchemaMapper;
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 
 public class MySql {
 

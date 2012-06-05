@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk;
+package uk.co.timwise.sqlhawk.controller;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +34,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
 
+import uk.co.timwise.sqlhawk.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.db.ConnectionURLBuilder;
 import uk.co.timwise.sqlhawk.db.read.ConnectionFailure;
