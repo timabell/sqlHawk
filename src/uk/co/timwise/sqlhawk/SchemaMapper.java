@@ -128,7 +128,7 @@ public class SchemaMapper {
 				if (schemaSpec == null)
 					schemaSpec = config.getDbType().getProps().getProperty("schemaSpec", ".*");
 				DatabaseMetaData meta = null;
-				Connection connection = getConnection(config, meta);
+				ConnectionWithMeta connection = getConnection(config);
 				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
 			}
@@ -137,9 +137,7 @@ public class SchemaMapper {
 
 	private Database readDb(Config config)
 			throws Exception {
-		DatabaseMetaData meta = null;
-		Connection connection = getConnection(config, meta);
-		setSchema(config, meta);
+		ConnectionWithMeta connection = getConnection(config);
 
 		SchemaMeta schemaMeta = config.getMeta() == null ? null : new SchemaMeta(config.getMeta(), config.getDb(), config.getSchema());
 		if (schemaMeta != null && schemaMeta.getFile() != null) {
@@ -149,7 +147,7 @@ public class SchemaMapper {
 		// create our representation of the database
 		logger.info("Gathering schema details...");
 		DbReader reader = new DbReader();
-		return reader.Read(config, connection, meta, schemaMeta);
+		return reader.Read(config, connection.Connection, connection.Metadata, schemaMeta);
 	}
 
 	/**
@@ -173,23 +171,21 @@ public class SchemaMapper {
 
 	private void initializeLog(Config config)
 			throws Exception {
-		Connection connection = getConnection(config, null);
+		ConnectionWithMeta connection = getConnection(config);
 		logger.info("Initializing tracking log table...");
 		DbWriter writer = new DbWriter();
-		writer.initializeLog(connection, config);
+		writer.initializeLog(connection.Connection, config);
 	}
 
 	private void writeDb(Config config, Database db)
 			throws Exception {
-		DatabaseMetaData meta = null;
-		Connection connection = getConnection(config, meta);
-		setSchema(config, meta);
+		ConnectionWithMeta connection = getConnection(config);
 
 		DbWriter writer = new DbWriter();
-		writer.write(config, connection, meta, db);
+		writer.write(config, connection.Connection, connection.Metadata, db);
 	}
 
-	private Connection getConnection(Config config, DatabaseMetaData meta)
+	private ConnectionWithMeta getConnection(Config config)
 			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config);
@@ -205,9 +201,10 @@ public class SchemaMapper {
 			driverPath = config.getDriverPath() + File.pathSeparator + driverPath;
 
 		connection = getConnection(config, connectionUrl, driverClass, driverPath);
-		meta = connection.getMetaData();
+		DatabaseMetaData meta = connection.getMetaData();
 		logger.info("Connected to " + meta.getDatabaseProductName() + " - " + meta.getDatabaseProductVersion());
-		return connection;
+		setSchema(config, meta);
+		return new ConnectionWithMeta(connection, meta);
 	}
 
 	private File setupOuputDir(File outputDir) throws IOException {
@@ -348,6 +345,20 @@ public class SchemaMapper {
 			throw new ConnectionFailure(exc);
 		}
 		return connection;
+	}
+
+	/**
+	 * The Class ConnectionWithMeta.
+	 * Wrapper for a connection and related Metadata.
+	 * To return of both from the getConnection function.
+	 */
+	private class ConnectionWithMeta{
+		public Connection Connection;
+		public DatabaseMetaData Metadata;
+		public ConnectionWithMeta(Connection connection, DatabaseMetaData meta){
+			Connection = connection;
+			Metadata = meta;
+		}
 	}
 
 	/**
