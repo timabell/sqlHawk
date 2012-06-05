@@ -19,6 +19,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -42,6 +44,8 @@ import com.martiansoftware.jsap.Switch;
  * Converts supplied command line arguments into a Config object.
  */
 public class ArgParser {
+	private static final String ESCAPED_EQUALS = "\\=";
+
 	/**
 	 * Construct a configuration from an array of options (e.g. from a command
 	 * line interface).
@@ -160,9 +164,43 @@ public class ArgParser {
 		if(jsapConfig.contains("max-threads")){
 			config.setMaxDbThreads(jsapConfig.getInt("max-threads"));
 		}
-		
+		if (jsapConfig.userSpecified("connprops")) { // TODO: fix this and matching options https://github.com/timabell/sqlHawk/issues/62 
+			String props = jsapConfig.getString("connprops");
+			if (props.indexOf(ESCAPED_EQUALS) != -1) {
+				config.setUserConnectionProperties(parseUserConnectionProperties(props));
+			} else {
+				config.setConnectionPropertiesFile(props);
+			}
+		}
 
 		return config;
+	}
+
+	/**
+	 * Specifies connection properties to use in the format:
+	 * <code>key1\=value1;key2\=value2</code><br>
+	 * user (from -u) and password (from -p) will be passed in the
+	 * connection properties if specified.<p>
+	 * This is an alternative form of passing connection properties than by file
+	 * (see {@link #setConnectionPropertiesFile(String)})
+	 * TODO: ensure connection properties arg is properly documented for users
+	 *
+	 * @param properties
+	 */
+	private Properties parseUserConnectionProperties(String properties) {
+		Properties userConnectionProperties = new Properties();
+
+		StringTokenizer tokenizer = new StringTokenizer(properties, ";");
+		while (tokenizer.hasMoreElements()) {
+			String pair = tokenizer.nextToken();
+			int index = pair.indexOf(ESCAPED_EQUALS);
+			if (index != -1) {
+				String key = pair.substring(0, index);
+				String value = pair.substring(index + ESCAPED_EQUALS.length());
+				userConnectionProperties.put(key, value);
+			}
+		}
+		return userConnectionProperties;
 	}
 
 	/**

@@ -58,7 +58,7 @@ public class Config
 	private Pattern columnExclusions;
 	private Pattern indirectColumnExclusions;
 	private String userConnectionPropertiesFile;
-	private Properties userConnectionProperties;
+	private Properties userConnectionProperties = new Properties();
 	private Integer maxDbThreads;
 	private String css;
 	private String charset;
@@ -71,7 +71,6 @@ public class Config
 	private Boolean highQuality;
 	private String schemaSpec;  // used in conjunction with evaluateAll
 	public static final String DOT_CHARSET = "UTF-8";
-	private static final String ESCAPED_EQUALS = "\\=";
 	private DbType dbType;
 	private boolean htmlGenerationEnabled;
 	private boolean sourceControlOutputEnabled;
@@ -332,7 +331,7 @@ public class Config
 
 
 	public String getConnectionPropertiesFile() {
-		return userConnectionPropertiesFile;
+		return getUserConnectionPropertiesFile();
 	}
 
 	/**
@@ -345,60 +344,25 @@ public class Config
 	 * @throws IOException
 	 */
 	public void setConnectionPropertiesFile(String propertiesFilename) throws FileNotFoundException, IOException {
-		if (userConnectionProperties == null)
-			userConnectionProperties = new Properties();
-		userConnectionProperties.load(new FileInputStream(propertiesFilename));
-		userConnectionPropertiesFile = propertiesFilename;
+		if (getUserConnectionProperties() == null)
+			setUserConnectionProperties(new Properties());
+		getUserConnectionProperties().load(new FileInputStream(propertiesFilename));
+		setUserConnectionPropertiesFile(propertiesFilename);
 	}
 
 	/**
 	 * Returns a {@link Properties} populated either from the properties file specified
 	 * by {@link #setConnectionPropertiesFile(String)}, the properties specified by
 	 * {@link #setConnectionProperties(String)} or not populated.
+	 * TODO: fix this and matching options https://github.com/timabell/sqlHawk/issues/62
 	 * @return
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
 	public Properties getConnectionProperties() throws FileNotFoundException, IOException {
-		if (userConnectionProperties == null) {
-			if (jsapConfig.userSpecified("connprops")) {
-				String props = jsapConfig.getString("connprops");
-				if (props.indexOf(ESCAPED_EQUALS) != -1) {
-					setConnectionProperties(props);
-				} else {
-					setConnectionPropertiesFile(props);
-				}
-			} else {
-				userConnectionProperties = new Properties();
-			}
-		}
-		return userConnectionProperties;
+		return getUserConnectionProperties();
 	}
 
-	/**
-	 * Specifies connection properties to use in the format:
-	 * <code>key1\=value1;key2\=value2</code><br>
-	 * user (from -u) and password (from -p) will be passed in the
-	 * connection properties if specified.<p>
-	 * This is an alternative form of passing connection properties than by file
-	 * (see {@link #setConnectionPropertiesFile(String)})
-	 *
-	 * @param properties
-	 */
-	public void setConnectionProperties(String properties) {
-		userConnectionProperties = new Properties();
-
-		StringTokenizer tokenizer = new StringTokenizer(properties, ";");
-		while (tokenizer.hasMoreElements()) {
-			String pair = tokenizer.nextToken();
-			int index = pair.indexOf(ESCAPED_EQUALS);
-			if (index != -1) {
-				String key = pair.substring(0, index);
-				String value = pair.substring(index + ESCAPED_EQUALS.length());
-				userConnectionProperties.put(key, value);
-			}
-		}
-	}
 
 	/**
 	 * The filename of the cascading style sheet to use in generated html.
@@ -756,7 +720,7 @@ public class Config
 		return driverPath;
 	}
 
-	public Map<String, String> getExtraConnectionOptions() {
+	public Map<String, String> getExtraConnectionOptions() { // TODO: remove pointless wrapper getExtraConnectionOptions()
 		return getExtraOptions();
 	}
 
@@ -1006,5 +970,25 @@ public class Config
 
 	public void setMaxDbThreads(Integer maxDbThreads) {
 		this.maxDbThreads = maxDbThreads;
+	}
+
+
+	public Properties getUserConnectionProperties() {
+		return userConnectionProperties;
+	}
+
+
+	public void setUserConnectionProperties(Properties userConnectionProperties) {
+		this.userConnectionProperties = userConnectionProperties;
+	}
+
+
+	public String getUserConnectionPropertiesFile() {
+		return userConnectionPropertiesFile;
+	}
+
+
+	public void setUserConnectionPropertiesFile(String userConnectionPropertiesFile) {
+		this.userConnectionPropertiesFile = userConnectionPropertiesFile;
 	}
 }
