@@ -452,24 +452,8 @@ public class Config
 	 * @throws InvalidConfigurationException if unable to load properties
 	 * @throws IOException
 	 */
-	public int getMaxDbThreads() throws InvalidConfigurationException, IOException {
-		if (maxDbThreads == null) {
-			Properties properties = getDbProperties();
-			int max = Integer.MAX_VALUE;
-			String threads = properties.getProperty("dbThreads");
-			if (threads == null)
-				threads = properties.getProperty("dbthreads");
-			if (threads != null)
-				max = Integer.parseInt(threads);
-			if(jsapConfig.contains("max-threads"))
-				max = jsapConfig.getInt("max-threads");
-			if (max < 0) //-1 means no limit
-				max = Integer.MAX_VALUE;
-			else if (max == 0)
-				max = 1;
-			maxDbThreads = new Integer(max);
-		}
-		return maxDbThreads.intValue();
+	public Integer getMaxDbThreads() {
+		return maxDbThreads;
 	}
 
 	/**
@@ -1017,5 +1001,10 @@ public class Config
 
 	public void setBatch(String batch) {
 		this.batch = batch;
+	}
+
+
+	public void setMaxDbThreads(Integer maxDbThreads) {
+		this.maxDbThreads = maxDbThreads;
 	}
 }

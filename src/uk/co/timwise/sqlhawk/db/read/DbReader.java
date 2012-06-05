@@ -226,7 +226,7 @@ public class DbReader {
 			final Config config) throws SQLException, InvalidConfigurationException, IOException {
 		final Pattern include = config.getTableInclusions();
 		final Pattern exclude = config.getTableExclusions();
-		final int maxThreads = config.getMaxDbThreads();
+		final int maxThreads = getMaxDbThreads(properties, config);
 
 		String[] types = getTypes("tableTypes", "TABLE", properties);
 		NameValidator validator = new NameValidator("table", include, exclude, types);
@@ -267,6 +267,22 @@ public class DbReader {
 		creator.join();
 
 		database.setTables(creator.getTables());
+	}
+
+	private int getMaxDbThreads(Properties properties, Config config) {
+		int max = Integer.MAX_VALUE;
+		String threads = properties.getProperty("dbThreads");
+		if (threads == null)
+			threads = properties.getProperty("dbthreads");
+		if (threads != null)
+			max = Integer.parseInt(threads);
+		if(config.getMaxDbThreads() != null)
+			max = config.getMaxDbThreads();
+		if (max < 0) //-1 means no limit
+			max = Integer.MAX_VALUE;
+		else if (max == 0)
+			max = 1;
+		return new Integer(max);
 	}
 
 	/**
