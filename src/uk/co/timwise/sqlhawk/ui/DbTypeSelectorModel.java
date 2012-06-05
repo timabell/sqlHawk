@@ -25,9 +25,9 @@ import java.util.regex.Pattern;
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
-import uk.co.timwise.sqlhawk.DbType;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
+import uk.co.timwise.sqlhawk.config.DbType;
 import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 
 public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxModel {

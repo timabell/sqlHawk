@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import uk.co.timwise.sqlhawk.DbType;
 
 /**
  * Configuration of a specific type of database (as specified by --db-type)
