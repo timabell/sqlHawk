@@ -55,6 +55,10 @@ import uk.co.timwise.sqlhawk.util.PasswordReader;
 import uk.co.timwise.sqlhawk.xml.write.xmlWriter;
 
 
+/**
+ * The Class SchemaMapper.
+ * This is the class that orchestrates the actions taken
+ */
 public class SchemaMapper {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
