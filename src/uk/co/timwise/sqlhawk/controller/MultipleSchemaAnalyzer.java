@@ -33,7 +33,6 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.console.Main;
 import uk.co.timwise.sqlhawk.db.read.ProcessExecutionException;
 import uk.co.timwise.sqlhawk.html.HtmlMultipleSchemasIndexPage;
@@ -191,7 +190,7 @@ public final class MultipleSchemaAnalyzer {
 	private static List<String> getPopulatedSchemas(DatabaseMetaData meta, String schemaSpec) throws SQLException {
 		Set<String> schemas = new TreeSet<String>(); // alpha sorted
 		Pattern schemaRegex = Pattern.compile(schemaSpec);
-		Logger logger = Logger.getLogger(DbAnalyzer.class.getName());
+		Logger logger = Logger.getLogger(MultipleSchemaAnalyzer.class.getName());
 	
 		Iterator<String> iter = getSchemas(meta).iterator();
 		while (iter.hasNext()) {

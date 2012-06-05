@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk;
+package uk.co.timwise.sqlhawk.html;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +23,7 @@ import java.util.logging.Level;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 
-public class DbAnalyzer {
+public class TableSorter {
 	public static List<Table> sortTablesByName(List<Table> tables) {
 		Collections.sort(tables, new Comparator<Table>() {
 			public int compare(Table table1, Table table2) {

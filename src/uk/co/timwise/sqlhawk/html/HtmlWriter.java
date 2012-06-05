@@ -26,10 +26,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.config.Config;
-import uk.co.timwise.sqlhawk.implied.ImpliedConstraintFinder;
-import uk.co.timwise.sqlhawk.implied.ImpliedForeignKeyConstraint;
+import uk.co.timwise.sqlhawk.html.implied.ImpliedConstraintFinder;
+import uk.co.timwise.sqlhawk.html.implied.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
@@ -167,7 +166,7 @@ public class HtmlWriter {
 			}
 		}
 	
-		return DbAnalyzer.sortTablesByName(orphans);
+		return TableSorter.sortTablesByName(orphans);
 	}
 
 	/**

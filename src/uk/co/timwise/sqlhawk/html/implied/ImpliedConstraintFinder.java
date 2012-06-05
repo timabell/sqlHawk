@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk.implied;
+package uk.co.timwise.sqlhawk.html.implied;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
+import uk.co.timwise.sqlhawk.html.TableSorter;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 
@@ -66,7 +66,7 @@ public class ImpliedConstraintFinder {
 		if (duplicatePrimaries > allPrimaries.size()) // bizarre logic, but it does approximately what we need
 			return new ArrayList<ImpliedForeignKeyConstraint>();
 	
-		DbAnalyzer.sortColumnsByTable(columnsWithoutParents);
+		TableSorter.sortColumnsByTable(columnsWithoutParents);
 	
 		List<ImpliedForeignKeyConstraint> impliedConstraints = new ArrayList<ImpliedForeignKeyConstraint>();
 		for (TableColumn childColumn : columnsWithoutParents) {

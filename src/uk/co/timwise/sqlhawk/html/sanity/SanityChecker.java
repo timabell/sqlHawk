@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk.sanity;
+package uk.co.timwise.sqlhawk.html.sanity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
+import uk.co.timwise.sqlhawk.html.TableSorter;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 import uk.co.timwise.sqlhawk.model.TableIndex;
@@ -43,7 +43,7 @@ public class SanityChecker {
 			}
 		}
 	
-		return DbAnalyzer.sortColumnsByTable(uniqueNullables);
+		return TableSorter.sortColumnsByTable(uniqueNullables);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class SanityChecker {
 				withoutIndexes.add(table);
 		}
 	
-		return DbAnalyzer.sortTablesByName(withoutIndexes);
+		return TableSorter.sortTablesByName(withoutIndexes);
 	}
 
 	public static List<Table> getTablesWithIncrementingColumnNames(Collection<Table> tables) {
@@ -101,7 +101,7 @@ public class SanityChecker {
 			}
 		}
 	
-		return DbAnalyzer.sortTablesByName(denormalizedTables);
+		return TableSorter.sortTablesByName(denormalizedTables);
 	}
 
 	public static List<Table> getTablesWithOneColumn(Collection<Table> tables) {
@@ -112,7 +112,7 @@ public class SanityChecker {
 				singleColumnTables.add(table);
 		}
 	
-		return DbAnalyzer.sortTablesByName(singleColumnTables);
+		return TableSorter.sortTablesByName(singleColumnTables);
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class SanityChecker {
 			}
 		}
 	
-		return DbAnalyzer.sortColumnsByTable(defaultNullStringColumns);
+		return TableSorter.sortColumnsByTable(defaultNullStringColumns);
 	}
 
 }

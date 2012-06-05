@@ -21,11 +21,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import uk.co.timwise.sqlhawk.html.sanity.SanityChecker;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
-import uk.co.timwise.sqlhawk.sanity.SanityChecker;
 import uk.co.timwise.sqlhawk.util.LineWriter;
 
 /**

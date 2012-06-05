@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
@@ -190,7 +189,7 @@ public class HtmlConstraintsPage extends HtmlFormatter {
 		html.writeln("</thead>");
 		html.writeln("<tbody>");
 
-		List<Table> tablesByName = DbAnalyzer.sortTablesByName(new ArrayList<Table>(tables));
+		List<Table> tablesByName = TableSorter.sortTablesByName(new ArrayList<Table>(tables));
 
 		int constraintsWritten = 0;
 

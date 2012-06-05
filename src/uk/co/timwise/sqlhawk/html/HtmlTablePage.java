@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import uk.co.timwise.sqlhawk.config.Config;
-import uk.co.timwise.sqlhawk.implied.ImpliedForeignKeyConstraint;
+import uk.co.timwise.sqlhawk.html.implied.ImpliedForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
