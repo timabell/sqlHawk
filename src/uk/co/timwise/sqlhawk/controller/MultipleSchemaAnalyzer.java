@@ -170,7 +170,7 @@ public final class MultipleSchemaAnalyzer {
 	 *
 	 * @param meta DatabaseMetaData
 	 */
-	public static List<String> getSchemas(DatabaseMetaData meta) throws SQLException {
+	private static List<String> getSchemas(DatabaseMetaData meta) throws SQLException {
 		List<String> schemas = new ArrayList<String>();
 	
 		ResultSet rs = meta.getSchemas();
@@ -188,7 +188,7 @@ public final class MultipleSchemaAnalyzer {
 	 *
 	 * @param meta DatabaseMetaData
 	 */
-	public static List<String> getPopulatedSchemas(DatabaseMetaData meta, String schemaSpec) throws SQLException {
+	private static List<String> getPopulatedSchemas(DatabaseMetaData meta, String schemaSpec) throws SQLException {
 		Set<String> schemas = new TreeSet<String>(); // alpha sorted
 		Pattern schemaRegex = Pattern.compile(schemaSpec);
 		Logger logger = Logger.getLogger(DbAnalyzer.class.getName());
@@ -227,7 +227,7 @@ public final class MultipleSchemaAnalyzer {
 	 *
 	 * @param meta DatabaseMetaData
 	 */
-	public static List<String> getPopulatedSchemas(DatabaseMetaData meta) throws SQLException {
+	private static List<String> getPopulatedSchemas(DatabaseMetaData meta) throws SQLException {
 		return getPopulatedSchemas(meta, ".*");
 	}
 
