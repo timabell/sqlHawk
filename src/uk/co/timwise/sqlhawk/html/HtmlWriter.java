@@ -93,7 +93,7 @@ public class HtmlWriter {
 		else
 			impliedConstraints = new ArrayList<ImpliedForeignKeyConstraint>();
 
-		List<Table> orphans = DbAnalyzer.getOrphans(tablesAndViews);
+		List<Table> orphans = getOrphans(tablesAndViews);
 		boolean hasOrphans = !orphans.isEmpty() && Dot.getInstance().isValid();
 
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
@@ -156,6 +156,18 @@ public class HtmlWriter {
 		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
 		StyleSheet.getInstance().write(out);
 		out.close();
+	}
+
+	private static List<Table> getOrphans(Collection<Table> tables) {
+		List<Table> orphans = new ArrayList<Table>();
+	
+		for (Table table : tables) {
+			if (table.isOrphan(false)) {
+				orphans.add(table);
+			}
+		}
+	
+		return DbAnalyzer.sortTablesByName(orphans);
 	}
 
 	/**

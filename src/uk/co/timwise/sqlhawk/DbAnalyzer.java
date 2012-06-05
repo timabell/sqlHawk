@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -26,18 +24,6 @@ import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 
 public class DbAnalyzer {
-	public static List<Table> getOrphans(Collection<Table> tables) {
-		List<Table> orphans = new ArrayList<Table>();
-
-		for (Table table : tables) {
-			if (table.isOrphan(false)) {
-				orphans.add(table);
-			}
-		}
-
-		return sortTablesByName(orphans);
-	}
-
 	public static List<Table> sortTablesByName(List<Table> tables) {
 		Collections.sort(tables, new Comparator<Table>() {
 			public int compare(Table table1, Table table2) {
