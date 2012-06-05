@@ -13,7 +13,7 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
-package uk.co.timwise.sqlhawk;
+package uk.co.timwise.sqlhawk.controller;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import uk.co.timwise.sqlhawk.DbAnalyzer;
 import uk.co.timwise.sqlhawk.console.Main;
 import uk.co.timwise.sqlhawk.db.read.ProcessExecutionException;
 import uk.co.timwise.sqlhawk.html.HtmlMultipleSchemasIndexPage;
