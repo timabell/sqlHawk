@@ -217,10 +217,6 @@ public class DbWriter {
 				return o1Number.group(2).compareTo(o2Number.group(2));
 			}
 		});
-		// Split where GO on its own on a line (ignoring whitespace, case insensitive)
-		// This is a best attempt short of full SQL parsing to establish quoting & commenting.
-		// see: http://stackoverflow.com/questions/10734824
-		Pattern batchSplitter = Pattern.compile("^\\s*GO\\s*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 		for(File file : files){
 			if (file.isDirectory()) {
 				logger.fine("Processing script directory '" + file + "'...");
@@ -249,7 +245,7 @@ public class DbWriter {
 					// Split into batches similar to the sql server tools,this makes
 					// management of scripts easier as you can include a reference to a
 					// new table in the same sql file as the create statement.
-					String[] splitSql = batchSplitter.split(definition);
+					String[] splitSql = SqlManagement.SplitBatches(definition);
 					for (String sql : splitSql) {
 						logger.finest("Running upgrade script batch\n" + sql);
 						connection.prepareStatement(sql).execute();

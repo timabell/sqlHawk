@@ -22,6 +22,12 @@ import java.util.regex.Pattern;
  * Methods for handling / modifying T-SQL statements.
  */
 public class SqlManagement {
+	// Split where GO on its own on a line (ignoring whitespace, case insensitive)
+	// This is a best attempt short of full SQL parsing to establish quoting &
+	// commenting.
+	// see: http://stackoverflow.com/questions/10734824
+	/** The batch splitter. */
+	static Pattern batchSplitter = Pattern.compile("^\\s*GO\\s*$", Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
 	/**
 	 * Change definition from CREATE to ALTER before saving (or vice versa before
@@ -61,5 +67,19 @@ public class SqlManagement {
 
 	private enum Convertion {
 		ToCreate, ToAlter
+	}
+
+	/**
+	 * Split into batches on GO keyword. Split into batches similar to the sql
+	 * server tools,this makes management of scripts easier as you can include a
+	 * reference to a new table in the same sql file as the create statement.
+	 *
+	 * @param sql
+	 *          the sql string to split
+	 * @return a string array containing the batches
+	 */
+	public static String[] SplitBatches(String sql) {
+		// TODO: Comment parsing when splitting batches. https://github.com/timabell/sqlHawk/issues/49
+		return batchSplitter.split(sql);
 	}
 }
