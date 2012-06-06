@@ -123,6 +123,7 @@ public class Config
 			throw new Exception("Conflicting configuration: Password and Single Sign On set. Set one or other.");
 		}
 		// TODO: validate all selected options and combinations
+		// https://github.com/timabell/sqlHawk/issues/32
 		/*
 			if (dbTypeName==null) {
 				throw new MissingRequiredParameterException("db-type", false);
