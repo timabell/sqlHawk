@@ -578,21 +578,12 @@ public class Config
 	 */
 	public void setHighQuality(boolean highQuality) {
 		this.highQuality = highQuality;
-		Dot.getInstance().setHighQuality(highQuality);
 	}
 
 	/**
 	 * @see #setHighQuality(boolean)
 	 */
 	public boolean isHighQuality() {
-		if (highQuality == null) {
-			highQuality = jsapConfig.getBoolean("high-quality");
-			if (highQuality) {
-				// use whatever is the default unless explicitly specified otherwise
-				Dot.getInstance().setHighQuality(highQuality);
-			}
-		}
-		highQuality = Dot.getInstance().isHighQuality();
 		return highQuality;
 	}
 

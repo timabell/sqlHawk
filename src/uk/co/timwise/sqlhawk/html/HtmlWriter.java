@@ -74,6 +74,10 @@ public class HtmlWriter {
 		if (config.getRenderer() != null) {
 			Dot.getInstance().setRenderer(config.getRenderer());
 		}
+		if (config.isHighQuality()) { // use whatever is the default unless explicitly specified otherwise
+			// TODO: check this setting is working correctly after refactoring and that the results are satisfactory
+			Dot.getInstance().setHighQuality(true);
+		}
 
 		// generate the compact form of the relationships .dot file
 		String dotBaseFilespec = "relationships";

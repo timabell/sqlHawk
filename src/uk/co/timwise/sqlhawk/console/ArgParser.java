@@ -173,6 +173,7 @@ public class ArgParser {
 			}
 		}
 		config.setRenderer(jsapConfig.getString("renderer"));
+		config.setHighQuality(jsapConfig.getBoolean("high-quality"));
 
 		return config;
 	}
