@@ -15,8 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.model;
 
-import java.util.regex.Pattern;
-
 /**
  * A remote table (exists in another schema) that was explicitly created via XML metadata.
  */
