@@ -172,6 +172,7 @@ public class ArgParser {
 				config.setConnectionPropertiesFile(props);
 			}
 		}
+		config.setRenderer(jsapConfig.getString("renderer"));
 
 		return config;
 	}

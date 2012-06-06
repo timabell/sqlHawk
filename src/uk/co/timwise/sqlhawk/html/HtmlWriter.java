@@ -70,6 +70,10 @@ public class HtmlWriter {
 		Set<TableColumn> excludedColumns = getExcludedColumns(tablesAndViews);
 		boolean hasRealRelationships = true; // TODO: cacluate whether this should be set;
 		boolean hasImplied = false;  // TODO: cacluate whether this should be set;
+		
+		if (config.getRenderer() != null) {
+			Dot.getInstance().setRenderer(config.getRenderer());
+		}
 
 		// generate the compact form of the relationships .dot file
 		String dotBaseFilespec = "relationships";

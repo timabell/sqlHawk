@@ -90,6 +90,7 @@ public class Config
 	private boolean forceEnabled;
 	private boolean intializeLogEnabled;
 	private String batch;
+	private String renderer;
 
 	/**
 	 * Default constructor. Intended for when you want to inject properties
@@ -553,7 +554,7 @@ public class Config
 	 * over using this method.
 	 */
 	public void setRenderer(String renderer) {
-		Dot.getInstance().setRenderer(renderer);
+		this.renderer = renderer;
 	}
 
 	/**
@@ -561,10 +562,7 @@ public class Config
 	 * @return
 	 */
 	public String getRenderer() {
-		String renderer = jsapConfig.getString("renderer");
-		if (renderer != null)
-			setRenderer(renderer);
-		return Dot.getInstance().getRenderer();
+		return renderer;
 	}
 
 	/**
