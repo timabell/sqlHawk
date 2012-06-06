@@ -59,7 +59,7 @@ public class Config
 	private String font;
 	private Integer fontSize;
 	private String description;
-	private Level logLevel;
+	private Level logLevel = Level.INFO;
 	private Boolean highQuality;
 	private String schemaSpec;  // used in conjunction with evaluateAll
 	public static final String DOT_CHARSET = "UTF-8";
