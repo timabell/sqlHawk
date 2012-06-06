@@ -30,8 +30,6 @@ public class LogFormatter extends Formatter {
 	private final String lineSeparator = System.getProperty("line.separator");
 	private final int MAX_LEVEL_LEN = 7;
 	private static final String formatSpec = "HH:mm:ss.";
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * Date formatter for time-to-text translation.
 	 * These are very expensive to create and not thread-safe, so do it once per thread.
