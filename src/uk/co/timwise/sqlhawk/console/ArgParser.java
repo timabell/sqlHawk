@@ -127,9 +127,8 @@ public class ArgParser {
 		config.setEvaluateAllEnabled(jsapConfig.getBoolean("all"));
 		config.setSchemaSpec(jsapConfig.getString("schema-spec"));
 		if (jsapConfig.contains("log-level")){
-			// TODO: check that mixed case log level is parsed correctly
 			try {
-				config.setLogLevel(Level.parse(jsapConfig.getString("log-level")));
+				config.setLogLevel(Level.parse(jsapConfig.getString("log-level").toUpperCase()));
 			} catch (IllegalArgumentException ex)
 			{
 				throw new InvalidConfigurationException(ex).setParamName("log-level");
