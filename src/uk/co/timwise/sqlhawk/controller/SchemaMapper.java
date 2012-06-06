@@ -123,7 +123,6 @@ public class SchemaMapper {
 	private void processMultipleSchemas(Config config, File outputDir) throws Exception {
 		List<String> schemas = config.getSchemas();
 		if (schemas != null || config.isEvaluateAllEnabled()) {
-			String dbName = config.getDb();
 			if (schemas != null){
 				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, schemas, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
@@ -131,9 +130,9 @@ public class SchemaMapper {
 				String schemaSpec = config.getSchemaSpec();
 				if (schemaSpec == null)
 					schemaSpec = config.getDbType().getProps().getProperty("schemaSpec", ".*");
-				DatabaseMetaData meta = null;
-				ConnectionWithMeta connection = getConnection(config);
-				//MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
+				// ConnectionWithMeta connection = getConnection(config);
+				// String dbName = config.getDb();
+				// MultipleSchemaAnalyzer.getInstance().analyze(dbName, meta, schemaSpec, null, args, config.getUser(), outputDir, config.getCharset(), Config.getLoadedFromJar());
 				throw new UnsupportedOperationException("Multi schema support awaiting re-write");
 			}
 		}
