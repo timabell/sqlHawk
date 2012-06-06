@@ -19,6 +19,7 @@ public class MySql {
 		mapper.RunMapping(config);
 
 		//assert
+		fail("not finished");
 	}
 
 }
