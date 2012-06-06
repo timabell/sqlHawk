@@ -53,7 +53,7 @@ public class Config
 	private Properties userConnectionProperties = new Properties();
 	private Integer maxDbThreads;
 	private String css;
-	private String charset;
+	private String charset = "ISO-8859-1";
 	private String font;
 	private Integer fontSize;
 	private String description;
@@ -390,9 +390,6 @@ public class Config
 	 * <code>"ISO-8859-1"</code>).
 	 */
 	public String getCharset() {
-		if (charset == null) {
-			charset = "ISO-8859-1";
-		}
 		return charset;
 	}
 
