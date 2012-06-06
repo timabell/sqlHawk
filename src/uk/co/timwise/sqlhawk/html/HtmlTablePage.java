@@ -488,6 +488,7 @@ public class HtmlTablePage extends HtmlFormatter {
 			if (false) {
 				// TODO: fix this hack, was deleting 2-degree file if same as 1-degree.
 				//       make it not write it in the first place
+				// https://github.com/timabell/sqlHawk/issues/63
 				twoDegreesDotFile.delete(); // no different than before, so don't show it
 			}
 
