@@ -20,11 +20,8 @@ package uk.co.timwise.sqlhawk.model;
  * by or references a table in the default schema.
  */
 public class RemoteTable extends Table {
-	private final String baseSchema;
-
 	public RemoteTable(String schema, String name, String baseSchema) {
 		super(schema, name, null);
-		this.baseSchema = baseSchema;
 	}
 
 	@Override

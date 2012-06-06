@@ -21,8 +21,6 @@ import java.util.regex.Pattern;
  * A remote table (exists in another schema) that was explicitly created via XML metadata.
  */
 public class ExplicitRemoteTable extends RemoteTable {
-	private static final Pattern excludeNone = Pattern.compile("[^.]");
-
 	public ExplicitRemoteTable(String schema, String name, String baseSchema) {
 		super(schema, name, baseSchema);
 	}
