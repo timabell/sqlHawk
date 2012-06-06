@@ -82,24 +82,36 @@ public class DbType {
 	public DbType getDbType(String type) throws IOException, InvalidConfigurationException {
 		ResourceBundle bundle = null;
 		String dbPropertiesLoadedFrom = null;
+
+		// Try loading type as the full filename of a properties file
 		File propertiesFile = new File(type);
+
 		if (!propertiesFile.exists()) {
+			// Not found, so try loading with a fixed filename extension instead
 			propertiesFile = new File(type + ".properties");
 		}
+
 		if (propertiesFile.exists()) {
+			// The specified is a filename, which has been found.
+			// Load the file's contents into a properties bundle ready for parsing
 			bundle = new PropertyResourceBundle(new FileInputStream(propertiesFile));
 			dbPropertiesLoadedFrom = propertiesFile.getAbsolutePath();
 		} else {
+
+			// The type wasn't a valid file, so load the properties from within the running jar
 			try {
 				bundle = ResourceBundle.getBundle(type);
 				dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]" + File.separator + type + ".properties";
 			} catch (Exception notInJarWithoutPath) {
+
+				// Failed to load the type from the jar, likely debugging raw .class files so find it in the source path for database type properties instead
 				try {
 					String path = DbType.class.getPackage().getName() + ".dbTypes." + type;
 					path = path.replace('.', '/');
 					bundle = ResourceBundle.getBundle(path);
 					dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]/" + path + ".properties";
 				} catch (Exception notInJar) {
+					// This database type has no matching properties that we can find, log the failure.
 					logger.severe("Failed to find properties for db type '"+type+"' in file '"+type+"' or '"
 							+type+".properties', and no bundled version found:\n"
 							+ notInJar.toString() + "\n" + notInJarWithoutPath.toString());
