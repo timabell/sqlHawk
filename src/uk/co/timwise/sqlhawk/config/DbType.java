@@ -106,10 +106,9 @@ public class DbType {
 
 				// Failed to load the type from the jar, likely debugging raw .class files so find it in the source path for database type properties instead
 				try {
-					String path = DbType.class.getPackage().getName() + ".dbTypes." + type;
-					path = path.replace('.', '/');
+					String path = "dbTypes/" + type;
 					bundle = ResourceBundle.getBundle(path);
-					dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]/" + path + ".properties";
+					dbPropertiesLoadedFrom = path + ".properties";
 				} catch (Exception notInJar) {
 					// This database type has no matching properties that we can find, log the failure.
 					logger.severe("Failed to find properties for db type '"+type+"' in file '"+type+"' or '"
