@@ -115,6 +115,7 @@ public class DbType {
 					logger.severe("Failed to find properties for db type '"+type+"' in file '"+type+"' or '"
 							+type+".properties', and no bundled version found:\n"
 							+ notInJar.toString() + "\n" + notInJarWithoutPath.toString());
+					throw new InvalidConfigurationException("Unable to find database properties for specified type '" + type + "'");
 				}
 			}
 		}
