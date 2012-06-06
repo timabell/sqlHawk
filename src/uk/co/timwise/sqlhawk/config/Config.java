@@ -27,8 +27,6 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
-import uk.co.timwise.sqlhawk.html.Dot;
-
 /**
  * Configuration of a sqlHawk run
  */

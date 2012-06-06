@@ -15,7 +15,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.ui;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -28,7 +27,6 @@ import javax.swing.ComboBoxModel;
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbType;
-import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 
 public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxModel {
 	private static final long serialVersionUID = 1L;

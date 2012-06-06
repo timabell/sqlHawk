@@ -18,9 +18,6 @@ package uk.co.timwise.sqlhawk.html;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.TableColumn;
 import uk.co.timwise.sqlhawk.util.LineWriter;

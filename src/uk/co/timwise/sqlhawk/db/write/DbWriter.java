@@ -26,21 +26,17 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
-import uk.co.timwise.sqlhawk.db.NameValidator;
 import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.db.read.DbReader;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ISqlObject;
-import uk.co.timwise.sqlhawk.model.Procedure;
-import uk.co.timwise.sqlhawk.model.View;
 import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
