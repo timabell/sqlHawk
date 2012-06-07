@@ -24,6 +24,9 @@ public class MySql {
 		config.setDatabaseOutputEnabled(true);
 		config.setDbTypeName("mysql");
 		config.setHost("localhost");
+		config.setDatabase("sqlhawktesting");
+		config.setUser("sqlhawktesting");
+		config.setPassword("sqlhawktesting");
 
 		// act
 		mapper.RunMapping(config);
