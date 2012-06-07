@@ -27,6 +27,8 @@ import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
+import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
+
 /**
  * Configuration of a sqlHawk run
  */
@@ -79,7 +81,7 @@ public class Config
 	private String databaseInstance;
 	private boolean showDetailedTablesEnabled;
 	private String driverPath;
-	private Map<String, String> extraOptions;
+	private Map<String, String> extraOptions = new CaseInsensitiveMap<String>();
 	private boolean orderingOutputEnabled;
 	private boolean databaseInputEnabled;
 	private boolean scmInputEnabled;
