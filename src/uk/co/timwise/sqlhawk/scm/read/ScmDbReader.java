@@ -32,7 +32,8 @@ import uk.co.timwise.sqlhawk.util.FileHandling;
 public class ScmDbReader {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
-	public Database Load(Config config, File inputDir) throws Exception {
+	public Database Load(Config config) throws Exception {
+		File inputDir = config.getTargetDir();
 		logger.info("Loading database definitions from folder '" + inputDir + "'");
 		if (!inputDir.isDirectory()) {
 			throw new Exception("specified scm input folder not found: " + inputDir);
