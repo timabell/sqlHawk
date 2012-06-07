@@ -69,6 +69,7 @@ public class SchemaMapper {
 	 */
 	public void RunMapping(Config config) throws Exception {
 		setupLogger(config);
+		logger.fine("Working directory: " + new File(".").getAbsolutePath());
 		//========= schema reading code ============
 		//TODO: check for any conflict in request options (read vs write?)
 		if (config.isSourceControlOutputEnabled()
