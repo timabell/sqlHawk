@@ -64,7 +64,7 @@ public class DbReader {
 	public Database Read(Config config, Connection connection, DatabaseMetaData meta, SchemaMeta schemaMeta)
 			throws SQLException, MissingResourceException, InvalidConfigurationException, IOException {
 		Properties properties = config.getDbType().getProps();
-		database = new Database(config.getDb(), config.getSchema());
+		database = new Database(config.getDatabase(), config.getSchema());
 		database.setGeneratedDate(new Date());
 		this.connection = connection;
 		this.meta = meta;

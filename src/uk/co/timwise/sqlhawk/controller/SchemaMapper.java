@@ -143,7 +143,7 @@ public class SchemaMapper {
 			throws Exception {
 		ConnectionWithMeta connection = getConnection(config);
 
-		SchemaMeta schemaMeta = config.getMetaDataPath() == null ? null : new SchemaMeta(config.getMetaDataPath(), config.getDb(), config.getSchema());
+		SchemaMeta schemaMeta = config.getMetaDataPath() == null ? null : new SchemaMeta(config.getMetaDataPath(), config.getDatabase(), config.getSchema());
 		if (schemaMeta != null && schemaMeta.getFile() != null) {
 			logger.info("Using additional metadata from " + schemaMeta.getFile());
 		}
@@ -193,8 +193,8 @@ public class SchemaMapper {
 			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config);
-		if (config.getDb() == null)
-			config.setDb(connectionUrl);
+		if (config.getDatabase() == null)
+			config.setDatabase(connectionUrl);
 
 		Properties properties = config.getDbType().getProps();
 		String driverClass = properties.getProperty("driver");

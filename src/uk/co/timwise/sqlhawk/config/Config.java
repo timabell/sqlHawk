@@ -42,7 +42,7 @@ public class Config
 	private List<String> schemas;
 	private String user;
 	private String password;
-	private String db;
+	private String database;
 	private String host;
 	private Integer port;
 	private Pattern tableInclusions;
@@ -243,12 +243,12 @@ public class Config
 		return dbTypeName;
 	}
 
-	public void setDb(String db) {
-		this.db = db;
+	public void setDatabase(String database) {
+		this.database = database;
 	}
 
-	public String getDb() {
-		return db;
+	public String getDatabase() {
+		return database;
 	}
 
 	public void setSchema(String schema) {

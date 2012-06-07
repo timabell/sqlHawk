@@ -92,7 +92,7 @@ public class ArgParser {
 		config.setTargetDir(jsapConfig.getString("target-path"));
 		config.setGraphvizDir(jsapConfig.getString("graphviz-path"));
 		config.setDbTypeName(jsapConfig.getString("db-type"));
-		config.setDb(jsapConfig.getString("database"));
+		config.setDatabase(jsapConfig.getString("database"));
 		config.setSchema(jsapConfig.getString("schema"));
 		config.setSchemaDisabled(jsapConfig.getBoolean("no-schema"));
 		config.setHost(jsapConfig.getString("host"));

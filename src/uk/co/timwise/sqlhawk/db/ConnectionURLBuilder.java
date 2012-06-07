@@ -57,8 +57,8 @@ public class ConnectionURLBuilder {
 				} else {
 					option.setValue(properties.getProperty("default-port"));
 				}
-			} else if (option.getName().equalsIgnoreCase("database") && config.getDb() != null) {
-				option.setValue(config.getDb());
+			} else if (option.getName().equalsIgnoreCase("database") && config.getDatabase() != null) {
+				option.setValue(config.getDatabase());
 			} else if (option.getName().equalsIgnoreCase("instance") && config.getDatabaseInstance() != null) {
 				option.setValue(config.getDatabaseInstance());
 			//options available through the "connection-options" multi-part command line argument of sqlHawk
