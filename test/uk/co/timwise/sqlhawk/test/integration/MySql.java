@@ -34,6 +34,10 @@ public class MySql {
 		setupDbConfig.setHost("localhost");
 		setupDbConfig.setDatabase("mysql");
 		setupDbConfig.setUser("root");
+		runSqlFile(target, setupDbConfig);
+	}
+
+	private void runSqlFile(String target, Config setupDbConfig) throws Exception, IOException, SQLException {
 		ConnectionWithMeta connection = new SchemaMapper().getConnection(setupDbConfig);
 		String setupSql = FileHandling.readFile(new File("test/test-data/mysql/" + target + ".sql"));
 		String[] batches = SqlManagement.SplitBatches(setupSql);
@@ -55,6 +59,13 @@ public class MySql {
 		config.setDatabaseOutputEnabled(true);
 
 		new SchemaMapper().RunMapping(config);
+
+		validate();
+	}
+
+	private void validate() throws Exception {
+		Config config = mysqlConfig();
+		runSqlFile("validate", config);
 	}
 
 	private Config mysqlConfig() {
