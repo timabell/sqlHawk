@@ -2,6 +2,8 @@ package uk.co.timwise.sqlhawk.test.integration;
 
 import static org.junit.Assert.*;
 
+import java.util.logging.Level;
+
 import org.junit.Test;
 
 import uk.co.timwise.sqlhawk.config.Config;
@@ -14,12 +16,19 @@ public class MySql {
 		// arrange
 		SchemaMapper mapper = new SchemaMapper();
 		Config config = new Config();
+		config.setLogLevel(Level.FINEST);
+
+		config.setScmInputEnabled(true);
+		config.setTargetDir("test/test-data/mysql/scm-input");
+
+		config.setDatabaseOutputEnabled(true);
+		config.setDbTypeName("mysql");
+		config.setHost("localhost");
 
 		// act
 		mapper.RunMapping(config);
 
 		//assert
-		fail("not finished");
 	}
 
 }
