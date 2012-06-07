@@ -189,7 +189,7 @@ public class SchemaMapper {
 		writer.write(config, connection.Connection, connection.Metadata, db);
 	}
 
-	private ConnectionWithMeta getConnection(Config config)
+	public ConnectionWithMeta getConnection(Config config)
 			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config);
@@ -353,7 +353,7 @@ public class SchemaMapper {
 	 * Wrapper for a connection and related Metadata.
 	 * To return of both from the getConnection function.
 	 */
-	private class ConnectionWithMeta{
+	public class ConnectionWithMeta{
 		public Connection Connection;
 		public DatabaseMetaData Metadata;
 		public ConnectionWithMeta(Connection connection, DatabaseMetaData meta){

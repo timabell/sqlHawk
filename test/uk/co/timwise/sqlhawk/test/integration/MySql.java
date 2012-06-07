@@ -1,37 +1,70 @@
 package uk.co.timwise.sqlhawk.test.integration;
 
-import static org.junit.Assert.*;
-
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.logging.Level;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
+import uk.co.timwise.sqlhawk.controller.SchemaMapper.ConnectionWithMeta;
+import uk.co.timwise.sqlhawk.db.SqlManagement;
+import uk.co.timwise.sqlhawk.util.FileHandling;
 
 public class MySql {
 
+	@Before
+	public void resetMysql() throws Exception {
+		runSetupSql("setup");
+	}
+
+	@After
+	public void cleanMysql() throws Exception {
+		runSetupSql("clean");
+	}
+
+	private void runSetupSql(String target) throws Exception, IOException, SQLException {
+		Config setupDbConfig = new Config();
+		setupDbConfig.setDbTypeName("mysql");
+		setupDbConfig.setHost("localhost");
+		setupDbConfig.setDatabase("mysql");
+		setupDbConfig.setUser("root");
+		ConnectionWithMeta connection = new SchemaMapper().getConnection(setupDbConfig);
+		String setupSql = FileHandling.readFile(new File("test/test-data/mysql/" + target + ".sql"));
+		String[] batches = SqlManagement.SplitBatches(setupSql);
+		Statement statement = connection.Connection.createStatement();
+		for (String sql : batches) {
+			statement.addBatch(sql);
+		}
+		statement.executeBatch();
+	}
+
 	@Test
-	public void testMySqlGetProc() throws Exception {
-		// arrange
-		SchemaMapper mapper = new SchemaMapper();
-		Config config = new Config();
-		config.setLogLevel(Level.FINEST);
+	public void testMySql() throws Exception {
+		Config config = mysqlConfig();
 
 		config.setScmInputEnabled(true);
 		config.setTargetDir("test/test-data/mysql/scm-input");
 
+		config.setIntializeLogEnabled(true);
 		config.setDatabaseOutputEnabled(true);
+
+		new SchemaMapper().RunMapping(config);
+	}
+
+	private Config mysqlConfig() {
+		Config config = new Config();
+		config.setLogLevel(Level.FINEST);
 		config.setDbTypeName("mysql");
 		config.setHost("localhost");
 		config.setDatabase("sqlhawktesting");
 		config.setUser("sqlhawktesting");
 		config.setPassword("sqlhawktesting");
-
-		// act
-		mapper.RunMapping(config);
-
-		//assert
+		return config;
 	}
-
 }
