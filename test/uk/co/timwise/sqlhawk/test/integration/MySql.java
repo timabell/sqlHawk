@@ -20,11 +20,13 @@ public class MySql {
 
 	@Before
 	public void resetMysql() throws Exception {
+		System.out.println("setup");
 		runSetupSql("setup");
 	}
 
 	@After
 	public void cleanMysql() throws Exception {
+		System.out.println("clean");
 		runSetupSql("clean");
 	}
 
@@ -64,6 +66,7 @@ public class MySql {
 	}
 
 	private void validate() throws Exception {
+		System.out.println("validate");
 		Config config = mysqlConfig();
 		runSqlFile("validate", config);
 	}
