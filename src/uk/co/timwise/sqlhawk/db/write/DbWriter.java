@@ -202,22 +202,7 @@ public class DbWriter {
 			} catch (Exception ex) {
 				throw new Exception("Reading table SqlHawk_UpgradeLog failed, use --initialize-tracking before first run.", ex);
 			}
-			try {
-				logger.info("Running upgrade script '" + script + "'...");
-				String definition = FileHandling.readFile(new File(scriptFolder, script));
-				// Split into batches similar to the sql server tools,this makes
-				// management of scripts easier as you can include a reference to a
-				// new table in the same sql file as the create statement.
-				String[] splitSql = SqlManagement.SplitBatches(definition);
-				for (String sql : splitSql) {
-					logger.finest("Running upgrade script batch\n" + sql);
-					if (!config.isDryRun()) {
-						connection.prepareStatement(sql).execute();
-					}
-				}
-			} catch (Exception ex) {
-				throw new Exception("Failed to run upgrade script '" + script + "'.", ex);
-			}
+			runSqlScriptFile(connection, scriptFolder, script, config.isDryRun());
 			try {
 				PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
 				log.setString(1, batch);
@@ -226,6 +211,34 @@ public class DbWriter {
 			} catch (Exception ex) {
 				throw new Exception("INSERT INTO SqlHawk_UpgradeLog failed.", ex);
 			}
+		}
+	}
+
+	/**
+	 * Run a sql script file against the specified connection.
+	 *
+	 * @param connection the connection
+	 * @param scriptFolder the root folder to find the script in
+	 * @param script the relative path to the script file
+	 * @param dryRun set to false to skip execution
+	 */
+	public static void runSqlScriptFile(Connection connection, File scriptFolder, String script, boolean dryRun)
+			throws Exception {
+		try {
+			logger.info("Running script '" + script + "'...");
+			String definition = FileHandling.readFile(new File(scriptFolder, script));
+			// Split into batches similar to the sql server tools,this makes
+			// management of scripts easier as you can include a reference to a
+			// new table in the same sql file as the create statement.
+			String[] splitSql = SqlManagement.SplitBatches(definition);
+			for (String sql : splitSql) {
+				logger.finest("Running script batch\n" + sql);
+				if (!dryRun) {
+					connection.prepareStatement(sql).execute();
+				}
+			}
+		} catch (Exception ex) {
+			throw new Exception("Failed to run script '" + script + "'.", ex);
 		}
 	}
 }
