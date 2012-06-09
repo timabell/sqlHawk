@@ -49,6 +49,9 @@ public class SqlManagement {
 	}
 
 	private static String ConvertAction(String sqlText, Convertion convertion) {
+		if (sqlText == null) {
+			return null;
+		}
 		Pattern pattern;
 		Matcher matcher;
 		switch (convertion){
