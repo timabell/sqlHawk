@@ -22,3 +22,9 @@ CREATE PROCEDURE sqlhawktesting.oldproc ()
 
 select 4;
 
+GO
+
+CREATE PROCEDURE sqlhawktesting.unchangedproc ()
+
+select 5;
+
