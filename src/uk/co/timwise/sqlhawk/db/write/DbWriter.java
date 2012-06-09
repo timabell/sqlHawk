@@ -122,10 +122,12 @@ public class DbWriter {
 				}
 			} else { //new object
 				logger.info("Adding new " + typeName + " " + name);
-				String createSql = SqlManagement.ConvertAlterToCreate(updatedDefinition);
+				if (!config.getDbType().isAlterSupported()) {
+					updatedDefinition = SqlManagement.ConvertAlterToCreate(updatedDefinition);
+				}
 				try {
 					if (!config.isDryRun())
-						connection.prepareStatement(createSql).execute();
+						connection.prepareStatement(updatedDefinition).execute();
 				} catch (SQLException ex){
 					//rethrow with information on which object failed.
 					throw new Exception("Error updating " + typeName + " " + name, ex);
