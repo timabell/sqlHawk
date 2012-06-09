@@ -598,10 +598,6 @@ public class Config
 		return driverPath;
 	}
 
-	public Map<String, String> getExtraConnectionOptions() { // TODO: remove pointless wrapper getExtraConnectionOptions()
-		return getExtraOptions();
-	}
-
 	public boolean isOrderingOutputEnabled() {
 		return orderingOutputEnabled;
 	}

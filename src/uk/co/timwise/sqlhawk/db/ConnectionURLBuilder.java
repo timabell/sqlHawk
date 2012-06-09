@@ -45,7 +45,7 @@ public class ConnectionURLBuilder {
 	private String buildUrlFromArgs(Config config, List<DbSpecificOption> driverOptions) throws Exception {
 		Properties properties = config.getDbType().getProps();
 		String connectionSpec = properties.getProperty("connectionSpec");
-		Map<String, String> extraConnectionOptions = config.getExtraConnectionOptions();
+		Map<String, String> extraConnectionOptions = config.getExtraOptions();
 		for (DbSpecificOption option : driverOptions) {
 			//options available directly in hard coded command line arguments of sqlHawk
 			if (option.getName().equalsIgnoreCase("host") && config.getHost() != null) {
