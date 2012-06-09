@@ -22,13 +22,10 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
@@ -37,6 +34,7 @@ import uk.co.timwise.sqlhawk.db.read.DbReader;
 import uk.co.timwise.sqlhawk.db.read.TableReader;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ISqlObject;
+import uk.co.timwise.sqlhawk.scm.read.UpgradeScriptReader;
 import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
@@ -189,74 +187,44 @@ public class DbWriter {
 	 */
 	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch, int strip) throws IOException,
 			Exception {
-		File[] files = scriptFolder.listFiles();
-		Arrays.sort(files, new Comparator<File>() {
-			Pattern fileNumbers = Pattern.compile("^([0-9]+)(.*)");
-			@Override
-			public int compare(File o1, File o2) {
-				if (o1.isDirectory() ^ o2.isDirectory()){
-					// run directories last
-					return o1.isDirectory() ? 1 : -1;
+		List<String> scripts = UpgradeScriptReader.getUpgradeScripts(scriptFolder);
+		for(String script : scripts){
+			try {
+				PreparedStatement log = connection.prepareStatement(upgradeLogFindSql);
+				log.setString(1, script);
+				log.execute();
+				ResultSet resultSet = log.getResultSet();
+				if (resultSet.next()) { // existing record of this script found in log
+					int upgradeId = resultSet.getInt(1);
+					logger.fine("Script '" + script + "' already run. UpgradeId " + upgradeId);
+					continue;
 				}
-				Matcher o1Number = fileNumbers.matcher(o1.getName());
-				Matcher o2Number = fileNumbers.matcher(o2.getName());
-				if (!o1Number.find() || !o2Number.find()) {
-					// not both numeric, so simple string compare
-					return o1.getName().compareTo(o2.getName());
-				}
-				Integer o1n = Integer.parseInt(o1Number.group(1));
-				Integer o2n = Integer.parseInt(o2Number.group(1));
-				if (o1n != o2n) {
-					return o1n.compareTo(o2n);
-				}
-				// same number, compare rest of script (avoiding leading zero differences)
-				return o1Number.group(2).compareTo(o2Number.group(2));
+			} catch (Exception ex) {
+				throw new Exception("Reading table SqlHawk_UpgradeLog failed, use --initialize-tracking before first run.", ex);
 			}
-		});
-		for(File file : files){
-			if (file.isDirectory()) {
-				logger.fine("Processing script directory '" + file + "'...");
-				runScriptDirectory(config, connection, file, batch, strip);
-			}
-			if (!file.getName().endsWith(".sql")) //skip non sql files
-				continue;
-			String relativePath = file.toString().substring(strip);
-			String definition = FileHandling.readFile(file);
-			if (!config.isDryRun()) {
-				try {
-					PreparedStatement log = connection.prepareStatement(upgradeLogFindSql);
-					log.setString(1, relativePath);
-					log.execute();
-					ResultSet resultSet = log.getResultSet();
-					if (resultSet.next()) { // existing record of this script found in log
-						int upgradeId = resultSet.getInt(1);
-						logger.fine("Script '" + file + "' already run. UpgradeId " + upgradeId);
-						continue;
-					}
-				} catch (Exception ex) {
-					throw new Exception("Reading table SqlHawk_UpgradeLog failed, use --initialize-tracking before first run.", ex);
-				}
-				try {
-					logger.info("Running upgrade script '" + file + "'...");
-					// Split into batches similar to the sql server tools,this makes
-					// management of scripts easier as you can include a reference to a
-					// new table in the same sql file as the create statement.
-					String[] splitSql = SqlManagement.SplitBatches(definition);
-					for (String sql : splitSql) {
-						logger.finest("Running upgrade script batch\n" + sql);
+			try {
+				logger.info("Running upgrade script '" + script + "'...");
+				String definition = FileHandling.readFile(new File(scriptFolder, script));
+				// Split into batches similar to the sql server tools,this makes
+				// management of scripts easier as you can include a reference to a
+				// new table in the same sql file as the create statement.
+				String[] splitSql = SqlManagement.SplitBatches(definition);
+				for (String sql : splitSql) {
+					logger.finest("Running upgrade script batch\n" + sql);
+					if (!config.isDryRun()) {
 						connection.prepareStatement(sql).execute();
 					}
-				} catch (Exception ex) {
-					throw new Exception("Failed to run upgrade script '" + file + "'.", ex);
 				}
-				try {
-					PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
-					log.setString(1, batch);
-					log.setString(2, relativePath);
-					log.execute();
-				} catch (Exception ex) {
-					throw new Exception("INSERT INTO SqlHawk_UpgradeLog failed.", ex);
-				}
+			} catch (Exception ex) {
+				throw new Exception("Failed to run upgrade script '" + script + "'.", ex);
+			}
+			try {
+				PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
+				log.setString(1, batch);
+				log.setString(2, script);
+				log.execute();
+			} catch (Exception ex) {
+				throw new Exception("INSERT INTO SqlHawk_UpgradeLog failed.", ex);
 			}
 		}
 	}
