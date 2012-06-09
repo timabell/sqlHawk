@@ -166,19 +166,8 @@ public class Config
 		return impliedConstraintsEnabled;
 	}
 
-	public void setTargetDir(String targetDirName) {
-		if (targetDirName == null) {
-			targetDir = null;
-			return;
-		}
-		if (targetDirName.endsWith("\"")){
-			targetDirName = targetDirName.substring(0, targetDirName.length() - 1);
-		}
-		setTargetDir(new File(targetDirName));
-	}
-
-	public void setTargetDir(File outputDir) {
-		this.targetDir = outputDir;
+	public void setTargetDir(File targetDir) {
+		this.targetDir = targetDir;
 	}
 
 	public File getTargetDir() {

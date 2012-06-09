@@ -49,7 +49,7 @@ public class IntegrationTester {
 		Config config = getTestConfig(type);
 
 		config.setScmInputEnabled(true);
-		config.setTargetDir("test/test-data/" + type + "/scm-input");
+		config.setTargetDir(new File("test/test-data/" + type + "/scm-input"));
 
 		config.setIntializeLogEnabled(true);
 		config.setDatabaseOutputEnabled(true);

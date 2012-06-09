@@ -89,7 +89,7 @@ public class ArgParser {
 		config.setXmlOutputEnabled(jsapConfig.getBoolean("xml-output"));
 		config.setImpliedConstraintsEnabled(jsapConfig.getBoolean("guess-relationships"));
 		config.setMetaDataPath(jsapConfig.getString("metadata-path"));
-		config.setTargetDir(jsapConfig.getString("target-path"));
+		config.setTargetDir(new File(jsapConfig.getString("target-path")));
 		config.setGraphvizDir(jsapConfig.getString("graphviz-path"));
 		config.setDbTypeName(jsapConfig.getString("db-type"));
 		config.setDatabase(jsapConfig.getString("database"));
