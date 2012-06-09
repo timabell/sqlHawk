@@ -105,11 +105,17 @@ public class DbWriter {
 					}
 				}
 				logger.info("Updating existing " + typeName + " " + name);
-				//Change definition from CREATE to ALTER and run.
-				String updateSql = SqlManagement.ConvertCreateToAlter(updatedDefinition);
+				if (config.getDbType().isAlterSupported()) {
+					//Change definition from CREATE to ALTER and run.
+					updatedDefinition = SqlManagement.ConvertCreateToAlter(updatedDefinition);
+				}
 				try {
-					if (!config.isDryRun())
-						connection.prepareStatement(updateSql).execute();
+					if (!config.isDryRun()) {
+						if (!config.getDbType().isAlterSupported()) {
+							connection.prepareStatement("DROP " + typeName + " " + name).execute();
+						}
+						connection.prepareStatement(updatedDefinition).execute();
+					}
 				} catch (SQLException ex){
 					//rethrow with information on which object failed.
 					throw new Exception("Error updating " + typeName + " " + name, ex);

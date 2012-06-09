@@ -34,6 +34,7 @@ public class DbType {
 	private Properties props;
 	private String name;
 	private final Logger logger = Logger.getLogger(getClass().getName());
+	private boolean alterSupported;
 
 	public String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
@@ -156,6 +157,7 @@ public class DbType {
 		dbType.dbPropertiesLoadedFrom = dbPropertiesLoadedFrom;
 		dbType.props = props;
 		dbType.name = type;
+		dbType.alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
 		return dbType;
 }
 
@@ -183,5 +185,10 @@ public class DbType {
 
 	public String getName() {
 		return name;
+	}
+
+
+	public boolean isAlterSupported() {
+		return alterSupported;
 	}
 }
