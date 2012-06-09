@@ -173,12 +173,12 @@ public class DbWriter {
 			logger.warning("Upgrade script directory '" + scriptFolder + "' not found. Skipping upgrade scripts.");
 			return;
 		}
-		String batch = config.getBatch();
+		String upgradeBatch = config.getUpgradeBatch();
 		Properties properties = config.getDbType().getProps();
 		upgradeLogInsertSql = properties.getProperty("upgradeLogInsert");
 		upgradeLogFindSql = properties.getProperty("upgradeLogFind");
 		int strip = scriptFolder.toString().length() + 1; // remove base path + trailing slash
-		runScriptDirectory(config, connection, scriptFolder, batch, strip);
+		runScriptDirectory(config, connection, scriptFolder, upgradeBatch, strip);
 	}
 
 	/**
@@ -187,13 +187,13 @@ public class DbWriter {
 	 * @param config the config
 	 * @param connection the connection
 	 * @param scriptFolder the script folder
-	 * @param batch string to tie all the scripts together with in the upgrade log table
+	 * @param upgradeBatch string to tie all the scripts together with in the upgrade log table
 	 * @param strip number of chars to remove from paths when logging
 	 * @return whether any scripts were run
 	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws Exception the exception
 	 */
-	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String batch, int strip) throws IOException,
+	private void runScriptDirectory(Config config, Connection connection, File scriptFolder, String upgradeBatch, int strip) throws IOException,
 			Exception {
 		List<String> scripts = UpgradeScriptReader.getUpgradeScripts(scriptFolder);
 		for(String script : scripts){
@@ -213,7 +213,7 @@ public class DbWriter {
 			runSqlScriptFile(connection, scriptFolder, script, config.isDryRun());
 			try {
 				PreparedStatement log = connection.prepareStatement(upgradeLogInsertSql);
-				log.setString(1, batch);
+				log.setString(1, upgradeBatch);
 				log.setString(2, script);
 				log.execute();
 			} catch (Exception ex) {

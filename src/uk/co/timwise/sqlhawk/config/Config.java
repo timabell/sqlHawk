@@ -91,7 +91,7 @@ public class Config
 	private boolean dryRun;
 	private boolean forceEnabled;
 	private boolean intializeLogEnabled;
-	private String batch;
+	private String upgradeBatch;
 	private String renderer;
 
 	/**
@@ -633,8 +633,8 @@ public class Config
 		return intializeLogEnabled;
 	}
 
-	public String getBatch() { //TODO: more descriptive name for batch property
-		return batch;
+	public String getUpgradeBatch() {
+		return upgradeBatch;
 	}
 
 
@@ -837,8 +837,8 @@ public class Config
 	}
 
 
-	public void setBatch(String batch) {
-		this.batch = batch;
+	public void setUpgradeBatch(String upgradeBatch) {
+		this.upgradeBatch = upgradeBatch;
 	}
 
 

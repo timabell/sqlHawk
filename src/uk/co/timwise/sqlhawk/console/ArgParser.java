@@ -159,7 +159,7 @@ public class ArgParser {
 		config.setDryRun(jsapConfig.getBoolean("dry-run"));
 		config.setForceEnabled(jsapConfig.getBoolean("force"));
 		config.setIntializeLogEnabled(jsapConfig.getBoolean("initialize-tracking"));
-		config.setBatch(jsapConfig.getString("upgrade-batch"));
+		config.setUpgradeBatch(jsapConfig.getString("upgrade-batch"));
 		if(jsapConfig.contains("max-threads")){
 			config.setMaxDbThreads(jsapConfig.getInt("max-threads"));
 		}
