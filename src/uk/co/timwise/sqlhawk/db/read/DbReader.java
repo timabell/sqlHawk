@@ -101,7 +101,7 @@ public class DbReader {
 			initViewSql(properties);
 		}
 		logger.fine("Reading procedures...");
-		initStoredProcedures(properties, config);
+		initStoredProcedures(properties, config, meta);
 		logger.fine("Reading functions...");
 		initFunctions(properties, config);
 		updateFromXmlMetadata(schemaMeta);
@@ -123,11 +123,10 @@ public class DbReader {
 		}
 	}
 
-	private void initStoredProcedures(Properties properties, final Config config) throws SQLException {
-		String sql = properties.getProperty("selectStoredProcsSql");
-		logger.finest("Loaded selectStoredProcsSql:\n" + sql);
-		if (sql == null)
-			return; 
+	private void initStoredProcedures(Properties properties, final Config config, DatabaseMetaData meta) throws SQLException {
+		// See if there is a method of selecting all the proc definitions at once
+		String selectStoredProcsSql = properties.getProperty("selectStoredProcsSql");
+		logger.finest("Loaded selectStoredProcsSql:\n" + selectStoredProcsSql);
 
 		final Pattern include = config.getProcedureInclusions();
 		final Pattern exclude = config.getProcedureExclusions();
@@ -137,14 +136,23 @@ public class DbReader {
 		ResultSet rs = null;
 
 		try {
-			stmt = prepareStatement(sql, null);
-			rs = stmt.executeQuery();
+			if (selectStoredProcsSql != null){
+				stmt = prepareStatement(selectStoredProcsSql, null);
+				rs = stmt.executeQuery();
+			} else{
+				rs = meta.getProcedures(config.getDatabase(), config.getSchema(), null);
+			}
 
 			while (rs.next()) {
-				String procName = rs.getString("name");
+				String procName = rs.getString("PROCEDURE_NAME");
 				if (!validator.isValid(procName))
 					continue;
-				String procDefinition = rs.getString("definition");
+				String procDefinition = null;
+				if (selectStoredProcsSql != null) {
+					procDefinition = rs.getString("definition");
+				} else {
+					// TODO: request procedure definition where no support for getting all at once
+				}
 				procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
 				Procedure proc = new Procedure(schema, procName, procDefinition);
 				logger.finer("Read procedure definition '" + procName + "'");
