@@ -590,30 +590,6 @@ public class Config
 		return databaseInstance;
 	}
 
-	/**
-	 * Thrown to indicate that a required parameter is missing
-	 */
-	public static class MissingRequiredParameterException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-		private final boolean dbTypeSpecific;
-
-		public MissingRequiredParameterException(String paramId, boolean dbTypeSpecific) {
-			this(paramId, null, dbTypeSpecific);
-		}
-
-		public MissingRequiredParameterException(String paramId, String description, boolean dbTypeSpecific) {
-			super("Command line argument '" + paramId + "' " +
-					(description == null ? "" : "(" + description + ") ") +
-					"is required for the requested operation." +
-					(dbTypeSpecific ? "  It is required for this database type." : ""));
-			this.dbTypeSpecific = dbTypeSpecific;
-		}
-
-		public boolean isDbTypeSpecific() {
-			return dbTypeSpecific;
-		}
-	}
-
 	public boolean isShowDetailedTablesEnabled() {
 		return showDetailedTablesEnabled;
 	}

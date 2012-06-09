@@ -17,6 +17,7 @@ package uk.co.timwise.sqlhawk.console;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
+import uk.co.timwise.sqlhawk.config.MissingRequiredParameterException;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.db.read.ConnectionFailure;
 import uk.co.timwise.sqlhawk.db.read.EmptySchemaException;
@@ -53,7 +54,7 @@ public class Main {
 		} catch (EmptySchemaException noData) {
 			// failure already logged
 			System.exit(2);
-		} catch (Config.MissingRequiredParameterException missingParam) {
+		} catch (MissingRequiredParameterException missingParam) {
 			System.err.println(missingParam.getMessage());
 			System.exit(1);
 		} catch (InvalidConfigurationException badConfig) {
