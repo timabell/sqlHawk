@@ -580,11 +580,6 @@ public class Config
 	public Properties getDbProperties() throws InvalidConfigurationException, IOException {
 		return getDbType().getProps();
 	}
-	
-
-	public String getDbPropertiesLoadedFrom() throws InvalidConfigurationException, IOException {
-		return getDbType().getDbPropertiesLoadedFrom();
-	}
 
 	public String getDatabaseInstance() {
 		return databaseInstance;

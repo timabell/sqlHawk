@@ -277,7 +277,7 @@ public class SchemaMapper {
 
 	private Connection getConnection(Config config, String connectionURL,
 			String driverClass, String driverPath) throws FileNotFoundException, IOException {
-		logger.fine("Using database properties:\n" + "  " + config.getDbPropertiesLoadedFrom());
+		logger.fine("Using database properties:\n" + "  " + config.getDbType().getDbPropertiesLoadedFrom());
 
 		List<URL> classpath = new ArrayList<URL>();
 		List<File> invalidClasspathEntries = new ArrayList<File>();
@@ -332,7 +332,7 @@ public class SchemaMapper {
 				logger.severe("Failed to database URL " + connectionURL
 						+ "with driver " + driverClass
 						+ "\n Additional connection information may be available in "
-						+ config.getDbPropertiesLoadedFrom());
+						+ config.getDbType().getDbPropertiesLoadedFrom());
 				throw new ConnectionFailure("Cannot connect to '" + connectionURL +"' with driver '" + driverClass + "'");
 			}
 		} catch (UnsatisfiedLinkError badPath) {
