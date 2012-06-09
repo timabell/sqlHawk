@@ -1,9 +1,12 @@
 package uk.co.timwise.sqlhawk.test.integration;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Properties;
+import java.util.PropertyResourceBundle;
 import java.util.logging.Level;
 
 import org.junit.After;
@@ -11,11 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.DbType;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper.ConnectionWithMeta;
-import uk.co.timwise.sqlhawk.db.SqlManagement;
 import uk.co.timwise.sqlhawk.db.write.DbWriter;
-import uk.co.timwise.sqlhawk.util.FileHandling;
 
 public class MySql {
 
@@ -33,10 +35,14 @@ public class MySql {
 
 	private void runSetupSql(String target) throws Exception, IOException, SQLException {
 		Config setupDbConfig = new Config();
+		PropertyResourceBundle bundle = new PropertyResourceBundle(
+				new FileInputStream(new File("test/test-data/mysql/setup.properties")));
+		Properties properties = DbType.asProperties(bundle);
+
 		setupDbConfig.setDbTypeName("mysql");
-		setupDbConfig.setHost("localhost");
-		setupDbConfig.setDatabase("mysql");
-		setupDbConfig.setUser("root");
+		setupDbConfig.setHost(properties.getProperty("host"));
+		setupDbConfig.setDatabase(properties.getProperty("database"));
+		setupDbConfig.setUser(properties.getProperty("user"));
 		runSqlFile(target, setupDbConfig);
 	}
 
@@ -66,14 +72,18 @@ public class MySql {
 		runSqlFile("validate", config);
 	}
 
-	private Config mysqlConfig() {
+	private Config mysqlConfig() throws FileNotFoundException, IOException {
 		Config config = new Config();
 		config.setLogLevel(Level.FINEST);
 		config.setDbTypeName("mysql");
-		config.setHost("localhost");
-		config.setDatabase("sqlhawktesting");
-		config.setUser("sqlhawktesting");
-		config.setPassword("sqlhawktesting");
+
+		PropertyResourceBundle bundle = new PropertyResourceBundle(
+				new FileInputStream(new File("test/test-data/mysql/test.properties")));
+		Properties properties = DbType.asProperties(bundle);
+		config.setHost(properties.getProperty("host"));
+		config.setDatabase(properties.getProperty("database"));
+		config.setUser(properties.getProperty("user"));
+		config.setPassword(properties.getProperty("password"));
 		return config;
 	}
 }

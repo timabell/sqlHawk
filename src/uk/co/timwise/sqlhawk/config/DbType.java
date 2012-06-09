@@ -165,7 +165,7 @@ public class DbType {
 	 * @param bundle ResourceBundle
 	 * @return Properties
 	 */
-	private static Properties asProperties(ResourceBundle bundle) {
+	public static Properties asProperties(ResourceBundle bundle) {
 		Properties props = new Properties();
 		Enumeration<String> iter = bundle.getKeys();
 		while (iter.hasMoreElements()) {
