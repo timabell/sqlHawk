@@ -613,6 +613,15 @@ public class Config
 		return forceEnabled;
 	}
 
+	/**
+	 * Gets the db type.
+	 * Loads DbType object on demand (and then caches it), so may throw exceptions.
+	 * Makes use of dbTypeName so make sure that is set first.
+	 *
+	 * @return the loaded db type
+	 * @throws InvalidConfigurationException the invalid configuration exception
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
 	public DbType getDbType() throws InvalidConfigurationException, IOException {
 		if (dbType == null) {
 			dbType = new DbType().getDbType(getDbTypeName());
