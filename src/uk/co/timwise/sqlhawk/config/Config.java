@@ -502,6 +502,7 @@ public class Config
 	 */
 	public boolean isOneOfMultipleSchemas() {
 		// set by MultipleSchemaAnalyzer
+		 // TODO: remove this property and setting when sorting out multiple schema support - issue #61
 		return Boolean.getBoolean("oneofmultipleschemas");
 	}
 
