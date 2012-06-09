@@ -45,6 +45,7 @@ public class IntegrationTester {
 	}
 
 	static void testDatabase(String type) throws Exception {
+		System.out.println("Integration test: running tests for " + type);
 		Config config = getTestConfig(type);
 
 		config.setScmInputEnabled(true);
@@ -55,7 +56,8 @@ public class IntegrationTester {
 
 		new SchemaMapper().RunMapping(config);
 
-		validateDatabase(type);
+		System.out.println("Integration test: validating " + type);
+		runSqlFile(type, "validate", config);
 	}
 
 	static void cleanTestDatabase(String type) throws Exception {
@@ -66,12 +68,6 @@ public class IntegrationTester {
 	private static void runSetupSql(String type, String target) throws Exception {
 		Config setupDbConfig = getSetupConfig(type);
 		runSqlFile(type, target, setupDbConfig);
-	}
-
-	private static void validateDatabase(String type) throws Exception {
-		System.out.println("validate");
-		Config config = getTestConfig(type);
-		runSqlFile(type, "validate", config);
 	}
 
 	private static Config getSetupConfig(String type) throws IOException, FileNotFoundException {
