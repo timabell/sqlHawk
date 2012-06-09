@@ -14,6 +14,7 @@ import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper.ConnectionWithMeta;
 import uk.co.timwise.sqlhawk.db.SqlManagement;
+import uk.co.timwise.sqlhawk.db.write.DbWriter;
 import uk.co.timwise.sqlhawk.util.FileHandling;
 
 public class MySql {
@@ -41,13 +42,7 @@ public class MySql {
 
 	private void runSqlFile(String target, Config setupDbConfig) throws Exception, IOException, SQLException {
 		ConnectionWithMeta connection = new SchemaMapper().getConnection(setupDbConfig);
-		String setupSql = FileHandling.readFile(new File("test/test-data/mysql/" + target + ".sql"));
-		String[] batches = SqlManagement.SplitBatches(setupSql);
-		Statement statement = connection.Connection.createStatement();
-		for (String sql : batches) {
-			statement.addBatch(sql);
-		}
-		statement.executeBatch();
+		DbWriter.runSqlScriptFile(connection.Connection, new File("."), "test/test-data/mysql/" + target + ".sql", false);
 	}
 
 	@Test
