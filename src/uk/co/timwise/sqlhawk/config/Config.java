@@ -577,10 +577,6 @@ public class Config
 		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
 	}
 
-	public Properties getDbProperties() throws InvalidConfigurationException, IOException {
-		return getDbType().getProps();
-	}
-
 	public String getDatabaseInstance() {
 		return databaseInstance;
 	}
