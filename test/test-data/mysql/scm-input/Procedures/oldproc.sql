@@ -1,3 +1,4 @@
-ALTER PROCEDURE testproc ()
+CREATE PROCEDURE oldproc ()
 
-select 5; -- updated definition
+select 5;
+
