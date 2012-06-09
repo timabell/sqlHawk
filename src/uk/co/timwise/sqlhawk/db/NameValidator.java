@@ -30,7 +30,7 @@ public class NameValidator {
 	private final String clazz;
 	private final Pattern include;
 	private final Pattern exclude;
-	private final Set<String> validTypes;
+	private final Set<String> validTypes = new HashSet<String>();
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	/**
@@ -44,14 +44,12 @@ public class NameValidator {
 		this.clazz = clazz;
 		this.include = include;
 		this.exclude = exclude;
-		if (validTypes != null) {
-			this.validTypes = new HashSet<String>();
-			for (String type : validTypes)
-			{
-				this.validTypes.add(type.toUpperCase());
-			}
-		} else {
-			this.validTypes = null;
+		if (validTypes == null) {
+			return;
+		}
+		for (String type : validTypes)
+		{
+			this.validTypes.add(type.toUpperCase());
 		}
 	}
 
@@ -84,13 +82,13 @@ public class NameValidator {
 			return false;
 		}
 
-		if (exclude.matcher(name).matches()) {
+		if (exclude != null && exclude.matcher(name).matches()) {
 			logger.finest("Excluding " + clazz + " " + name +
 					": matches exclusion pattern \"" + exclude + '"');
 			return false;
 		}
 
-		boolean valid = include.matcher(name).matches();
+		boolean valid = (include == null || include.matcher(name).matches());
 		if (valid) {
 			logger.finest("Including " + clazz + " " + name +
 					": matches inclusion pattern \"" + include + '"');
