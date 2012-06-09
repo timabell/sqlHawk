@@ -63,7 +63,7 @@ public class DbWriter {
 			DbReader reader = new DbReader();
 			Database existingDb = reader.Read(config, connection, meta, null);
 
-			createUpdateDrop(config, connection, db.getProcMap(), existingDb.getProcMap(), "proc");
+			createUpdateDrop(config, connection, db.getProcMap(), existingDb.getProcMap(), "procedure");
 			createUpdateDrop(config, connection, db.getViewMap(), existingDb.getViewMap(), "view");
 			createUpdateDrop(config, connection, db.getFunctionMap(), existingDb.getFunctionMap(), "function");
 			if (useTransactions) {
