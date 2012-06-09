@@ -90,7 +90,7 @@ public class ArgParser {
 		config.setImpliedConstraintsEnabled(jsapConfig.getBoolean("guess-relationships"));
 		config.setMetaDataPath(jsapConfig.getString("metadata-path"));
 		config.setTargetDir(new File(jsapConfig.getString("target-path")));
-		config.setGraphvizDir(jsapConfig.getString("graphviz-path"));
+		config.setGraphvizDir(new File(jsapConfig.getString("graphviz-path")));
 		config.setDbTypeName(jsapConfig.getString("db-type"));
 		config.setDatabase(jsapConfig.getString("database"));
 		config.setSchema(jsapConfig.getString("schema"));

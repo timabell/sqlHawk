@@ -179,22 +179,6 @@ public class Config
 	 *
 	 * @param graphvizDir
 	 */
-	public void setGraphvizDir(String graphvizDir) {
-		if (graphvizDir == null){
-			this.graphvizDir = null;
-			return;
-		}
-		if (graphvizDir.endsWith("\"")) {
-			graphvizDir = graphvizDir.substring(0, graphvizDir.length() - 1);
-		}
-		this.graphvizDir = new File(graphvizDir);
-	}
-
-	/**
-	 * Set the path to Graphviz so we can find dot to generate ER diagrams
-	 *
-	 * @param graphvizDir
-	 */
 	public void setGraphvizDir(File graphvizDir) {
 		this.graphvizDir = graphvizDir;
 	}
