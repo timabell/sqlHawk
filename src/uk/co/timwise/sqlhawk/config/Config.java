@@ -34,7 +34,9 @@ import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
  */
 public class Config
 {
+	@Deprecated
 	private static Config instance; // TODO: remove config "instance", replace with simpler usages
+
 	private File targetDir;
 	private File graphvizDir;
 	private String dbTypeName;
@@ -102,7 +104,7 @@ public class Config
 			setInstance(this);
 	}
 
-
+	@Deprecated
 	public static Config getInstance() {
 		if (instance == null)
 			instance = new Config();
@@ -143,6 +145,7 @@ public class Config
 	 *
 	 * @param config
 	 */
+	@Deprecated
 	public static void setInstance(Config config) {
 		instance = config;
 	}
