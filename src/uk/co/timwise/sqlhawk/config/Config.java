@@ -299,11 +299,6 @@ public class Config
 		return password;
 	}
 
-
-	public String getConnectionPropertiesFile() {
-		return getUserConnectionPropertiesFile();
-	}
-
 	/**
 	 * Properties from this file (in key=value pair format) are passed to the
 	 * database connection.<br>
