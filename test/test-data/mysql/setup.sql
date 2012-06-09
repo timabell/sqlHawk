@@ -28,3 +28,9 @@ CREATE PROCEDURE sqlhawktesting.unchangedproc ()
 
 select 5;
 
+GO
+
+CREATE PROCEDURE sqlhawktesting.unwantedproc ()
+
+select 6;
+
