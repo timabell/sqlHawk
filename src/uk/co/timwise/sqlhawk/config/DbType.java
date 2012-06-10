@@ -47,7 +47,38 @@ public class DbType {
 	public DbType(String type) throws IOException, InvalidConfigurationException {
 		name = type;
 		props = PropertyHandler.bundleAsProperties(getBundle(type));
+		processIncludes(props, dbPropertiesLoadedFrom);
+		processExtends(props);
+		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
+	}
 
+	/**
+	 * bring in key/values from types pointed to extends directive
+	 *
+	 * @param props the props
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private static void processExtends(Properties props) throws IOException {
+		// bring in base properties files pointed to by the extends directive
+		String baseDbType = (String)props.remove("extends");
+		if (baseDbType == null) {
+			return;
+		}
+		baseDbType = baseDbType.trim();
+		Properties baseProps =  new DbType(baseDbType).getProps();
+
+		// overlay our properties on top of the base's
+		baseProps.putAll(props);
+		props = baseProps;
+	}
+
+	/**
+	 * bring in key/values pointed to by any include directives
+	 *
+	 * @param props the props
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 */
+	private static void processIncludes(Properties props, String dbPropertiesLoadedFrom) throws IOException {
 		// bring in key/values pointed to by the include directive
 		// example: include.1=mysql::selectRowCountSql
 		for (int i = 1; true; ++i) {
@@ -66,20 +97,7 @@ public class DbType {
 			Properties refdProps = new DbType(refdType).getProps();
 			props.put(refdKey, refdProps.getProperty(refdKey));
 		}
-
-		// bring in base properties files pointed to by the extends directive
-		String baseDbType = (String)props.remove("extends");
-		if (baseDbType != null) {
-			baseDbType = baseDbType.trim();
-			Properties baseProps =  new DbType(baseDbType).getProps();
-
-			// overlay our properties on top of the base's
-			baseProps.putAll(props);
-			props = baseProps;
-		}
-
-		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
-}
+	}
 
 	/**
 	 * Gets the properties bundle for a database type.
