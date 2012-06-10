@@ -65,7 +65,7 @@ public class DbType {
 			// The type wasn't a valid file, so load the properties from within the running jar
 			try {
 				bundle = ResourceBundle.getBundle(type);
-				dbPropertiesLoadedFrom = "[" + Config.getJarName() + "]" + File.separator + type + ".properties";
+				dbPropertiesLoadedFrom = "[" + DatabaseTypeFinder.getJarName() + "]" + File.separator + type + ".properties";
 			} catch (Exception notInJarWithoutPath) {
 
 				// Failed to load the type from the jar, likely debugging raw .class files so find it in the source path for database type properties instead

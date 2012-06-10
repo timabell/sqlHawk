@@ -15,9 +15,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 package uk.co.timwise.sqlhawk.config;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
@@ -31,7 +33,7 @@ public class DatabaseTypeFinder {
 		JarInputStream jar = null;
 
 		try {
-			jar = new JarInputStream(new FileInputStream(Config.getJarName()));
+			jar = new JarInputStream(new FileInputStream(getJarName()));
 			JarEntry entry;
 	
 			while ((entry = jar.getNextJarEntry()) != null) {
@@ -52,5 +54,15 @@ public class DatabaseTypeFinder {
 			}
 		}
 		return databaseTypes;
+	}
+
+	/**
+	 * Gets the filename of the jar this program was loaded from.
+	 *
+	 * @return the filename of the jar
+	 */
+	public static String getJarName() {
+		String classpath = System.getProperty("java.class.path");
+		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
 	}
 }

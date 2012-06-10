@@ -23,7 +23,6 @@ import java.sql.DatabaseMetaData;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -565,16 +564,6 @@ public class Config
 	 */
 	public Level getLogLevel() {
 		return logLevel;
-	}
-
-	/**
-	 * Gets the filename of the jar this program was loaded from.
-	 *
-	 * @return the filename of the jar
-	 */
-	public static String getJarName() {
-		String classpath = System.getProperty("java.class.path");
-		return new StringTokenizer(classpath, File.pathSeparator).nextToken();
 	}
 
 	public String getDatabaseInstance() {
