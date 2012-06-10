@@ -17,6 +17,7 @@ package uk.co.timwise.sqlhawk.config;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
@@ -36,6 +37,8 @@ public class DbType {
 	 * Instantiates a new DbType from its name.
 	 * Loads relevant data from properties files, so may throw
 	 * exception if there is a problem.
+	 * Processes extends properties to provide inheritance of types.
+	 * Processes include properties to provide sharing of properties.
 	 *
 	 * @param type the type
 	 * @throws IOException Signals that an I/O exception has occurred.
@@ -43,7 +46,56 @@ public class DbType {
 	 */
 	public DbType(String type) throws IOException, InvalidConfigurationException {
 		name = type;
+		props = PropertyHandler.bundleAsProperties(getBundle(type));
 
+		// bring in key/values pointed to by the include directive
+		// example: include.1=mysql::selectRowCountSql
+		for (int i = 1; true; ++i) {
+			String include = (String)props.remove("include." + i);
+			if (include == null)
+				break;
+
+			int separator = include.indexOf("::");
+			if (separator == -1)
+				throw new InvalidConfigurationException("include directive in " + dbPropertiesLoadedFrom + " must have '::' between dbType and key");
+
+			String refdType = include.substring(0, separator).trim();
+			String refdKey = include.substring(separator + 2).trim();
+
+			// recursively resolve the ref'd properties file and the ref'd key
+			Properties refdProps = new DbType(refdType).getProps();
+			props.put(refdKey, refdProps.getProperty(refdKey));
+		}
+
+		// bring in base properties files pointed to by the extends directive
+		String baseDbType = (String)props.remove("extends");
+		if (baseDbType != null) {
+			baseDbType = baseDbType.trim();
+			Properties baseProps =  new DbType(baseDbType).getProps();
+
+			// overlay our properties on top of the base's
+			baseProps.putAll(props);
+			props = baseProps;
+		}
+
+		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
+}
+
+	/**
+	 * Gets the properties bundle for a database type.
+	 * Looks in the following places in order, and if not
+	 * found in any of these throws an exception:
+	 *  - file with same name as type in current directory
+	 *  - file with name type.properties in current directory
+	 *  - file type.properties bundled in the jar
+	 *  - file type.properties in the source folder (when debugging)
+	 *
+	 * @param type the database type to load properties for
+	 * @return the loaded properties bundle
+	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws FileNotFoundException the file not found exception
+	 */
+	private ResourceBundle getBundle(String type) throws IOException, FileNotFoundException {
 		// Try loading type as the full filename of a properties file
 		File propertiesFile = new File(type);
 
@@ -80,42 +132,8 @@ public class DbType {
 				}
 			}
 		}
-
-		props = PropertyHandler.bundleAsProperties(bundle);
-		bundle = null;
-
-		// bring in key/values pointed to by the include directive
-		// example: include.1=mysql::selectRowCountSql
-		for (int i = 1; true; ++i) {
-			String include = (String)props.remove("include." + i);
-			if (include == null)
-				break;
-
-			int separator = include.indexOf("::");
-			if (separator == -1)
-				throw new InvalidConfigurationException("include directive in " + dbPropertiesLoadedFrom + " must have '::' between dbType and key");
-
-			String refdType = include.substring(0, separator).trim();
-			String refdKey = include.substring(separator + 2).trim();
-
-			// recursively resolve the ref'd properties file and the ref'd key
-			Properties refdProps = new DbType(refdType).getProps();
-			props.put(refdKey, refdProps.getProperty(refdKey));
-		}
-
-		// bring in base properties files pointed to by the extends directive
-		String baseDbType = (String)props.remove("extends");
-		if (baseDbType != null) {
-			baseDbType = baseDbType.trim();
-			Properties baseProps =  new DbType(baseDbType).getProps();
-
-			// overlay our properties on top of the base's
-			baseProps.putAll(props);
-			props = baseProps;
-		}
-
-		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
-}
+		return bundle;
+	}
 
 	public String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
