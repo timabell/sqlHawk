@@ -201,7 +201,7 @@ public class SchemaMapper {
 		if (driverPath == null)
 			driverPath = "";
 		if (config.getDriverPath() != null)
-			driverPath = config.getDriverPath() + File.pathSeparator + driverPath;
+			driverPath = config.getDriverPath() + ";" + driverPath;
 
 		connection = getConnection(config, connectionUrl, driverClass, driverPath);
 		DatabaseMetaData meta = connection.getMetaData();
@@ -280,7 +280,7 @@ public class SchemaMapper {
 
 		List<URL> classpath = new ArrayList<URL>();
 		List<File> invalidClasspathEntries = new ArrayList<File>();
-		StringTokenizer tokenizer = new StringTokenizer(driverPath, File.pathSeparator);
+		StringTokenizer tokenizer = new StringTokenizer(driverPath, ";");
 		while (tokenizer.hasMoreTokens()) {
 			File pathElement = new File(tokenizer.nextToken());
 			if (pathElement.exists())
