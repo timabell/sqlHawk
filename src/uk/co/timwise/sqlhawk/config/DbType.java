@@ -72,9 +72,13 @@ public class DbType {
 		baseDbType = baseDbType.trim();
 		Properties baseProps =  new DbType(baseDbType).getProps();
 
-		// overlay our properties on top of the base's
-		baseProps.putAll(props);
-		props = baseProps;
+		// Merge properties of the base db type with this db type's properties.
+		// Properties of this db type take presedence over the base type.
+
+		baseProps.putAll(props); // copy props into baseProps, overwriting when already exists
+
+		// push the combined result back into props arg
+		props.putAll(baseProps);
 	}
 
 	/**
