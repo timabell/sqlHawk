@@ -76,6 +76,7 @@ public class IntegrationTester {
 				new FileInputStream(new File("test/test-data/" + type + "/setup.properties")));
 		Properties properties = PropertyHandler.bundleAsProperties(bundle);
 
+		// TODO: convert to some kind of automatic mapping
 		setupDbConfig.setDbTypeName(type);
 		setupDbConfig.setHost(properties.getProperty("host"));
 		setupDbConfig.setDatabase(properties.getProperty("database"));
