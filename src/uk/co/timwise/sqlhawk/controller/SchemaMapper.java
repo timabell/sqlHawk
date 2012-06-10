@@ -162,6 +162,7 @@ public class SchemaMapper {
 	 * @throws InvalidConfigurationException
 	 * @throws SQLException
 	 */
+	@Deprecated // issue #69
 	private void setSchema(Config config, DatabaseMetaData meta)
 			throws InvalidConfigurationException, SQLException {
 		if (config.getSchema() == null && meta.supportsSchemasInTableDefinitions() &&
