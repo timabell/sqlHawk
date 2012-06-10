@@ -81,6 +81,7 @@ public class IntegrationTester {
 		setupDbConfig.setHost(properties.getProperty("host"));
 		setupDbConfig.setDatabase(properties.getProperty("database"));
 		setupDbConfig.setUser(properties.getProperty("user"));
+		setupDbConfig.setPassword(properties.getProperty("password"));
 		return setupDbConfig;
 	}
 
