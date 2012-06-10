@@ -613,7 +613,7 @@ public class Config
 	 */
 	public DbType getDbType() throws InvalidConfigurationException, IOException {
 		if (dbType == null) {
-			dbType = new DbType(getDbTypeName());
+			dbType = new DbType(dbTypeName);
 		}
 		return dbType;
 	}
