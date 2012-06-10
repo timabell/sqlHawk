@@ -193,8 +193,6 @@ public class SchemaMapper {
 			throws Exception {
 		Connection connection;
 		String connectionUrl = new ConnectionURLBuilder().buildUrl(config);
-		if (config.getDatabase() == null)
-			config.setDatabase(connectionUrl);
 
 		Properties properties = config.getDbType().getProps();
 		String driverClass = properties.getProperty("driver");
