@@ -21,10 +21,10 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
-import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.DatabaseTypeFinder;
 import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbType;
