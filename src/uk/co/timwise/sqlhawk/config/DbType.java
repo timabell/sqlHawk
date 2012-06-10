@@ -18,11 +18,12 @@ package uk.co.timwise.sqlhawk.config;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
+
+import uk.co.timwise.sqlhawk.util.PropertyHandler;
 
 public class DbType {
 	private String dbPropertiesLoadedFrom;
@@ -80,7 +81,7 @@ public class DbType {
 			}
 		}
 
-		props = asProperties(bundle);
+		props = PropertyHandler.bundleAsProperties(bundle);
 		bundle = null;
 
 		// bring in key/values pointed to by the include directive
@@ -115,23 +116,6 @@ public class DbType {
 
 		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
 }
-
-	/**
-	 * Returns a {@link Properties} populated with the contents of <code>bundle</code>
-	 *
-	 * @param bundle ResourceBundle
-	 * @return Properties
-	 */
-	public static Properties asProperties(ResourceBundle bundle) {
-		Properties props = new Properties();
-		Enumeration<String> iter = bundle.getKeys();
-		while (iter.hasMoreElements()) {
-			String key = iter.nextElement();
-			props.put(key, bundle.getObject(key));
-		}
-
-		return props;
-	}
 
 	public String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;

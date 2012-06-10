@@ -25,10 +25,10 @@ import java.util.PropertyResourceBundle;
 import java.util.logging.Level;
 
 import uk.co.timwise.sqlhawk.config.Config;
-import uk.co.timwise.sqlhawk.config.DbType;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper.ConnectionWithMeta;
 import uk.co.timwise.sqlhawk.db.write.DbWriter;
+import uk.co.timwise.sqlhawk.util.PropertyHandler;
 
 /**
  * The Class IntegrationTester.
@@ -74,7 +74,7 @@ public class IntegrationTester {
 		Config setupDbConfig = new Config();
 		PropertyResourceBundle bundle = new PropertyResourceBundle(
 				new FileInputStream(new File("test/test-data/" + type + "/setup.properties")));
-		Properties properties = DbType.asProperties(bundle);
+		Properties properties = PropertyHandler.bundleAsProperties(bundle);
 
 		setupDbConfig.setDbTypeName(type);
 		setupDbConfig.setHost(properties.getProperty("host"));
@@ -90,7 +90,7 @@ public class IntegrationTester {
 
 		PropertyResourceBundle bundle = new PropertyResourceBundle(
 				new FileInputStream(new File("test/test-data/" + type + "/test.properties")));
-		Properties properties = DbType.asProperties(bundle);
+		Properties properties = PropertyHandler.bundleAsProperties(bundle);
 		config.setHost(properties.getProperty("host"));
 		config.setDatabase(properties.getProperty("database"));
 		config.setUser(properties.getProperty("user"));
