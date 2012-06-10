@@ -19,9 +19,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.util.PropertyHandler;
@@ -32,6 +35,7 @@ public class DbType {
 	private String name;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	private boolean alterSupported;
+	private final List<DbSpecificOption> options = new ArrayList<DbSpecificOption>();
 
 	/**
 	 * Instantiates a new DbType from its name.
@@ -50,6 +54,7 @@ public class DbType {
 		processIncludes(props, dbPropertiesLoadedFrom);
 		processExtends(props);
 		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
+		loadOptions();
 	}
 
 	/**
@@ -151,6 +156,55 @@ public class DbType {
 			}
 		}
 		return bundle;
+	}
+
+	/**
+	 * Resolve the options specified by connectionSpec into
+	 * {@link DbSpecificOption}s.
+	 *
+	 * @param properties
+	 */
+	private void loadOptions() {
+		Properties properties = props;
+		boolean inParam = false;
+
+		StringTokenizer tokenizer = new StringTokenizer(properties.getProperty("connectionSpec"), "<>", true);
+		while (tokenizer.hasMoreTokens()) {
+			String token = tokenizer.nextToken();
+			if (token.equals("<")) {
+				inParam = true;
+			} else if (token.equals(">")) {
+				inParam = false;
+			} else {
+				if (inParam) {
+					String desc = properties.getProperty(token);
+					options.add(new DbSpecificOption(token, desc));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns a {@link List} of {@link DbSpecificOption}s that are applicable to
+	 * the specified database type.
+	 *
+	 * @return
+	 */
+	public List<DbSpecificOption> getOptions() {
+		return options;
+	}
+
+	/**
+	 * Dump usage details associated with the associated type of database
+	 */
+	public void dumpUsage() {
+		System.out.println(" " + getName() + " - " + toString());
+
+		for (DbSpecificOption option : options) {
+			System.out.println("   " + option.getName() + ": "
+					+ (option.getDescription() != null ? "  \t" + option.getDescription() : ""));
+		}
+		System.out.println();
 	}
 
 	public String getDbPropertiesLoadedFrom() {

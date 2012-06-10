@@ -26,12 +26,11 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
 import uk.co.timwise.sqlhawk.config.DatabaseTypeFinder;
-import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbType;
 
 public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxModel {
 	private static final long serialVersionUID = 1L;
-	private final List<DbSpecificConfig> dbConfigs = new ArrayList<DbSpecificConfig>();
+	private final List<DbType> dbConfigs = new ArrayList<DbType>();
 	private Object selected;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
@@ -39,9 +38,9 @@ public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxMo
 		Pattern pattern = Pattern.compile(".*/" + defaultType);
 		Set<String> dbTypes = new TreeSet<String>(DatabaseTypeFinder.getBuiltInDatabaseTypes());
 		for (String typeName : dbTypes) {
-			DbSpecificConfig config = null;
+			DbType config = null;
 			try {
-				config = new DbSpecificConfig(new DbType(typeName));
+				config = new DbType(typeName);
 			} catch (Exception e) {
 				logger.severe("Error loading properties for db type '" + typeName + "':\n" + e.toString());
 				System.exit(1);

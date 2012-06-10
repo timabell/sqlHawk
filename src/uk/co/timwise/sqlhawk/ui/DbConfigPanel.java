@@ -30,7 +30,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
+import uk.co.timwise.sqlhawk.config.DbType;
 
 public class DbConfigPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -111,13 +111,13 @@ public class DbConfigPanel extends JPanel {
 			databaseTypeSelector.addItemListener(new ItemListener() {
 				public void itemStateChanged(ItemEvent evt) {
 					if (evt.getStateChange() == ItemEvent.SELECTED)
-						model.setDbSpecificConfig((DbSpecificConfig)evt.getItem());
+						model.setDbType((DbType)evt.getItem());
 				}
 			});
 
-			DbSpecificConfig selected = (DbSpecificConfig)selectorModel.getSelectedItem();
+			DbType selected = (DbType)selectorModel.getSelectedItem();
 			if (selected != null)
-				model.setDbSpecificConfig(selected);
+				model.setDbType(selected);
 		}
 		return databaseTypeSelector;
 	}

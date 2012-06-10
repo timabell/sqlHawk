@@ -26,8 +26,8 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import uk.co.timwise.sqlhawk.config.Config;
-import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbSpecificOption;
+import uk.co.timwise.sqlhawk.config.DbType;
 import uk.co.timwise.sqlhawk.config.MissingRequiredParameterException;
 
 public class DbConfigTableModel extends AbstractTableModel {
@@ -45,7 +45,7 @@ public class DbConfigTableModel extends AbstractTableModel {
 		options.add(getDescriptor("impliedConstraintsEnabled", "XXXX", props));
 	}
 
-	public void setDbSpecificConfig(DbSpecificConfig dbConfig) {
+	public void setDbType(DbType dbConfig) {
 		PropertyDescriptor[] props = getConfigProps();
 		removeDbSpecificOptions();
 

@@ -21,8 +21,8 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
-import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbSpecificOption;
+import uk.co.timwise.sqlhawk.config.DbType;
 
 
 public class ConnectionURLBuilder {
@@ -35,8 +35,8 @@ public class ConnectionURLBuilder {
 	 * @throws Exception 
 	 */
 	public String buildUrl(Config config) throws Exception {
-		DbSpecificConfig dbConfig = new DbSpecificConfig(config.getDbType());
-		List<DbSpecificOption> driverOptions = dbConfig.getOptions();
+		DbType dbType = config.getDbType();
+		List<DbSpecificOption> driverOptions = dbType.getOptions();
 		String connectionURL = buildUrlFromArgs(config, driverOptions);
 		logger.config("connectionURL: " + connectionURL);
 		return connectionURL;

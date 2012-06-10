@@ -27,7 +27,6 @@ import java.util.regex.PatternSyntaxException;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.config.DatabaseTypeFinder;
-import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbType;
 import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
 import uk.co.timwise.sqlhawk.util.CaseInsensitiveMap;
@@ -243,7 +242,7 @@ public class ArgParser {
 		System.out.println();
 		for (String typeName : DatabaseTypeFinder.getBuiltInDatabaseTypes()) {
 			try {
-				new DbSpecificConfig(new DbType(typeName)).dumpUsage();
+				new DbType(typeName).dumpUsage();
 			} catch (InvalidConfigurationException e) {
 				System.err.println("Error loading properties for db type '" + typeName + "'");
 				e.printStackTrace();
