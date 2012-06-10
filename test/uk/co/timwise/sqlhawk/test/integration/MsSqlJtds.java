@@ -4,8 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MsSql {
-	private static final String TARGET_TYPE = "mssql"; // MicroSoft Sql server
+public class MsSqlJtds {
+	private static final String TARGET_TYPE = "mssql-jtds"; // MicroSoft Sql server
 
 	@Before
 	public void resetTestDatabase() throws Exception {
@@ -13,7 +13,7 @@ public class MsSql {
 	}
 
 	@Test
-	public void testMySql() throws Exception {
+	public void testMsSqlJtds() throws Exception {
 		IntegrationTester.testDatabase(TARGET_TYPE);
 	}
 
