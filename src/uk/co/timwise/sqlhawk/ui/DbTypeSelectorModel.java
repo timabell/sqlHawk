@@ -41,7 +41,7 @@ public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxMo
 		for (String typeName : dbTypes) {
 			DbSpecificConfig config = null;
 			try {
-				config = new DbSpecificConfig(new DbType().getDbType(typeName));
+				config = new DbSpecificConfig(new DbType(typeName));
 			} catch (Exception e) {
 				logger.severe("Error loading properties for db type '" + typeName + "':\n" + e.toString());
 				System.exit(1);

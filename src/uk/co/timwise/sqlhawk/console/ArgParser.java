@@ -243,7 +243,7 @@ public class ArgParser {
 		System.out.println();
 		for (String typeName : DatabaseTypeFinder.getBuiltInDatabaseTypes()) {
 			try {
-				new DbSpecificConfig(new DbType().getDbType(typeName)).dumpUsage();
+				new DbSpecificConfig(new DbType(typeName)).dumpUsage();
 			} catch (InvalidConfigurationException e) {
 				System.err.println("Error loading properties for db type '" + typeName + "'");
 				e.printStackTrace();

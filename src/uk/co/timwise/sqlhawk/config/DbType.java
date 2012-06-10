@@ -24,28 +24,27 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-
 public class DbType {
 	private String dbPropertiesLoadedFrom;
 	private Properties props;
 	private String name;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	private boolean alterSupported;
-
 	public String getDbPropertiesLoadedFrom() {
 		return dbPropertiesLoadedFrom;
 	}
 
-
 	/**
-	 * @param type
-	 * @return
-	 * @throws IOException
+	 * Instantiates a new DbType from its name.
+	 * Loads relevant data from properties files, so may throw
+	 * exception if there is a problem.
+	 *
+	 * @param type the type
+	 * @throws IOException Signals that an I/O exception has occurred.
 	 * @throws InvalidConfigurationException if db properties are incorrectly formed
 	 */
-	public DbType getDbType(String type) throws IOException, InvalidConfigurationException {
-		ResourceBundle bundle = null;
-		String dbPropertiesLoadedFrom = null;
+	public DbType(String type) throws IOException, InvalidConfigurationException {
+		name = type;
 
 		// Try loading type as the full filename of a properties file
 		File propertiesFile = new File(type);
@@ -55,6 +54,7 @@ public class DbType {
 			propertiesFile = new File(type + ".properties");
 		}
 
+		ResourceBundle bundle = null;
 		if (propertiesFile.exists()) {
 			// The specified is a filename, which has been found.
 			// Load the file's contents into a properties bundle ready for parsing
@@ -83,7 +83,7 @@ public class DbType {
 			}
 		}
 
-		Properties props = asProperties(bundle);
+		props = asProperties(bundle);
 		bundle = null;
 
 		// bring in key/values pointed to by the include directive
@@ -101,7 +101,7 @@ public class DbType {
 			String refdKey = include.substring(separator + 2).trim();
 
 			// recursively resolve the ref'd properties file and the ref'd key
-			Properties refdProps = getDbType(refdType).getProps();
+			Properties refdProps = new DbType(refdType).getProps();
 			props.put(refdKey, refdProps.getProperty(refdKey));
 		}
 
@@ -109,19 +109,14 @@ public class DbType {
 		String baseDbType = (String)props.remove("extends");
 		if (baseDbType != null) {
 			baseDbType = baseDbType.trim();
-			Properties baseProps = getDbType(baseDbType).getProps();
+			Properties baseProps =  new DbType(baseDbType).getProps();
 
 			// overlay our properties on top of the base's
 			baseProps.putAll(props);
 			props = baseProps;
 		}
 
-		DbType dbType = new DbType();
-		dbType.dbPropertiesLoadedFrom = dbPropertiesLoadedFrom;
-		dbType.props = props;
-		dbType.name = type;
-		dbType.alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
-		return dbType;
+		alterSupported = Boolean.parseBoolean(props.getProperty("supportsAlterProc"));
 }
 
 	/**
