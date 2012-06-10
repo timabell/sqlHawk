@@ -30,9 +30,6 @@ public class DbType {
 	private String name;
 	private final Logger logger = Logger.getLogger(getClass().getName());
 	private boolean alterSupported;
-	public String getDbPropertiesLoadedFrom() {
-		return dbPropertiesLoadedFrom;
-	}
 
 	/**
 	 * Instantiates a new DbType from its name.
@@ -134,6 +131,10 @@ public class DbType {
 		}
 
 		return props;
+	}
+
+	public String getDbPropertiesLoadedFrom() {
+		return dbPropertiesLoadedFrom;
 	}
 
 	public Properties getProps() {
