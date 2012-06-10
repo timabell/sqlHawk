@@ -48,7 +48,7 @@ public class DbSpecificOption {
 
 	@Override
 	public String toString() {
-		return description;
+		return name;
 	}
 }
 
