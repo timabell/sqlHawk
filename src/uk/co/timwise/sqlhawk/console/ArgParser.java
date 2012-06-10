@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.DatabaseTypeFinder;
 import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbType;
 import uk.co.timwise.sqlhawk.config.InvalidConfigurationException;
@@ -240,7 +241,7 @@ public class ArgParser {
 	private void showDbUsage() {
 		System.out.println("Built-in database types and their required connection parameters:");
 		System.out.println();
-		for (String typeName : new DbType().getBuiltInDatabaseTypes()) {
+		for (String typeName : DatabaseTypeFinder.getBuiltInDatabaseTypes()) {
 			try {
 				new DbSpecificConfig(new DbType().getDbType(typeName)).dumpUsage();
 			} catch (InvalidConfigurationException e) {

@@ -22,10 +22,6 @@ import java.util.Enumeration;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.logging.Logger;
 
 
@@ -40,35 +36,6 @@ public class DbType {
 		return dbPropertiesLoadedFrom;
 	}
 
-
-	public Set<String> getBuiltInDatabaseTypes() {
-		Set<String> databaseTypes = new TreeSet<String>();
-		JarInputStream jar = null;
-
-		try {
-			jar = new JarInputStream(new FileInputStream(Config.getJarName()));
-			JarEntry entry;
-
-			while ((entry = jar.getNextJarEntry()) != null) {
-				String entryName = entry.getName();
-				int dotPropsIndex = entryName.indexOf(".properties");
-				if (dotPropsIndex != -1)
-					databaseTypes.add(entryName.substring(0, dotPropsIndex));
-			}
-		} catch (Exception exc) {
-			logger.severe("Failed to open jar and read properties files:\n" + exc);
-		} finally {
-			if (jar != null) {
-				try {
-					jar.close();
-				} catch (IOException ignore) {
-					logger.warning("Failed to close file handle to jar:\n" + ignore.toString());
-				}
-			}
-		}
-
-		return databaseTypes;
-	}
 
 	/**
 	 * @param type

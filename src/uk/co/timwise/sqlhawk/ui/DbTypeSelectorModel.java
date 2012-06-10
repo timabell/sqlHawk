@@ -25,6 +25,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 
 import uk.co.timwise.sqlhawk.config.Config;
+import uk.co.timwise.sqlhawk.config.DatabaseTypeFinder;
 import uk.co.timwise.sqlhawk.config.DbSpecificConfig;
 import uk.co.timwise.sqlhawk.config.DbType;
 
@@ -36,7 +37,7 @@ public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxMo
 
 	public DbTypeSelectorModel(String defaultType) {
 		Pattern pattern = Pattern.compile(".*/" + defaultType);
-		Set<String> dbTypes = new TreeSet<String>(new DbType().getBuiltInDatabaseTypes());
+		Set<String> dbTypes = new TreeSet<String>(DatabaseTypeFinder.getBuiltInDatabaseTypes());
 		for (String typeName : dbTypes) {
 			DbSpecificConfig config = null;
 			try {
