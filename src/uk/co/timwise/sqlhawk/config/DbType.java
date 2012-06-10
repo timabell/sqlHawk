@@ -42,15 +42,11 @@ public class DbType {
 
 
 	public Set<String> getBuiltInDatabaseTypes() {
-		return getBuiltInDatabaseTypes(Config.getJarName());
-	}
-
-	public Set<String> getBuiltInDatabaseTypes(String loadedFromJar) {
 		Set<String> databaseTypes = new TreeSet<String>();
 		JarInputStream jar = null;
 
 		try {
-			jar = new JarInputStream(new FileInputStream(loadedFromJar));
+			jar = new JarInputStream(new FileInputStream(Config.getJarName()));
 			JarEntry entry;
 
 			while ((entry = jar.getNextJarEntry()) != null) {

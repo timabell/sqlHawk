@@ -36,7 +36,7 @@ public class DbTypeSelectorModel extends AbstractListModel implements ComboBoxMo
 
 	public DbTypeSelectorModel(String defaultType) {
 		Pattern pattern = Pattern.compile(".*/" + defaultType);
-		Set<String> dbTypes = new TreeSet<String>(new DbType().getBuiltInDatabaseTypes(Config.getJarName()));
+		Set<String> dbTypes = new TreeSet<String>(new DbType().getBuiltInDatabaseTypes());
 		for (String typeName : dbTypes) {
 			DbSpecificConfig config = null;
 			try {
