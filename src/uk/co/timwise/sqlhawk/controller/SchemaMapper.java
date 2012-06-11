@@ -30,8 +30,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Handler;
 import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
@@ -41,7 +39,7 @@ import uk.co.timwise.sqlhawk.db.read.ConnectionFailure;
 import uk.co.timwise.sqlhawk.db.read.DbReader;
 import uk.co.timwise.sqlhawk.db.write.DbWriter;
 import uk.co.timwise.sqlhawk.html.HtmlWriter;
-import uk.co.timwise.sqlhawk.logging.LogFormatter;
+import uk.co.timwise.sqlhawk.logging.LogConfig;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.ForeignKeyConstraint;
 import uk.co.timwise.sqlhawk.model.Table;
@@ -68,7 +66,7 @@ public class SchemaMapper {
 	 * @throws Exception
 	 */
 	public void RunMapping(Config config) throws Exception {
-		setupLogger(config);
+		LogConfig.setupLogger(config);
 		logger.fine("Working directory: " + new File(".").getAbsolutePath());
 		//========= schema reading code ============
 		//TODO: check for any conflict in request options (read vs write?)
@@ -217,19 +215,6 @@ public class SchemaMapper {
 			}
 		}
 		return outputDir;
-	}
-
-	private void setupLogger(Config config) {
-		// set the log level for the root logger
-		Logger.getLogger("").setLevel(config.getLogLevel());
-
-		// clean-up console output a bit
-		for (Handler handler : Logger.getLogger("").getHandlers()) {
-			if (handler instanceof ConsoleHandler) {
-				((ConsoleHandler)handler).setFormatter(new LogFormatter());
-				handler.setLevel(config.getLogLevel());
-			}
-		}
 	}
 
 	private void writeOrderingFiles(File outputDir, Database db)
