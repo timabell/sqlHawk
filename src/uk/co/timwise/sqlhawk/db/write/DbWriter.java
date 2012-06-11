@@ -39,7 +39,7 @@ import uk.co.timwise.sqlhawk.util.FileHandling;
 
 
 public class DbWriter {
-	private final static Logger logger = Logger.getLogger(TableReader.class.getName());
+	private final static Logger logger = Logger.getLogger(DbWriter.class.getName());
 	private String upgradeLogInsertSql;
 	private String upgradeLogFindSql;
 
