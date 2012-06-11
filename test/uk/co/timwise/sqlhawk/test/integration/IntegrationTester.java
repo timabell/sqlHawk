@@ -23,11 +23,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper.ConnectionWithMeta;
 import uk.co.timwise.sqlhawk.db.write.DbWriter;
+import uk.co.timwise.sqlhawk.logging.LogConfig;
 import uk.co.timwise.sqlhawk.util.PropertyHandler;
 
 /**
@@ -67,6 +69,7 @@ public class IntegrationTester {
 
 	private static void runSetupSql(String type, String target) throws Exception {
 		Config setupDbConfig = getSetupConfig(type);
+		LogConfig.setupLogger(setupDbConfig);
 		runSqlFile(type, target, setupDbConfig);
 	}
 
@@ -77,6 +80,7 @@ public class IntegrationTester {
 		Properties properties = PropertyHandler.bundleAsProperties(bundle);
 
 		// TODO: convert to some kind of automatic mapping
+		setupDbConfig.setLogLevel(Level.FINEST);
 		setupDbConfig.setDbTypeName(type);
 		setupDbConfig.setHost(properties.getProperty("host"));
 		setupDbConfig.setDatabase(properties.getProperty("database"));
