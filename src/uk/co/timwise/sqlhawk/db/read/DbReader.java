@@ -98,7 +98,7 @@ public class DbReader {
 			logger.fine("Reading view column comments...");
 			initViewColumnComments(properties);
 			logger.fine("Reading view definitions...");
-			initViewSql(properties);
+			initViewSql(properties, config.getDbType().isAlterSupported());
 		}
 		logger.fine("Reading procedures...");
 		initStoredProcedures(properties, config, meta);
@@ -108,7 +108,7 @@ public class DbReader {
 		return database;
 	}
 
-	private void initViewSql(Properties properties) throws SQLException {
+	private void initViewSql(Properties properties, boolean isAlterSupported) throws SQLException {
 		String selectViewSql = properties.getProperty("selectViewSql");
 		if (selectViewSql == null)
 		{
@@ -119,7 +119,11 @@ public class DbReader {
 		for(View view : database.getViews())
 		{
 			logger.finer("getting sql for view " + view.getName());
-			view.setDefinition(fetchViewSql(properties, view.getName(), selectViewSql));
+			String viewSql = fetchViewSql(view.getName(), selectViewSql);
+			if (isAlterSupported) {
+				viewSql = SqlManagement.ConvertCreateToAlter(viewSql);
+			}
+			view.setDefinition(viewSql);
 		}
 	}
 
@@ -153,7 +157,9 @@ public class DbReader {
 				} else {
 					// TODO: request procedure definition where no support for getting all at once
 				}
-				procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
+				if (config.getDbType().isAlterSupported()) {
+					procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
+				}
 				Procedure proc = new Procedure(schema, procName, procDefinition);
 				logger.finer("Read procedure definition '" + procName + "'");
 				logger.finest("Procedure '" + procName + "' definition:\n" + procDefinition);
@@ -192,7 +198,9 @@ public class DbReader {
 				if (!validator.isValid(functionName))
 					continue;
 				String functionDefinition = rs.getString("definition");
-				functionDefinition = SqlManagement.ConvertCreateToAlter(functionDefinition);
+				if (config.getDbType().isAlterSupported()) {
+					functionDefinition = SqlManagement.ConvertCreateToAlter(functionDefinition);
+				}
 				Function proc = new Function(schema, functionName, functionDefinition);
 				logger.fine("Read function definition '" + functionName + "'");
 				logger.finest("Function '" + functionName + "' definition:\n" + functionDefinition);
@@ -974,7 +982,7 @@ public class DbReader {
 	 * @return
 	 * @throws SQLException
 	 */
-	public String fetchViewSql(Properties properties, String viewName, String selectViewSql) throws SQLException {
+	public String fetchViewSql(String viewName, String selectViewSql) throws SQLException {
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		String viewSql;
@@ -996,7 +1004,6 @@ public class DbReader {
 		if (viewSql==null)
 			return null;
 		viewSql = viewSql.trim();
-		viewSql = SqlManagement.ConvertCreateToAlter(viewSql);
 		if (viewSql.length()==0)
 			return null;
 		return viewSql;

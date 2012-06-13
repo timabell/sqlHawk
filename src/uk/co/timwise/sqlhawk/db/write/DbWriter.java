@@ -106,7 +106,8 @@ public class DbWriter {
 				}
 				logger.info("Updating existing " + typeName + " " + name);
 				if (config.getDbType().isAlterSupported()) {
-					//Change definition from CREATE to ALTER and run.
+					// Change definition from CREATE to ALTER and run.
+					// This allows users to use either CREATE or ALTER in their scm scripts.
 					updatedDefinition = SqlManagement.ConvertCreateToAlter(updatedDefinition);
 				}
 				try {
