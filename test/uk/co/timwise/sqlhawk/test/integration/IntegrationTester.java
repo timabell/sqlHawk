@@ -25,6 +25,8 @@ import java.util.PropertyResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.rules.TemporaryFolder;
+
 import junit.framework.Assert;
 
 import uk.co.timwise.sqlhawk.config.Config;
@@ -64,11 +66,11 @@ public class IntegrationTester {
 		runSqlFile(type, "validate", config);
 	}
 
-	static void testDatabaseToHtml(String type) throws Exception {
+	static void testDatabaseToHtml(String type, TemporaryFolder tempOutput) throws Exception {
 		System.out.println("Integration test: running DatabaseToHtml for " + type);
 		Config config = getTestConfig(type);
 
-		File targetDir = new File("test/test-data/" + type + "/doc");
+		File targetDir = tempOutput.newFolder();
 		config.setTargetDir(targetDir);
 
 		config.setDatabaseInputEnabled(true);
@@ -78,7 +80,6 @@ public class IntegrationTester {
 
 		System.out.println("Integration test: validating " + type);
 		boolean generated = new File(targetDir,"index.html").exists();
-		targetDir.delete();
 		Assert.assertEquals("index.html not found in Html output", true, generated);
 	}
 

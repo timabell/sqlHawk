@@ -2,10 +2,15 @@ package uk.co.timwise.sqlhawk.test.integration;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class MsSql05Jtds {
 	private static final String TARGET_TYPE = "mssql05-jtds"; // MicroSoft Sql server
+
+	@Rule
+	public TemporaryFolder tempOutput = new TemporaryFolder();
 
 	@Before
 	public void resetTestDatabase() throws Exception {
@@ -19,7 +24,7 @@ public class MsSql05Jtds {
 
 	@Test
 	public void MsSql05Jtds_DatabaseToHtml() throws Exception {
-		IntegrationTester.testDatabaseToHtml(TARGET_TYPE);
+		IntegrationTester.testDatabaseToHtml(TARGET_TYPE, tempOutput);
 	}
 
 	@After
