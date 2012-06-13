@@ -4,8 +4,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MsSqlJtds {
-	private static final String TARGET_TYPE = "mssql-jtds"; // MicroSoft Sql server
+public class MsSql05Jtds {
+	private static final String TARGET_TYPE = "mssql05-jtds"; // MicroSoft Sql server
 
 	@Before
 	public void resetTestDatabase() throws Exception {
