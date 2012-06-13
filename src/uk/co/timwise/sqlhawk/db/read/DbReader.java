@@ -156,6 +156,7 @@ public class DbReader {
 					procDefinition = rs.getString("definition");
 				} else {
 					// TODO: request procedure definition where no support for getting all at once
+					// Not throwing an exception here as some basic functionality works without the definition set
 				}
 				if (config.getDbType().isAlterSupported()) {
 					procDefinition = SqlManagement.ConvertCreateToAlter(procDefinition);
