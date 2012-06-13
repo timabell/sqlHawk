@@ -130,7 +130,7 @@ public class DbWriter {
 						connection.prepareStatement(updatedDefinition).execute();
 				} catch (SQLException ex){
 					//rethrow with information on which object failed.
-					throw new Exception("Error updating " + typeName + " " + name, ex);
+					throw new Exception("Error adding new " + typeName + " " + name, ex);
 				}
 			}
 		}
