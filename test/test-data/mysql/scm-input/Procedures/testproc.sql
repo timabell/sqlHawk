@@ -1,3 +1,3 @@
-ALTER PROCEDURE testproc ()
+CREATE PROCEDURE testproc ()
 
 select 3;
