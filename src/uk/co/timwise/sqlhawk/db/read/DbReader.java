@@ -62,7 +62,7 @@ public class DbReader {
 	private final Logger logger = Logger.getLogger(getClass().getName());
 
 	public Database Read(Config config, Connection connection, DatabaseMetaData meta, SchemaMeta schemaMeta)
-			throws SQLException, MissingResourceException, InvalidConfigurationException, IOException {
+			throws Exception {
 		Properties properties = config.getDbType().getProps();
 		database = new Database(config.getDatabase(), config.getSchema());
 		database.setGeneratedDate(new Date());
@@ -123,7 +123,7 @@ public class DbReader {
 		}
 	}
 
-	private void initStoredProcedures(Properties properties, final Config config, DatabaseMetaData meta) throws SQLException {
+	private void initStoredProcedures(Properties properties, final Config config, DatabaseMetaData meta) throws Exception {
 		// See if there is a method of selecting all the proc definitions at once
 		String selectStoredProcsSql = properties.getProperty("selectStoredProcsSql");
 		logger.finest("Loaded selectStoredProcsSql:\n" + selectStoredProcsSql);
@@ -160,8 +160,7 @@ public class DbReader {
 				database.putProc(procName, proc);
 			}
 		} catch (SQLException sqlException) {
-			// don't die just because this failed
-			logger.warning("Failed to retrieve procedure definitions: " + sqlException);
+			throw new Exception("Failed to retrieve procedure definitions", sqlException);
 		} finally {
 			if (rs != null)
 				rs.close();
@@ -171,7 +170,7 @@ public class DbReader {
 
 	}
 
-	private void initFunctions(Properties properties, final Config config) throws SQLException {
+	private void initFunctions(Properties properties, final Config config) throws Exception {
 		String sql = properties.getProperty("selectFunctionsSql");
 		logger.finest("Loaded selectFunctionsSql:\n" + sql);
 		if (sql == null)
@@ -200,8 +199,7 @@ public class DbReader {
 				database.putFunction(functionName, proc);
 			}
 		} catch (SQLException sqlException) {
-			// don't die just because this failed
-			logger.warning("Failed to retrieve function definitions: " + sqlException);
+			throw new Exception("Failed to retrieve function definitions", sqlException);
 		} finally {
 			if (rs != null)
 				rs.close();
@@ -225,12 +223,10 @@ public class DbReader {
 	 * @param metadata
 	 * @param properties
 	 * @param config
-	 * @throws SQLException
-	 * @throws IOException
-	 * @throws InvalidConfigurationException
+	 * @throws Exception
 	 */
 	private void initTables(final DatabaseMetaData metadata, final Properties properties,
-			final Config config) throws SQLException, InvalidConfigurationException, IOException {
+			final Config config) throws Exception {
 		final Pattern include = config.getTableInclusions();
 		final Pattern exclude = config.getTableExclusions();
 		final int maxThreads = getMaxDbThreads(properties, config);
@@ -298,10 +294,10 @@ public class DbReader {
 	 * @param metadata
 	 * @param properties
 	 * @param config
-	 * @throws SQLException
+	 * @throws Exception
 	 */
 	private void initViews(DatabaseMetaData metadata, Properties properties,
-			Config config) throws SQLException {
+			Config config) throws Exception {
 		Pattern includeTables = config.getTableInclusions();
 		Pattern excludeTables = config.getTableExclusions();
 
@@ -362,15 +358,15 @@ public class DbReader {
 	private List<BasicTableMeta> getBasicTableMeta(DatabaseMetaData metadata,
 			boolean forTables,
 			Properties properties,
-			String... types) throws SQLException {
+			String... types) throws Exception {
 		String queryName = forTables ? "selectTablesSql" : "selectViewsSql";
 		String sql = properties.getProperty(queryName);
 		logger.finest("Loaded " + queryName + ":\n" + sql);
 		List<BasicTableMeta> basics = new ArrayList<BasicTableMeta>();
 		ResultSet rs = null;
 
+		String clazz = forTables ? "table" : "view";
 		if (sql != null) {
-			String clazz = forTables ? "table" : "view";
 			PreparedStatement stmt = null;
 
 			try {
@@ -390,8 +386,7 @@ public class DbReader {
 					basics.add(new BasicTableMeta(sch, name, clazz, remarks, text, numRows));
 				}
 			} catch (SQLException sqlException) {
-				// don't die just because this failed
-				logger.warning("Failed to retrieve " + clazz + " names with custom SQL: " + sqlException);
+				throw new Exception("Failed to retrieve " + clazz + " names", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -412,10 +407,9 @@ public class DbReader {
 
 					basics.add(new BasicTableMeta(schem, name, type, remarks, null, -1));
 				}
-			} catch (SQLException exc) {
-				if (forTables)
-					throw exc;
-				logger.warning("Ignoring view " + rs.getString("TABLE_NAME") + " due to exception:\n" + exc);
+			} catch (SQLException sqlException) {
+				throw new Exception("Failed to retrieve " + clazz + " details for '"
+						+ rs.getString("TABLE_NAME") + "'", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -460,7 +454,7 @@ public class DbReader {
 		}
 	}
 
-	private void initCheckConstraints(Properties properties) throws SQLException {
+	private void initCheckConstraints(Properties properties) throws Exception {
 		String sql = properties.getProperty("selectCheckConstraintsSql");
 		logger.finest("Loaded selectCheckConstraintsSql:\n" + sql);
 		if (sql != null) {
@@ -478,8 +472,7 @@ public class DbReader {
 						table.addCheckConstraint(rs.getString("constraint_name"), rs.getString("text"));
 				}
 			} catch (SQLException sqlException) {
-				// don't die just because this failed
-				logger.warning("Failed to retrieve check constraints: " + sqlException);
+				throw new Exception("Failed to retrieve check constraints", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -552,7 +545,7 @@ public class DbReader {
 	 * @param properties
 	 * @throws SQLException
 	 */
-	private void initTableComments(Properties properties) throws SQLException {
+	private void initTableComments(Properties properties) throws Exception {
 		String sql = properties.getProperty("selectTableCommentsSql");
 		logger.finest("Loaded selectTableCommentsSql:\n" + sql);
 		if (sql != null) {
@@ -573,8 +566,7 @@ public class DbReader {
 						table.setComments(rs.getString("comments"));
 				}
 			} catch (SQLException sqlException) {
-				// don't die just because this failed
-				logger.warning("Failed to retrieve table/view comments: " + sqlException);
+				throw new Exception("Failed to retrieve table comments", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -590,7 +582,7 @@ public class DbReader {
 	 * @param properties
 	 * @throws SQLException
 	 */
-	private void initViewComments(Properties properties) throws SQLException {
+	private void initViewComments(Properties properties) throws Exception {
 		String sql = properties.getProperty("selectViewCommentsSql");
 		logger.finest("Loaded selectViewCommentsSql:\n" + sql);
 		if (sql != null) {
@@ -611,8 +603,7 @@ public class DbReader {
 						view.setComments(rs.getString("comments"));
 				}
 			} catch (SQLException sqlException) {
-				// don't die just because this failed
-				logger.warning("Failed to retrieve table/view comments: " + sqlException);
+				throw new Exception("Failed to retrieve view comments", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -630,7 +621,7 @@ public class DbReader {
 	 * @param properties
 	 * @throws SQLException
 	 */
-	private void initTableColumnComments(Properties properties) throws SQLException {
+	private void initTableColumnComments(Properties properties) throws Exception {
 		String sql = properties.getProperty("selectColumnCommentsSql");
 		logger.finest("Loaded selectColumnCommentsSql:\n" + sql);
 		if (sql != null) {
@@ -654,8 +645,7 @@ public class DbReader {
 					}
 				}
 			} catch (SQLException sqlException) {
-				// don't die just because this failed
-				logger.warning("Failed to retrieve column comments: " + sqlException);
+				throw new Exception("Failed to retrieve column comments", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -671,7 +661,7 @@ public class DbReader {
 	 * @param properties
 	 * @throws SQLException
 	 */
-	private void initViewColumnComments(Properties properties) throws SQLException {
+	private void initViewColumnComments(Properties properties) throws Exception {
 		String sql = properties.getProperty("selectViewColumnCommentsSql");
 		logger.finest("Loaded selectViewColumnCommentsSql:\n" + sql);
 		if (sql != null) {
@@ -695,8 +685,7 @@ public class DbReader {
 					}
 				}
 			} catch (SQLException sqlException) {
-				// don't die just because this failed
-				logger.warning("Failed to retrieve view column comments: " + sqlException);
+				throw new Exception("Failed to retrieve view column comments", sqlException);
 			} finally {
 				if (rs != null)
 					rs.close();
@@ -1017,8 +1006,9 @@ public class DbReader {
 	 * get keywords for current dbms.
 	 * @param meta
 	 * @return
+	 * @throws Exception
 	 */
-	public Set<String> getKeywords(DatabaseMetaData meta) {
+	public Set<String> getKeywords(DatabaseMetaData meta) throws Exception {
 		Set<String> keywords;
 		keywords = new HashSet<String>(Arrays.asList(new String[] {
 				"ABSOLUTE", "ACTION", "ADD", "ALL", "ALLOCATE", "ALTER", "AND",
@@ -1082,8 +1072,7 @@ public class DbReader {
 				}
 			}
 		} catch (Exception exc) {
-			// don't totally fail just because we can't extract these details...
-			logger.warning("Exception tokenizing keywords: " + exc);
+			throw new Exception("Exception tokenizing keywords", exc);
 		}
 		return keywords;
 	}
