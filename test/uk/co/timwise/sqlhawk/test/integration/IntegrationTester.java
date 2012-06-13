@@ -62,7 +62,7 @@ public class IntegrationTester {
 
 		new SchemaMapper().RunMapping(config);
 
-		System.out.println("Integration test: validating " + type);
+		System.out.println("Integration test: validating ScmToDatabase for " + type);
 		runSqlFile(type, "validate", config);
 	}
 
@@ -78,7 +78,7 @@ public class IntegrationTester {
 
 		new SchemaMapper().RunMapping(config);
 
-		System.out.println("Integration test: validating " + type);
+		System.out.println("Integration test: validating DatabaseToHtml for " + type);
 		boolean generated = new File(targetDir,"index.html").exists();
 		Assert.assertEquals("index.html not found in Html output", true, generated);
 	}
