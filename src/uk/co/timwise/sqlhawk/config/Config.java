@@ -55,13 +55,13 @@ public class Config
 	private String userConnectionPropertiesFile;
 	private Properties userConnectionProperties = new Properties();
 	private Integer maxDbThreads;
-	private String css;
+	private String css = "sqlHawk.css";
 	private String charset = "ISO-8859-1";
 	private String font;
-	private Integer fontSize;
+	private Integer fontSize = 11;
 	private String description;
 	private Level logLevel = Level.INFO;
-	private Boolean highQuality;
+	private boolean highQuality;
 	private String schemaSpec;  // used in conjunction with evaluateAll
 	public static final String DOT_CHARSET = "UTF-8";
 	private DbType dbType;
