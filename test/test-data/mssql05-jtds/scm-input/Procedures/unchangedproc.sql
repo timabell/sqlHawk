@@ -1,4 +1,4 @@
-ASLTER PROCEDURE unchangedproc AS
+ALTER PROCEDURE unchangedproc AS
 
 select 5;
 
