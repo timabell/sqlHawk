@@ -13,8 +13,8 @@ public class MySql {
 	}
 
 	@Test
-	public void testMySql() throws Exception {
-		IntegrationTester.testDatabase(TARGET_TYPE);
+	public void MySql_ScmToDatabase() throws Exception {
+		IntegrationTester.testScmToDatabase(TARGET_TYPE);
 	}
 
 	@After

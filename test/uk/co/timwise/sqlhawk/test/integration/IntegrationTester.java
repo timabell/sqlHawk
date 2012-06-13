@@ -25,6 +25,8 @@ import java.util.PropertyResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import junit.framework.Assert;
+
 import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper;
 import uk.co.timwise.sqlhawk.controller.SchemaMapper.ConnectionWithMeta;
@@ -46,8 +48,8 @@ public class IntegrationTester {
 		runSetupSql(type, "setup");
 	}
 
-	static void testDatabase(String type) throws Exception {
-		System.out.println("Integration test: running tests for " + type);
+	static void testScmToDatabase(String type) throws Exception {
+		System.out.println("Integration test: running ScmToDatabase for " + type);
 		Config config = getTestConfig(type);
 
 		config.setScmInputEnabled(true);
@@ -60,6 +62,24 @@ public class IntegrationTester {
 
 		System.out.println("Integration test: validating " + type);
 		runSqlFile(type, "validate", config);
+	}
+
+	static void testDatabaseToHtml(String type) throws Exception {
+		System.out.println("Integration test: running DatabaseToHtml for " + type);
+		Config config = getTestConfig(type);
+
+		File targetDir = new File("test/test-data/" + type + "/doc");
+		config.setTargetDir(targetDir);
+
+		config.setDatabaseInputEnabled(true);
+		config.setHtmlGenerationEnabled(true);
+
+		new SchemaMapper().RunMapping(config);
+
+		System.out.println("Integration test: validating " + type);
+		boolean generated = new File(targetDir,"index.html").exists();
+		targetDir.delete();
+		Assert.assertEquals("index.html not found in Html output", true, generated);
 	}
 
 	static void cleanTestDatabase(String type) throws Exception {

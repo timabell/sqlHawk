@@ -13,8 +13,13 @@ public class MsSql05Jtds {
 	}
 
 	@Test
-	public void testMsSqlJtds() throws Exception {
-		IntegrationTester.testDatabase(TARGET_TYPE);
+	public void MsSql05Jtds_ScmToDatabase() throws Exception {
+		IntegrationTester.testScmToDatabase(TARGET_TYPE);
+	}
+
+	@Test
+	public void MsSql05Jtds_DatabaseToHtml() throws Exception {
+		IntegrationTester.testDatabaseToHtml(TARGET_TYPE);
 	}
 
 	@After
