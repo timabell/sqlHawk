@@ -122,7 +122,8 @@ public class DbWriter {
 				}
 			} else { //new object
 				logger.info("Adding new " + typeName + " " + name);
-				if (!config.getDbType().isAlterSupported()) {
+				if (config.getDbType().isAlterSupported()) {
+					// convert the ALTER that is the preferred storage back to CREATE
 					updatedDefinition = SqlManagement.ConvertAlterToCreate(updatedDefinition);
 				}
 				try {
