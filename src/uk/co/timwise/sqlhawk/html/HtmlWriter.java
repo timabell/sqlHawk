@@ -114,32 +114,36 @@ public class HtmlWriter {
 			impliedDotFile.delete();
 		}
 
-		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), config.getCharset());
-		HtmlRelationshipsPage.getInstance().write(db, diagramsDir, dotBaseFilespec, hasOrphans, hasRealRelationships, hasImplied, excludedColumns, out);
+		String charset = config.getCharset();
+		if (charset == null){
+			charset = "ISO-8859-1";
+		}
+		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), charset);
+		HtmlRelationshipsPage.getInstance().write(db, diagramsDir, dotBaseFilespec, hasOrphans, hasRealRelationships, hasImplied, excludedColumns, out, charset);
 		out.close();
 
 		dotBaseFilespec = "utilities";
-		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), config.getCharset());
-		HtmlOrphansPage.getInstance().write(db, orphans, diagramsDir, out);
+		out = new LineWriter(new File(outputDir, dotBaseFilespec + ".html"), charset);
+		HtmlOrphansPage.getInstance().write(db, orphans, diagramsDir, out, charset);
 		out.close();
 
-		out = new LineWriter(new File(outputDir, "index.html"), 64 * 1024, config.getCharset());
-		HtmlMainIndexPage.getInstance().write(db, tablesAndViews, hasOrphans, out);
+		out = new LineWriter(new File(outputDir, "index.html"), 64 * 1024, charset);
+		HtmlMainIndexPage.getInstance().write(db, tablesAndViews, hasOrphans, out, charset);
 		out.close();
 
 		List<ForeignKeyConstraint> constraints = getForeignKeyConstraints(tablesAndViews);
-		out = new LineWriter(new File(outputDir, "constraints.html"), 256 * 1024, config.getCharset());
+		out = new LineWriter(new File(outputDir, "constraints.html"), 256 * 1024, charset);
 		HtmlConstraintsPage constraintIndexFormatter = HtmlConstraintsPage.getInstance();
-		constraintIndexFormatter.write(db, constraints, tablesAndViews, hasOrphans, out);
+		constraintIndexFormatter.write(db, constraints, tablesAndViews, hasOrphans, out, charset);
 		out.close();
 
-		out = new LineWriter(new File(outputDir, "anomalies.html"), 16 * 1024, config.getCharset());
-		HtmlAnomaliesPage.getInstance().write(db, tablesAndViews, impliedConstraints, hasOrphans, out);
+		out = new LineWriter(new File(outputDir, "anomalies.html"), 16 * 1024, charset);
+		HtmlAnomaliesPage.getInstance().write(db, tablesAndViews, impliedConstraints, hasOrphans, out, charset);
 		out.close();
 
 		for (HtmlColumnsPage.ColumnInfo columnInfo : HtmlColumnsPage.getInstance().getColumnInfos()) {
-			out = new LineWriter(new File(outputDir, columnInfo.getLocation()), 16 * 1024, config.getCharset());
-			HtmlColumnsPage.getInstance().write(db, tablesAndViews, columnInfo, hasOrphans, out);
+			out = new LineWriter(new File(outputDir, columnInfo.getLocation()), 16 * 1024, charset);
+			HtmlColumnsPage.getInstance().write(db, tablesAndViews, columnInfo, hasOrphans, out, charset);
 			out.close();
 		}
 
@@ -152,12 +156,12 @@ public class HtmlWriter {
 		for (Table table : tablesAndViews) {
 			logger.fine("Writing details of " + table.getName());
 
-			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, config.getCharset());
-			tableFormatter.write(db, table, hasOrphans, hasImplied, outputDir, excludedColumns, impliedConstraints, out);
+			out = new LineWriter(new File(outputDir, "tables/" + table.getName() + ".html"), 24 * 1024, charset);
+			tableFormatter.write(db, table, hasOrphans, hasImplied, outputDir, excludedColumns, impliedConstraints, out, charset);
 			out.close();
 		}
 
-		out = new LineWriter(new File(outputDir, "sqlHawk.css"), config.getCharset());
+		out = new LineWriter(new File(outputDir, "sqlHawk.css"), charset);
 		StyleSheet.getInstance().write(out);
 		out.close();
 	}

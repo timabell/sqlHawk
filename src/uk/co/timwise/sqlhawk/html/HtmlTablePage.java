@@ -68,11 +68,11 @@ public class HtmlTablePage extends HtmlFormatter {
 		return instance;
 	}
 
-	public void write(Database db, Table table, boolean hasOrphans, boolean hasImplied, File outputDir, Set<TableColumn> excludedColumns, List<ImpliedForeignKeyConstraint> impliedConstraints, LineWriter out) throws IOException {
+	public void write(Database db, Table table, boolean hasOrphans, boolean hasImplied, File outputDir, Set<TableColumn> excludedColumns, List<ImpliedForeignKeyConstraint> impliedConstraints, LineWriter out, String charset) throws IOException {
 		File diagramsDir = new File(outputDir, "diagrams");
 		generateDots(table, diagramsDir, excludedColumns, impliedConstraints);
 
-		writeHeader(db, table, null, hasOrphans, out);
+		writeHeader(db, table, null, hasOrphans, out, charset);
 		out.writeln("<table width='100%' border='0'>");
 		out.writeln("<tr valign='top'><td class='container' align='left' valign='top'>");
 		writeHeader(table, hasImplied, out);

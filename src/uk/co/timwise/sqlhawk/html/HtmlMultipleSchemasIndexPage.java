@@ -46,8 +46,8 @@ public class HtmlMultipleSchemasIndexPage extends HtmlFormatter {
 		return instance;
 	}
 
-	public void write(String dbName, List<String> populatedSchemas, DatabaseMetaData meta, LineWriter index) throws IOException {
-		writeHeader(dbName, meta, populatedSchemas.size(), false, populatedSchemas.get(0).toString(), index);
+	public void write(String dbName, List<String> populatedSchemas, DatabaseMetaData meta, LineWriter index, String charset) throws IOException {
+		writeHeader(dbName, meta, populatedSchemas.size(), false, populatedSchemas.get(0).toString(), index, charset);
 
 		for (String schema : populatedSchemas) {
 			writeLineItem(schema, index);
@@ -56,7 +56,7 @@ public class HtmlMultipleSchemasIndexPage extends HtmlFormatter {
 		writeFooter(index);
 	}
 
-	private void writeHeader(String databaseName, DatabaseMetaData meta, int numberOfSchemas, boolean showIds, String aSchema, LineWriter html) throws IOException {
+	private void writeHeader(String databaseName, DatabaseMetaData meta, int numberOfSchemas, boolean showIds, String aSchema, LineWriter html, String charset) throws IOException {
 		html.writeln("<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN' 'http://www.w3.org/TR/html4/loose.dtd'>");
 		html.writeln("<html>");
 		html.writeln("<head>");
@@ -69,7 +69,7 @@ public class HtmlMultipleSchemasIndexPage extends HtmlFormatter {
 		html.write("  <link rel=stylesheet href='");
 		html.write(aSchema);
 		html.writeln("/sqlHawk.css' type='text/css'>");
-		html.writeln("  <meta HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=" + Config.getInstance().getCharset() + "'>");
+		html.writeln("  <meta HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=" + charset + "'>");
 		html.writeln("</head>");
 		html.writeln("<body>");
 		writeTableOfContents(html);

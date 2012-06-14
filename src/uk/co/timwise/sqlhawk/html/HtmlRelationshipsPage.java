@@ -43,7 +43,7 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 		return instance;
 	}
 
-	public void write(Database db, File diagramDir, String dotBaseFilespec, boolean hasOrphans, boolean hasRealRelationships, boolean hasImpliedRelationships, Set<TableColumn> excludedColumns, LineWriter html) {
+	public void write(Database db, File diagramDir, String dotBaseFilespec, boolean hasOrphans, boolean hasRealRelationships, boolean hasImpliedRelationships, Set<TableColumn> excludedColumns, LineWriter html, String charset) {
 		File compactRelationshipsDotFile = new File(diagramDir, dotBaseFilespec + ".real.compact.dot");
 		File compactRelationshipsDiagramFile = new File(diagramDir, dotBaseFilespec + ".real.compact.png");
 		File largeRelationshipsDotFile = new File(diagramDir, dotBaseFilespec + ".real.large.dot");
@@ -56,7 +56,7 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 		try {
 			Dot dot = getDot();
 			if (dot == null) {
-				writeHeader(db, null, "All Relationships", hasOrphans, html);
+				writeHeader(db, null, "All Relationships", hasOrphans, html, charset);
 				html.writeln("<div class='content'>");
 				writeInvalidGraphvizInstallation(html);
 				html.writeln("</div>");
@@ -64,7 +64,7 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 				return;
 			}
 
-			writeHeader(db, "All Relationships", hasOrphans, hasRealRelationships, hasImpliedRelationships, html);
+			writeHeader(db, "All Relationships", hasOrphans, hasRealRelationships, hasImpliedRelationships, html, charset);
 			html.writeln("<table width=\"100%\"><tr><td class=\"container\">");
 
 			if (hasRealRelationships) {
@@ -107,8 +107,8 @@ public class HtmlRelationshipsPage extends HtmlDiagramFormatter {
 		}
 	}
 
-	private void writeHeader(Database db, String title, boolean hasOrphans, boolean hasRealRelationships, boolean hasImpliedRelationships, LineWriter html) throws IOException {
-		writeHeader(db, null, title, hasOrphans, html);
+	private void writeHeader(Database db, String title, boolean hasOrphans, boolean hasRealRelationships, boolean hasImpliedRelationships, LineWriter html, String charset) throws IOException {
+		writeHeader(db, null, title, hasOrphans, html, charset);
 		html.writeln("<table class='container' width='100%'>");
 		html.writeln("<tr><td class='container'>");
 		writeGeneratedBy(db.getGeneratedDate(), html);

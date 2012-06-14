@@ -35,7 +35,7 @@ public class HtmlFormatter {
 	protected HtmlFormatter() {
 	}
 
-	protected void writeHeader(Database db, Table table, String text, boolean showOrphans, List<String> javascript, LineWriter out) throws IOException {
+	protected void writeHeader(Database db, Table table, String text, boolean showOrphans, List<String> javascript, LineWriter out, String charset) throws IOException {
 		out.writeln("<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01 Transitional//EN' 'http://www.w3.org/TR/html4/loose.dtd'>");
 		out.writeln("<html>");
 		out.writeln("<head>");
@@ -47,7 +47,7 @@ public class HtmlFormatter {
 		if (table != null)
 			out.write("../");
 		out.writeln("sqlHawk.css' type='text/css'>");
-		out.writeln("  <meta HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=" + Config.getInstance().getCharset() + "'>");
+		out.writeln("  <meta HTTP-EQUIV='Content-Type' CONTENT='text/html; charset=" + charset + "'>");
 		out.writeln("  <SCRIPT LANGUAGE='JavaScript' TYPE='text/javascript' SRC='" + (table == null ? "" : "../") + "jquery.js'></SCRIPT>");
 		out.writeln("  <SCRIPT LANGUAGE='JavaScript' TYPE='text/javascript' SRC='" + (table == null ? "" : "../") + "sqlHawk.js'></SCRIPT>");
 		if (table != null) {
@@ -94,9 +94,10 @@ public class HtmlFormatter {
 
 	/**
 	 * Convenience method for all those formatters that don't deal with JavaScript
+	 * @param charset 
 	 */
-	protected void writeHeader(Database db, Table table, String text, boolean showOrphans, LineWriter out) throws IOException {
-		writeHeader(db, table, text, showOrphans, null, out);
+	protected void writeHeader(Database db, Table table, String text, boolean showOrphans, LineWriter out, String charset) throws IOException {
+		writeHeader(db, table, text, showOrphans, null, out, charset);
 	}
 
 	protected void writeGeneratedBy(Date generatedDate, LineWriter html) throws IOException {

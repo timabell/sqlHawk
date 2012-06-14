@@ -56,7 +56,7 @@ public class Config
 	private Properties userConnectionProperties = new Properties();
 	private Integer maxDbThreads;
 	private String css;
-	private String charset = "ISO-8859-1";
+	private String charset;
 	private String font;
 	private Integer fontSize = 11;
 	private String description;

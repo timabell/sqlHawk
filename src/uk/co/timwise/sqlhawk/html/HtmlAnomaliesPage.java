@@ -50,8 +50,8 @@ public class HtmlAnomaliesPage extends HtmlFormatter {
 		return instance;
 	}
 
-	public void write(Database database, Collection<Table> tables, List<? extends ForeignKeyConstraint> impliedConstraints, boolean hasOrphans, LineWriter out) throws IOException {
-		writeHeader(database, hasOrphans, out);
+	public void write(Database database, Collection<Table> tables, List<? extends ForeignKeyConstraint> impliedConstraints, boolean hasOrphans, LineWriter out, String charset) throws IOException {
+		writeHeader(database, hasOrphans, out, charset);
 		writeImpliedConstraints(impliedConstraints, out);
 		writeTablesWithoutIndexes(SanityChecker.getTablesWithoutIndexes(new HashSet<Table>(tables)), out);
 		writeUniqueNullables(SanityChecker.getMustBeUniqueNullableColumns(new HashSet<Table>(tables)), out);
@@ -61,8 +61,8 @@ public class HtmlAnomaliesPage extends HtmlFormatter {
 		writeFooter(out);
 	}
 
-	private void writeHeader(Database database, boolean hasOrphans, LineWriter html) throws IOException {
-		writeHeader(database, null, "Anomalies", hasOrphans, html);
+	private void writeHeader(Database database, boolean hasOrphans, LineWriter html, String charset) throws IOException {
+		writeHeader(database, null, "Anomalies", hasOrphans, html, charset);
 		html.writeln("<table width='100%'>");
 		html.writeln("  <tr><td class='container'><b>Things that might not be 'quite right' about your schema:</b></td></tr>");
 		html.writeln("</table>");

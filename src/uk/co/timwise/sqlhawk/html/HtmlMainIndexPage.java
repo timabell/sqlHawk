@@ -50,7 +50,7 @@ public class HtmlMainIndexPage extends HtmlFormatter {
 		return instance;
 	}
 
-	public void write(Database database, Collection<Table> tables, boolean showOrphansDiagram, LineWriter html) throws IOException {
+	public void write(Database database, Collection<Table> tables, boolean showOrphansDiagram, LineWriter html, String charset) throws IOException {
 		Set<Table> byName = new TreeSet<Table>(new Comparator<Table>() {
 			public int compare(Table table1, Table table2) {
 				return table1.compareTo(table2);
@@ -70,7 +70,7 @@ public class HtmlMainIndexPage extends HtmlFormatter {
 				comments = true;
 		}
 
-		writeHeader(database, byName.size() - numViews, numViews, showIds, showOrphansDiagram, comments, html);
+		writeHeader(database, byName.size() - numViews, numViews, showIds, showOrphansDiagram, comments, html, charset);
 
 		int numTableCols = 0;
 		int numViewCols = 0;
@@ -88,7 +88,7 @@ public class HtmlMainIndexPage extends HtmlFormatter {
 		writeFooter(byName.size() - numViews, numTableCols, numViews, numViewCols, numRows, html);
 	}
 
-	private void writeHeader(Database db, int numberOfTables, int numberOfViews, boolean showIds, boolean hasOrphans, boolean hasComments, LineWriter html) throws IOException {
+	private void writeHeader(Database db, int numberOfTables, int numberOfViews, boolean showIds, boolean hasOrphans, boolean hasComments, LineWriter html, String charset) throws IOException {
 		List<String> javascript = new ArrayList<String>();
 
 		// we can't use the hard-coded even odd technique that we use
@@ -113,7 +113,7 @@ public class HtmlMainIndexPage extends HtmlFormatter {
 		javascript.add("  $('table.dataTable').alternateRowColors();");
 		javascript.add("})");
 
-		writeHeader(db, null, null, hasOrphans, javascript, html);
+		writeHeader(db, null, null, hasOrphans, javascript, html, charset);
 		html.writeln("<table width='100%'>");
 		html.writeln(" <tr><td class='container'>");
 		writeGeneratedBy(db.getGeneratedDate(), html);

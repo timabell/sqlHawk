@@ -49,7 +49,7 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 		return instance;
 	}
 
-	public void write(Database db, List<Table> orphanTables, File diagramDir, LineWriter html) throws IOException {
+	public void write(Database db, List<Table> orphanTables, File diagramDir, LineWriter html, String charset) throws IOException {
 		Dot dot = getDot();
 		if (dot == null) {
 			return; // getDot() will already have warned user so just pass
@@ -63,7 +63,7 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 			}
 		}
 
-		writeHeader(db, "Utility Tables", !orphansWithImpliedRelationships.isEmpty(), html);
+		writeHeader(db, "Utility Tables", !orphansWithImpliedRelationships.isEmpty(), html, charset);
 
 		html.writeln("<a name='diagram'>");
 		try {
@@ -98,8 +98,8 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 		}
 	}
 
-	private void writeHeader(Database db, String title, boolean hasImpliedRelationships, LineWriter html) throws IOException {
-		writeHeader(db, null, title, true, html);
+	private void writeHeader(Database db, String title, boolean hasImpliedRelationships, LineWriter html, String charset) throws IOException {
+		writeHeader(db, null, title, true, html, charset);
 		html.writeln("<table class='container' width='100%'>");
 		html.writeln("<tr><td class='container'>");
 		writeGeneratedBy(db.getGeneratedDate(), html);

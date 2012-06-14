@@ -133,7 +133,7 @@ public final class MultipleSchemaAnalyzer {
 	private void writeIndexPage(String dbName, List<String> populatedSchemas, DatabaseMetaData meta, File outputDir, String charset) throws IOException {
 		if (populatedSchemas.size() > 0) {
 			LineWriter index = new LineWriter(new File(outputDir, "index.html"), charset);
-			HtmlMultipleSchemasIndexPage.getInstance().write(dbName, populatedSchemas, meta, index);
+			HtmlMultipleSchemasIndexPage.getInstance().write(dbName, populatedSchemas, meta, index, charset);
 			index.close();
 		}
 	}
