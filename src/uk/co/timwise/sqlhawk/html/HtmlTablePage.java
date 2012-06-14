@@ -477,11 +477,11 @@ public class HtmlTablePage extends HtmlFormatter {
 
 		if (table.getMaxChildren() + table.getMaxParents() > 0) {
 			DotFormatter formatter = DotFormatter.getInstance();
-			LineWriter dotOut = new LineWriter(oneDegreeDotFile, Config.DOT_CHARSET);
+			LineWriter dotOut = new LineWriter(oneDegreeDotFile, "UTF-8");
 			formatter.writeRealRelationships(table, false, excludedColumns, dotOut);
 			dotOut.close();
 
-			dotOut = new LineWriter(twoDegreesDotFile, Config.DOT_CHARSET);
+			dotOut = new LineWriter(twoDegreesDotFile, "UTF-8");
 			formatter.writeRealRelationships(table, true, excludedColumns, dotOut);
 			dotOut.close();
 
@@ -493,7 +493,7 @@ public class HtmlTablePage extends HtmlFormatter {
 			}
 
 			if (!impliedConstraints.isEmpty()) {
-				dotOut = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
+				dotOut = new LineWriter(impliedDotFile, "UTF-8");
 				formatter.writeAllRelationships(table, true, excludedColumns, dotOut);
 				dotOut.close();
 			}

@@ -229,11 +229,11 @@ public class SchemaMapper {
 		// also populates the recursiveConstraints collection
 		List<Table> orderedTables = orderer.getTablesOrderedByRI(db.getTables(), recursiveConstraints);
 
-		out = new LineWriter(new File(outputDir, "insertionOrder.txt"), 16 * 1024, Config.DOT_CHARSET);
+		out = new LineWriter(new File(outputDir, "insertionOrder.txt"), 16 * 1024, "UTF-8");
 		TextFormatter.getInstance().write(orderedTables, false, out);
 		out.close();
 
-		out = new LineWriter(new File(outputDir, "deletionOrder.txt"), 16 * 1024, Config.DOT_CHARSET);
+		out = new LineWriter(new File(outputDir, "deletionOrder.txt"), 16 * 1024, "UTF-8");
 		Collections.reverse(orderedTables);
 		TextFormatter.getInstance().write(orderedTables, false, out);
 		out.close();

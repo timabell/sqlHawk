@@ -78,13 +78,13 @@ public class HtmlWriter {
 
 		// generate the compact form of the relationships .dot file
 		String dotBaseFilespec = "relationships";
-		out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.compact.dot"), Config.DOT_CHARSET);
+		out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.compact.dot"), "UTF-8");
 		DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		out.close();
 
 		if (hasRealRelationships) {
 			// real relationships exist so generate the 'big' form of the relationships .dot file
-			out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.large.dot"), Config.DOT_CHARSET);
+			out = new LineWriter(new File(diagramsDir, dotBaseFilespec + ".real.large.dot"), "UTF-8");
 			DotFormatter.getInstance().writeRealRelationships(db, tablesAndViews, false, showDetailedTables, excludedColumns, out);
 			out.close();
 		}
@@ -101,13 +101,13 @@ public class HtmlWriter {
 		boolean hasOrphans = !orphans.isEmpty() && Dot.getInstance().isValid();
 
 		File impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.compact.dot");
-		out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
+		out = new LineWriter(impliedDotFile, "UTF-8");
 		DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, true, showDetailedTables, excludedColumns, out);
 		out.close();
 
 		if (hasImplied) {
 			impliedDotFile = new File(diagramsDir, dotBaseFilespec + ".implied.large.dot");
-			out = new LineWriter(impliedDotFile, Config.DOT_CHARSET);
+			out = new LineWriter(impliedDotFile, "UTF-8");
 			DotFormatter.getInstance().writeAllRelationships(db, tablesAndViews, false, showDetailedTables, excludedColumns, out);
 			out.close();
 		} else {

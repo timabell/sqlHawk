@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Function;
 import uk.co.timwise.sqlhawk.model.Procedure;
@@ -41,7 +40,7 @@ public class ScmDbWriter {
 		File procFolder = new File(outputDir, "Procedures");
 		ensureFolder(procFolder);
 		for (Procedure proc : procs) {
-			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), Config.DOT_CHARSET);
+			LineWriter out = new LineWriter(new File(procFolder, proc.getName() + ".sql"), "UTF-8");
 			out.writeln(proc.getDefinition()); //writeln() in preference to write() in order to make patches for sql files cleaner (\n on every line so new lines at end don't affect original last line)
 			out.close();		
 		}
@@ -51,7 +50,7 @@ public class ScmDbWriter {
 		File functionFolder = new File(outputDir, "Functions");
 		ensureFolder(functionFolder);
 		for (Function function : functions) {
-			LineWriter out = new LineWriter(new File(functionFolder, function.getName() + ".sql"), Config.DOT_CHARSET);
+			LineWriter out = new LineWriter(new File(functionFolder, function.getName() + ".sql"), "UTF-8");
 			out.writeln(function.getDefinition()); //writeln() in preference to write() in order to make patches for sql files cleaner (\n on every line so new lines at end don't affect original last line)
 			out.close();		
 		}
@@ -66,7 +65,7 @@ public class ScmDbWriter {
 				logger.warning("No definition found for view " + view.getName());
 				continue; //don't write empty file.
 			}
-			LineWriter out = new LineWriter(new File(viewFolder, view.getName() + ".sql"), Config.DOT_CHARSET);
+			LineWriter out = new LineWriter(new File(viewFolder, view.getName() + ".sql"), "UTF-8");
 			out.writeln(viewSql); //writeln() in preference to write() in order to make patches for sql files cleaner (\n on every line so new lines at end don't affect original last line)
 			out.close();		
 		}

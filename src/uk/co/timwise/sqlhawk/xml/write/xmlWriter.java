@@ -30,7 +30,6 @@ import javax.xml.transform.TransformerException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.util.LineWriter;
@@ -61,7 +60,7 @@ public class xmlWriter {
 		if (db.getSchema() != null)
 			xmlName += '.' + db.getSchema();
 
-		out = new LineWriter(new File(outputDir, xmlName + ".xml"), Config.DOT_CHARSET);
+		out = new LineWriter(new File(outputDir, xmlName + ".xml"), "UTF-8");
 		document.getDocumentElement().normalize();
 		DOMUtil.printDOM(document, out);
 		out.close();

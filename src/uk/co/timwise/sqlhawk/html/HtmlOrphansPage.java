@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import uk.co.timwise.sqlhawk.config.Config;
 import uk.co.timwise.sqlhawk.model.Database;
 import uk.co.timwise.sqlhawk.model.Table;
 import uk.co.timwise.sqlhawk.util.LineWriter;
@@ -75,7 +74,7 @@ public class HtmlOrphansPage extends HtmlDiagramFormatter {
 				File dotFile = new File(diagramDir, dotBaseFilespec + ".1degree.dot");
 				File imgFile = new File(diagramDir, dotBaseFilespec + ".1degree.png");
 
-				LineWriter dotOut = new LineWriter(dotFile, Config.DOT_CHARSET);
+				LineWriter dotOut = new LineWriter(dotFile, "UTF-8");
 				DotFormatter.getInstance().writeOrphan(table, dotOut);
 				dotOut.close();
 				try {

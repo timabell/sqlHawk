@@ -64,9 +64,6 @@ public class Config
 	private boolean highQuality;
 	private String schemaSpec;  // used in conjunction with evaluateAll
 
-	@Deprecated
-	public static final String DOT_CHARSET = "UTF-8"; //TODO: remove from config
-
 	private DbType dbType;
 	private boolean htmlGenerationEnabled;
 	private boolean sourceControlOutputEnabled;
