@@ -76,8 +76,8 @@ public class Config
 	private boolean railsEnabled;
 	private boolean encodeCommentsEnabled;
 	private boolean numRowsEnabled;
-	private boolean viewsEnabled;
-	private boolean tableProcessingEnabled;
+	private boolean viewsEnabled = true;
+	private boolean tableProcessingEnabled = true;
 	private boolean evaluateAllEnabled;
 	private String databaseInstance;
 	private boolean showDetailedTablesEnabled;
