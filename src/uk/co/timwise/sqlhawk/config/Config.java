@@ -55,7 +55,7 @@ public class Config
 	private String userConnectionPropertiesFile;
 	private Properties userConnectionProperties = new Properties();
 	private Integer maxDbThreads;
-	private String css = "sqlHawk.css";
+	private String css;
 	private String charset = "ISO-8859-1";
 	private String font;
 	private Integer fontSize = 11;

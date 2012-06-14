@@ -115,7 +115,11 @@ public class StyleSheet {
 	public static StyleSheet getInstance() throws ParseException {
 		if (instance == null) {
 			try {
-				instance = new StyleSheet(new BufferedReader(getReader(Config.getInstance().getCss())));
+				String cssFile = Config.getInstance().getCss();
+				if (cssFile == null){
+					cssFile = "sqlHawk.css";
+				}
+				instance = new StyleSheet(new BufferedReader(getReader(cssFile)));
 			} catch (IOException exc) {
 				throw new ParseException(exc);
 			}
