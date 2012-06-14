@@ -63,7 +63,10 @@ public class Config
 	private Level logLevel = Level.INFO;
 	private boolean highQuality;
 	private String schemaSpec;  // used in conjunction with evaluateAll
-	public static final String DOT_CHARSET = "UTF-8";
+
+	@Deprecated
+	public static final String DOT_CHARSET = "UTF-8"; //TODO: remove from config
+
 	private DbType dbType;
 	private boolean htmlGenerationEnabled;
 	private boolean sourceControlOutputEnabled;
