@@ -282,7 +282,7 @@ public class DbReader {
 	}
 
 	private int getMaxDbThreads(Properties properties, Config config) {
-		int max = Integer.MAX_VALUE;
+		int max = 1;
 		String threads = properties.getProperty("dbThreads");
 		if (threads == null)
 			threads = properties.getProperty("dbthreads");
