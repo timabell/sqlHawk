@@ -214,6 +214,7 @@ public class SchemaMapper {
 				throw new IOException("Failed to create directory '" + outputDir + "'");
 			}
 		}
+		logger.fine("Target directory: '" + outputDir + "'");
 		return outputDir;
 	}
 
