@@ -4,7 +4,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class MySql {
+public class MySql extends BaseIntegrationTest {
 	private static final String TARGET_TYPE = "mysql";
 
 	@Before
@@ -15,6 +15,11 @@ public class MySql {
 	@Test
 	public void MySql_ScmToDatabase() throws Exception {
 		IntegrationTester.testScmToDatabase(TARGET_TYPE);
+	}
+
+	@Test
+	public void MySql_DatabaseToHtml() throws Exception {
+		IntegrationTester.testDatabaseToHtml(TARGET_TYPE, tempOutput);
 	}
 
 	@After

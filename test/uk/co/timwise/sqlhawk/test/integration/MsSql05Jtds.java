@@ -2,15 +2,10 @@ package uk.co.timwise.sqlhawk.test.integration;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
-public class MsSql05Jtds {
+public class MsSql05Jtds extends BaseIntegrationTest {
 	private static final String TARGET_TYPE = "mssql05-jtds"; // MicroSoft Sql server
-
-	@Rule
-	public TemporaryFolder tempOutput = new TemporaryFolder();
 
 	@Before
 	public void resetTestDatabase() throws Exception {
