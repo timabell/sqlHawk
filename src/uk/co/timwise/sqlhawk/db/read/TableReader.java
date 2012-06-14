@@ -63,8 +63,7 @@ public class TableReader {
 		this.db = db;
 		this.properties = properties;
 		this.meta = meta;
-		logger.fine("Creating " + getClass().getSimpleName().toLowerCase() + " " +
-				schema == null ? name : (schema + '.' + name));
+		logger.fine("Processing table " + ((schema == null) ? name : (schema + '.' + name)));
 		setComments(comments);
 		initColumns(excludeIndirectColumns, excludeColumns);
 		initIndexes(dbReader);
