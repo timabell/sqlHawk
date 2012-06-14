@@ -58,7 +58,7 @@ public class Config
 	private String css;
 	private String charset;
 	private String font;
-	private Integer fontSize = 11;
+	private Integer fontSize;
 	private String description;
 	private Level logLevel = Level.INFO;
 	private boolean highQuality;

@@ -45,7 +45,12 @@ public class DotFormatter {
 	 * Singleton - prevent creation
 	 */
 	private DotFormatter() {
-		fontSize = Config.getInstance().getFontSize().intValue();
+		Integer configuredFontSize = Config.getInstance().getFontSize();
+		if (configuredFontSize == null) {
+			fontSize = 11;
+		} else {
+			fontSize = configuredFontSize.intValue();
+		}
 	}
 
 	public static DotFormatter getInstance() {
