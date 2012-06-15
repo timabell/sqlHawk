@@ -97,16 +97,16 @@ public class IntegrationTester {
 	private static Config getSetupConfig(String type) throws IOException, FileNotFoundException {
 		Config setupDbConfig = new Config();
 		PropertyResourceBundle bundle = new PropertyResourceBundle(
-				new FileInputStream(new File("test/test-data/" + type + "/setup.properties")));
+				new FileInputStream(new File("test/test-data/" + type + "/test.properties")));
 		Properties properties = PropertyHandler.bundleAsProperties(bundle);
 
 		// TODO: convert to some kind of automatic mapping
 		setupDbConfig.setLogLevel(Level.FINEST);
 		setupDbConfig.setDbTypeName(type);
 		setupDbConfig.setHost(properties.getProperty("host"));
-		setupDbConfig.setDatabase(properties.getProperty("database"));
-		setupDbConfig.setUser(properties.getProperty("user"));
-		setupDbConfig.setPassword(properties.getProperty("password"));
+		setupDbConfig.setDatabase(properties.getProperty("setup-database"));
+		setupDbConfig.setUser(properties.getProperty("setup-user"));
+		setupDbConfig.setPassword(properties.getProperty("setup-password"));
 		return setupDbConfig;
 	}
 
@@ -119,9 +119,9 @@ public class IntegrationTester {
 				new FileInputStream(new File("test/test-data/" + type + "/test.properties")));
 		Properties properties = PropertyHandler.bundleAsProperties(bundle);
 		config.setHost(properties.getProperty("host"));
-		config.setDatabase(properties.getProperty("database"));
-		config.setUser(properties.getProperty("user"));
-		config.setPassword(properties.getProperty("password"));
+		config.setDatabase(properties.getProperty("test-database"));
+		config.setUser(properties.getProperty("test-user"));
+		config.setPassword(properties.getProperty("test-password"));
 		return config;
 	}
 
