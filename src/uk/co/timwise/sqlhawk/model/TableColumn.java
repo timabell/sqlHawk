@@ -385,6 +385,9 @@ public class TableColumn {
 	 * @return
 	 */
 	public boolean matches(Pattern regex) {
+		if (regex == null) {
+			throw new IllegalArgumentException("Can't match tableColumn on null regex");
+		}
 		return regex.matcher(getTable().getName() + '.' + getName()).matches();
 	}
 

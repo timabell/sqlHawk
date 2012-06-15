@@ -64,8 +64,9 @@ public class TableColumnReader {
 		tableColumn.setNullable(rs.getInt("NULLABLE") == DatabaseMetaData.columnNullable);
 		tableColumn.setDefaultValue(rs.getString("COLUMN_DEF"));
 		tableColumn.setId(new Integer(rs.getInt("ORDINAL_POSITION") - 1));
-		tableColumn.setAllExcluded(tableColumn.matches(excludeColumns));
-		tableColumn.setExcluded(tableColumn.isAllExcluded() || tableColumn.matches(excludeIndirectColumns));
+		tableColumn.setAllExcluded(excludeColumns != null && tableColumn.matches(excludeColumns));
+		tableColumn.setExcluded(tableColumn.isAllExcluded() ||
+				(excludeIndirectColumns != null && tableColumn.matches(excludeIndirectColumns)));
 		if (tableColumn.isExcluded() && logger.isLoggable(Level.FINER)) {
 			logger.finer("Excluding column " + tableColumn.getTable() + '.' + tableColumn.getName() +
 					": matches " + excludeColumns + ":" + tableColumn.isAllExcluded() + " " +
